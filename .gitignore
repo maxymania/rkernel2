@@ -31,3 +31,9 @@
 # Debug files
 *.dSYM/
 *.su
+
+
+# Build Directories and Generated Makefiles
+
+KBuild*/*
+Makefile
