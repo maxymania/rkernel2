@@ -44,35 +44,18 @@
 #error DEF_SYSCALL not defined
 #endif
 
-DEF_SYSCALL(  0 ,int  ,nosys )
-DEF_SYSCALL(  1 ,int  ,exit  , SCA(0,int, rval) )
-DEF_SYSCALL(  2 ,int  ,fork  )
-DEF_SYSCALL(  3 ,int  ,read  , SCA(0,int, fd), SCA(1,void*), SCA(2,size_t) )
-DEF_SYSCALL(  4 ,int  ,write , SCA(0,int, fd), SCA(1,const void*), SCA(2,size_t) )
-DEF_SYSCALL(  5 ,int  ,open  , SCA(0,const char*), SCA(1,int), SCA(2,int) )
-DEF_SYSCALL(  6 ,int  ,close , SCA(0,int) )
-DEF_SYSCALL(  7 ,int  ,wait4 , SCA(0,int, pid), SCA(1,int*, status), SCA(2,int, options), SCA(3,struct rusage*) )
+DEF_SYSCALL(  0 ,int  ,nosys  )
+DEF_SYSCALL(  1 ,int  ,exit   , SCA(0,int, rval) )
+DEF_SYSCALL(  2 ,int  ,fork   )
+DEF_SYSCALL(  3 ,int  ,read   , SCA(0,int, fd), SCA(1,void*), SCA(2,size_t) )
+DEF_SYSCALL(  4 ,int  ,write  , SCA(0,int, fd), SCA(1,const void*), SCA(2,size_t) )
+DEF_SYSCALL(  5 ,int  ,open   , SCA(0,const char*), SCA(1,int), SCA(2,int) )
+DEF_SYSCALL(  6 ,int  ,close  , SCA(0,int) )
+DEF_SYSCALL(  7 ,pid_t,waitpid, SCA(0,pid_t, pid), SCA(1,int*, status), SCA(2,int, options))
 
-/* 8 : creat(const char* path,int mode) */
+#undef DEF_SYSCALL
+#undef SCA
 
-DEF_SYSCALL(  9 ,int  ,link  , SCA(0,const char*,  path), SCA(1,const char*,  link) )
-DEF_SYSCALL( 10 ,int  ,unlink, SCA(0,const char*,  path) )
-/* 11 : obsolete execv() */
-DEF_SYSCALL( 12 ,int  ,chdir , SCA(0,const char*,  path) )
-DEF_SYSCALL( 13 ,int  ,fchdir, SCA(0,int,  fd) )
-DEF_SYSCALL( 14 ,int  ,mknod , SCA(0,const char*,  path), SCA(1,int, mode), SCA(2,int, dev) )
-DEF_SYSCALL( 15 ,int  ,chmod , SCA(0,const char*,  path), SCA(1,int, mode) )
-DEF_SYSCALL( 16 ,int  ,chown , SCA(0,const char*,  path), SCA(1,int, uid), SCA(2,int, gid) )
-DEF_SYSCALL( 17 ,int  ,obreak, SCA(0,char*,  nsize) )
-DEF_SYSCALL( 18 ,int  ,getfsstat, SCA(0,struct statfs*, buf), SCA(1,int, bufsize), SCA(2,int, flags) )
-/* 19 : lseek(int fd, long offset, int whence) */
-DEF_SYSCALL( 20 ,pid_t,getpid )
-DEF_SYSCALL( 21 ,int  ,mount , SCA(0,const char*,  source), SCA(1,const char*, dest), SCA(2,const char*, fstype),
-		SCA(3,const long, mountflags), SCA(4,const void*, data) )
-DEF_SYSCALL( 22 ,int  ,umount, SCA(0,const char*,path),SCA(1,int, umountflags) )
-DEF_SYSCALL( 23 ,int  ,setuid, SCA(0,uid_t) )
-DEF_SYSCALL( 24 ,uid_t,getuid )
-/* BEGIN preliminary system calls */
-DEF_SYSCALL( 1001 ,int  ,setgid, SCA(0,gid_t) )
-DEF_SYSCALL( 1002 ,gid_t,getgid )
-/* END preliminary system calls */
+#ifdef SYSCALL_ARG
+#undef SYSCALL_ARG
+#endif

@@ -22,16 +22,8 @@
  */
 #pragma once
 
-/*
- * Included from other files that include <sysmaster/syscalls.inc>
- * 
- * This file defines (or includes) all type definitions, necessary to implement
- * the system call arguments.
- *
- */
+typedef signed int ptrdiff __attribute__((mode(__pointer__)));
 
-#include <machine/types.h>
-#include <machine/stdtypes.h>
-
-typedef u_int32_t pid_t,uid_t,gid_t;
+typedef signed long ssize_t;
+typedef unsigned long size_t;
 

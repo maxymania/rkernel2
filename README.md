@@ -8,7 +8,7 @@ It may transform from a Meaty Skeleton to a bootable basic kernel in the future.
 
 You need:
 * ruby (1.9 or 2.0 or later should work)
-* A Cross compiler. See also: [GCC_Cross-Compiler](http://wiki.osdev.org/GCC_Cross-Compiler#Prebuilt_Toolchains)
+* A Cross compiler. See also: [GCC_Cross-Compiler](http://wiki.osdev.org/GCC_Cross-Compiler#Prebuilt_Toolchains), [Prebuilt toolchains](http://newos.org/toolchains/)
 
 ```
 ruby build-i686.rb

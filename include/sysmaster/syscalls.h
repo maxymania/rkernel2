@@ -22,16 +22,9 @@
  */
 #pragma once
 
-/*
- * Included from other files that include <sysmaster/syscalls.inc>
- * 
- * This file defines (or includes) all type definitions, necessary to implement
- * the system call arguments.
- *
- */
+#define DEF_SYSCALL(num, ret, name, ...) SYS_## name = num,
 
-#include <machine/types.h>
-#include <machine/stdtypes.h>
-
-typedef u_int32_t pid_t,uid_t,gid_t;
+enum{
+#include <sysmaster/syscalls.inc>
+};
 
