@@ -12,6 +12,10 @@ require './kernbuild.rb'
 require "./system/arch/i686/toolchain.rb"
 
 require "./system/arch/i686/build.rb"
+require "./system/platform/i686-pc/build.rb"
+
+Compiler.incls "./include"
+Compiler.incls "./system/include"
 
 Makefile.open('Makefile')
 Makefile.project("","KBuild-i686/")

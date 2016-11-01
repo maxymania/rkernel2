@@ -7,12 +7,5 @@
 # redistribute it freely.
 #
 
-Compiler.incls "./system/arch/i686/include"
-
-MKList.add "archdep", [
-	"system/arch/i686/boot.s",
-	"system/arch/i686/crti.s",
-	"system/arch/i686/crtn.s"
-]
-
+MKList.add "archdep", Makefile.glob("system/platform/i686-pc/*.c")
 
