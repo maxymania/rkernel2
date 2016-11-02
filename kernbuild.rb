@@ -24,11 +24,11 @@ module Language
 end
 
 module Compiler
-	FLAGS = [""]
+	FLAGS = ["",""]
 	STEPX = {
 		"c"   => ["%{cc} -c %%{src} -o %%{dest} %{cflags} %%{flags}"],
 		"c++" => ["%{cc} -c %%{src} -o %%{dest} %{cflags} %%{flags}"],
-		"s"   => ["%{cc}    %%{src} -o %%{dest} %{cflags}"]
+		"s"   => ["%{cc}    %%{src} -o %%{dest} %{cflags} %%{asflags}"]
 	}
 	STEP = {}
 	def Compiler.add(l,conf)
@@ -41,13 +41,14 @@ module Compiler
 	end
 	def Compiler.incls(ic)
 		FLAGS[0]="#{FLAGS[0]} -I#{Makefile::SRCPREFIX[0]}#{ic}"
+		FLAGS[1]="#{FLAGS[1]} -I #{Makefile::SRCPREFIX[0]}#{ic}"
 	end
 	def Compiler.cdef(df)
 		FLAGS[0]="#{FLAGS[0]} -D#{df}"
 	end
 	def Compiler.compile(name,dest)
 		ext = Language.reduce(name)
-		(Compiler::STEP[ext] or ["false"]).map{|a| a % {src: name,dest: dest,flags: FLAGS[0]} }
+		(Compiler::STEP[ext] or ["false"]).map{|a| a % {src: name,dest: dest,flags: FLAGS[0], asflags: FLAGS[1] } }
 	end
 end
 
