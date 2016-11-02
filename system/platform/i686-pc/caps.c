@@ -20,23 +20,8 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-#include <sysmaster/syscalls.h>
-#include <sysplatform/console.h>
 #include <sysplatform/caps.h>
-#include <sysarch/halt.h>
 
-void kern_prove_alive();
-
-void kernel_main(void) {
-	int caps = platform_get_cap_stage();
-	switch(caps){
-	case platform_ALIVE:
-	case platform_HIGHER_HALF:
-		console_init();
-		kern_prove_alive();
-		break;
-	}
-	/* Should not get here. */
-	arch_halt();
+int platform_get_cap_stage(){
+	return platform_ALIVE;
 }
-

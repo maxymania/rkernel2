@@ -20,23 +20,22 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-#include <sysmaster/syscalls.h>
-#include <sysplatform/console.h>
-#include <sysplatform/caps.h>
-#include <sysarch/halt.h>
+#pragma once
 
-void kern_prove_alive();
+enum {
+	/*
+	 * Indicates, that this port is alive (which means, it boots).
+	 */
+	platform_ALIVE = 0,
+	/*
+	 * Indicates, that this port is already a "Higher Half Kernel".
+	 */
+	platform_HIGHER_HALF = 1,
+};
 
-void kernel_main(void) {
-	int caps = platform_get_cap_stage();
-	switch(caps){
-	case platform_ALIVE:
-	case platform_HIGHER_HALF:
-		console_init();
-		kern_prove_alive();
-		break;
-	}
-	/* Should not get here. */
-	arch_halt();
-}
+/*
+ * returns one of these platform_* constants, defined before.
+ */
+int platform_get_cap_stage();
+
 
