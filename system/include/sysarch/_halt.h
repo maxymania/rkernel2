@@ -20,13 +20,8 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-#include <sysmaster/syscalls.h>
-#include <sysplatform/console.h>
+#pragma once
+/* This is a Template file for each CPU-architecture's <sysarch/halt.h> file. */
 
-void kern_prove_alive();
-
-void kernel_main(void) {
-	console_init();
-	kern_prove_alive();
-}
-
+/* Default HALT implementation. */
+inline static void arch_halt() { for(;;); }

@@ -20,13 +20,9 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-#include <sysmaster/syscalls.h>
-#include <sysplatform/console.h>
+#pragma once
 
-void kern_prove_alive();
+#include <machine/stdtypes.h>
 
-void kernel_main(void) {
-	console_init();
-	kern_prove_alive();
-}
-
+void console_init();
+void console_write_text(const char* data, size_t size);

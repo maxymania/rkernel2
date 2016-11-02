@@ -1,8 +1,8 @@
 /* http://wiki.osdev.org/Meaty_Skeleton#kernel.2Farch.2Fi386.2Ftty.c */
 #include <machine/types.h>
+#include <sysplatform/console.h>
 #include "vga.h"
 
-typedef unsigned long size_t;
 
 static const size_t VGA_WIDTH = 80;
 static const size_t VGA_HEIGHT = 25;
@@ -13,7 +13,7 @@ static size_t terminal_column;
 static u_int8_t terminal_color;
 static u_int16_t* terminal_buffer;
 
-void terminal_initialize(void) {
+void console_init() {
 	terminal_row = 0;
 	terminal_column = 0;
 	terminal_color = vga_entry_color(VGA_COLOR_LIGHT_GREY, VGA_COLOR_BLACK);
@@ -26,15 +26,18 @@ void terminal_initialize(void) {
 	}
 }
 
+static
 void terminal_setcolor(u_int8_t color) {
 	terminal_color = color;
 }
 
+static
 void terminal_putentryat(unsigned char c, u_int8_t color, size_t x, size_t y) {
 	const size_t index = y * VGA_WIDTH + x;
 	terminal_buffer[index] = vga_entry(c, color);
 }
 
+static
 void terminal_putchar(char c) {
 	unsigned char uc = c;
 	terminal_putentryat(uc, terminal_color, terminal_column, terminal_row);
@@ -45,7 +48,7 @@ void terminal_putchar(char c) {
 	}
 }
 
-void terminal_write(const char* data, size_t size) {
+void console_write_text(const char* data, size_t size) {
 	for (size_t i = 0; i < size; i++)
 		terminal_putchar(data[i]);
 }

@@ -22,7 +22,7 @@
  */
 #pragma once
 
-typedef signed int ptrdiff __attribute__((mode(__pointer__)));
+typedef signed int ptrdiff_t __attribute__((mode(__pointer__)));
 
 typedef signed long ssize_t;
 typedef unsigned long size_t;

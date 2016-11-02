@@ -20,13 +20,28 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
+
 #include <sysmaster/syscalls.h>
 #include <sysplatform/console.h>
+#include <sysarch/halt.h>
 
-void kern_prove_alive();
-
-void kernel_main(void) {
-	console_init();
-	kern_prove_alive();
+static int cous(const char* chr){
+	int i=0;
+	while(*chr)chr++,i++;
+	return i;
 }
 
+static void print(const char* chr){
+	console_write_text(chr,cous(chr));
+}
+
+
+/*
+ * When called, we should print something, to proove, that we live.
+ */
+void kern_prove_alive() {
+	print("Dear developer, We are alive!\n");
+	print("WE ARE ALIVE!\n");
+	print("WE ARE ALIVE!\n");
+	arch_halt();
+}

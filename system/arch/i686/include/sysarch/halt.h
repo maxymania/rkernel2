@@ -20,13 +20,10 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-#include <sysmaster/syscalls.h>
-#include <sysplatform/console.h>
+#pragma once
 
-void kern_prove_alive();
-
-void kernel_main(void) {
-	console_init();
-	kern_prove_alive();
+/* i686 HALT implementation. */
+inline static void arch_halt() {
+	for(;;) asm("hlt");
 }
 
