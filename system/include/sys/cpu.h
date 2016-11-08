@@ -20,47 +20,15 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
+#pragma once
+
 #include <machine/types.h>
-#include <sys/kernslice.h>
-#include <sys/cpu.h>
+struct kernslice;
 
-extern const u_int32_t  _i686_multiboot_memdata[5];
-extern const char _kernel_end[];
+struct cpu{
+	u_intptr_t        cpu_cpu_id;       /* The ID of this CPU. */
+	struct kernslice* cpu_kernel_slice; /* The kernel slice, this CPU belongs to. */
+	struct cpu*       cpu_ks_next;      /* Next CPU within this kernel slice. */
+};
 
-static struct kernslice slice;
-static struct cpu cpu;
-static struct physmem_range memrange[2];
-
-void kernel_main(void);
-
-struct cpu *kernel_get_current_cpu() {
-	void* cpuptr;
-	asm("movl %%gs, %0":"=r"(cpuptr));
-	return cpuptr;
-}
-
-void _i686_boot_main(void) {
-	void* cpuptr;
-	
-	u_int32_t endkernel = (u_int32_t)(const void*)_kernel_end;
-	endkernel-=0xC0000000;
-	u_int32_t flags = _i686_multiboot_memdata[0];
-	cpu.cpu_cpu_id = 0;
-	cpu.cpu_kernel_slice = &slice;
-	cpu.cpu_ks_next = 0;
-	slice.ks_kernslice_id  = 0;
-	slice.ks_memory_ranges = memrange;
-	if(flags&1){
-		memrange[0].pm_begin = 0;
-		memrange[0].pm_end = _i686_multiboot_memdata[1]<<10;
-		if(endkernel>0x100000) memrange[1].pm_begin = endkernel;
-		else memrange[1].pm_begin = 0x100000;
-		memrange[1].pm_end = (_i686_multiboot_memdata[2]<<10)+0x100000;
-		slice.ks_num_memory_ranges = 2;
-	}
-	cpuptr = &cpu;
-	asm("movl %0, %%gs":"=r"(cpuptr));
-	
-	kernel_main();
-}
-
+struct cpu* kernel_get_current_cpu();
