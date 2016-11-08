@@ -15,4 +15,5 @@ MKList.add "archdep", [
 	"system/arch/i686/crtn.s"
 ]
 
+MKList.add "archdep", Makefile.glob("system/arch/i686/*.c")
 

@@ -23,12 +23,22 @@ stack_top:
 # modules there. This lets the bootloader know it must avoid the addresses.
 .section .bss, "aw", @nobits
 	.align 4096
+.global _i686_kernel_page_table
+.global _i686_multiboot_memdata
+.global _i686_multiboot_mmap
 boot_pagedir:
 boot_page_directory:
 	.skip 4096
+_i686_kernel_page_table:
 boot_pagetab1:
 boot_page_table1:
 	.skip 4096
+
+_i686_multiboot_memdata:
+	.skip 4
+	.skip 8
+	.skip 8
+
 # Further page tables may be required if the kernel grows beyond 3 MiB.
 
 # The kernel entry point.
@@ -36,6 +46,61 @@ boot_page_table1:
 .global _start
 .type _start, @function
 _start:
+	# Multiboot Spec: 3.2 Machine state
+	#  %ebx contains the Multiboot-Bootloader INFO.
+	# Multiboot Spec: 3.3 Boot information format
+	#  4       | mem_lower         |    (present if flags[0] is set)
+	#  8       | mem_upper         |    (present if flags[0] is set)
+	#  ...
+	#  44      | mmap_length       |    (present if flags[6] is set)
+	#  48      | mmap_addr         |    (present if flags[6] is set)
+	#
+	# *(_i686_multiboot_memdata+0) = *(%ebx+0)
+	# *(_i686_multiboot_memdata+4) = *(%ebx+4)
+	# *(_i686_multiboot_memdata+8) = *(%ebx+8)
+	# *(_i686_multiboot_memdata+12) = *(%ebx+44)
+	# *(_i686_multiboot_memdata+16) = *(%ebx+48)
+	
+	# *(_i686_multiboot_memdata+0) = *(%ebx+0)
+	movl (%ebx), %edi
+	movl %edi, _i686_multiboot_memdata
+	
+	# *(_i686_multiboot_memdata+4) = *(%ebx+4)
+	#        *(%esi)               =  *(%edi)
+	movl $4, %edi
+	addl %ebx, %edi
+	movl (%edi), %edi
+	movl $(_i686_multiboot_memdata + 4 - 0xC0000000), %esi
+	movl %edi, (%esi)
+	
+	# *(_i686_multiboot_memdata+8) = *(%ebx+8)
+	#        *(%esi)               =  *(%edi)
+	movl $8, %edi
+	addl %ebx, %edi
+	movl (%edi), %edi
+	movl $(_i686_multiboot_memdata + 8 - 0xC0000000), %esi
+	movl %edi, (%esi)
+	
+	# *(_i686_multiboot_memdata+12) = *(%ebx+44)
+	#        *(%esi)                =  *(%edi)
+	movl $44, %edi
+	addl %ebx, %edi
+	movl (%edi), %edi
+	movl $(_i686_multiboot_memdata + 12 - 0xC0000000), %esi
+	movl %edi, (%esi)
+	
+	# *(_i686_multiboot_memdata+16) = *(%ebx+48)
+	#        *(%esi)                =  *(%edi)
+	movl $48, %edi
+	addl %ebx, %edi
+	movl (%edi), %edi
+	movl $(_i686_multiboot_memdata + 16 - 0xC0000000), %esi
+	movl %edi, (%esi)
+	
+	
+	# movl %ebx, %edi
+	# add $44,$edi
+	# movl (%edi),%edi
 	# Physical address of boot_pagetab1.
 	# TODO: I recall seeing some assembly that used a macro to do the
 	#       conversions to and from physical. Maybe this should be done in this
@@ -115,7 +180,8 @@ _start:
 	call _init
 
 	# Transfer control to the main kernel.
-	call kernel_main
+	#  call kernel_main
+	call _i686_boot_main
 
 	# Infinite loop if the system has nothing more to do.
 	cli
