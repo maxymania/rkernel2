@@ -26,9 +26,13 @@
 struct kernslice;
 
 struct cpu{
-	u_intptr_t        cpu_cpu_id;       /* The ID of this CPU. */
-	struct kernslice* cpu_kernel_slice; /* The kernel slice, this CPU belongs to. */
-	struct cpu*       cpu_ks_next;      /* Next CPU within this kernel slice. */
+	u_intptr_t        cpu_cpu_id;         /* The ID of this CPU. */
+	struct kernslice* cpu_kernel_slice;   /* The kernel slice, this CPU belongs to. */
+	struct cpu*       cpu_ks_next;        /* Next CPU within this kernel slice. */
+	
+	struct thread*    cpu_current_thread; /* The thread currently running on this CPU. */
+	u_intptr_t        cpu_stack;          /* Stack pointer of the Per-CPU stack. */
 };
 
 struct cpu* kernel_get_current_cpu();
+
