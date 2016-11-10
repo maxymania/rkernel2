@@ -510,7 +510,7 @@ static int iopipe_vioprintf(struct iopipe* iopipe,const char* fmt,va_list ap){
 int printf(const char* fmt,...){
 	va_list ap;
 	va_start(ap, fmt); 
-	int ret = iopipe_vioprintf(kern_instance,fmt,ap);
+	int ret = iopipe_vioprintf(kterm_instance,fmt,ap);
 	va_end(ap);
 	return ret;
 }

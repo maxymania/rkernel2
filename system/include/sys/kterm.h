@@ -24,7 +24,7 @@
 
 #include <sys/iopipe.h>
 
-extern struct iopipe* kern_instance;
+extern struct iopipe* kterm_instance;
 
 void kterm_init();
 

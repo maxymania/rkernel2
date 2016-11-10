@@ -35,7 +35,7 @@ static int cous(const char* chr){
 
 static void print(const char* chr){
 	//console_write_text(chr,cous(chr));
-	kern_instance->iop_ops->io_write(kern_instance,chr,cous(chr));
+	kterm_instance->iop_ops->io_write(kterm_instance,chr,cous(chr));
 }
 
 

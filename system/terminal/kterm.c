@@ -22,12 +22,12 @@
  */
 #include <sys/kterm.h>
 
-struct iopipe* kern_instance;
+struct iopipe* kterm_instance;
 
 void ccterm_init();
 struct iopipe* ccterm_get();
 
 void kterm_init(){
 	ccterm_init();
-	kern_instance = ccterm_get();
+	kterm_instance = ccterm_get();
 }
