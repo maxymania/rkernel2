@@ -86,7 +86,7 @@ static char* o2a(unsigned int i,char* buffer){
 	*buffer=0;
 	while(i){
 		*--buffer = '0' + (i&0x7);
-		i >>= 4;
+		i >>= 3;
 	}
 	return buffer;
 }
@@ -156,7 +156,7 @@ static char* lo2a(unsigned long int i,char* buffer){
 	*buffer=0;
 	while(i){
 		*--buffer = '0' + (i&0x7);
-		i >>= 4;
+		i >>= 3;
 	}
 	return buffer;
 }
@@ -214,7 +214,7 @@ static char* llo2a(unsigned long long int i,char* buffer){
 	*buffer=0;
 	while(i){
 		*--buffer = '0' + (i&0x7);
-		i >>= 4;
+		i >>= 3;
 	}
 	return buffer;
 }
@@ -272,7 +272,7 @@ static char* zo2a(size_t i,char* buffer){
 	*buffer=0;
 	while(i){
 		*--buffer = '0' + (i&0x7);
-		i >>= 4;
+		i >>= 3;
 	}
 	return buffer;
 }
@@ -330,7 +330,7 @@ static char* to2a(u_intptr_t i,char* buffer){
 	*buffer=0;
 	while(i){
 		*--buffer = '0' + (i&0x7);
-		i >>= 4;
+		i >>= 3;
 	}
 	return buffer;
 }
