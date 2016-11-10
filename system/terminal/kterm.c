@@ -20,14 +20,14 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-#pragma once
+#include <sys/kterm.h>
 
-#include <machine/stdtypes.h>
+struct iopipe* kern_instance;
 
-void console_init();
-void console_carriage_return();
-void console_newline();
-void console_putchar(char c);
-void console_write_text(const char* data, size_t size);
+void ccterm_init();
+struct iopipe* ccterm_get();
 
-
+void kterm_init(){
+	ccterm_init();
+	kern_instance = ccterm_get();
+}

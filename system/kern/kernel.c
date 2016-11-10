@@ -21,7 +21,8 @@
  * SOFTWARE.
  */
 #include <sysmaster/syscalls.h>
-#include <sysplatform/console.h>
+//#include <sysplatform/console.h>
+#include <sys/kterm.h>
 #include <sysplatform/caps.h>
 #include <sysarch/halt.h>
 
@@ -32,7 +33,8 @@ void kernel_main(void) {
 	switch(caps){
 	case platform_ALIVE:
 	case platform_HIGHER_HALF:
-		console_init();
+		//console_init();
+		kterm_init();
 		kern_prove_alive();
 		break;
 	}

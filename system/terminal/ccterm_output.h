@@ -22,12 +22,23 @@
  */
 #pragma once
 
+#include <machine/types.h>
 #include <machine/stdtypes.h>
 
-void console_init();
-void console_carriage_return();
-void console_newline();
-void console_putchar(char c);
-void console_write_text(const char* data, size_t size);
+struct ccterm_buffer;
 
+
+struct ccterm_ops {
+	void (*o_consume) (struct ccterm_buffer* buf);
+};
+
+struct ccterm_buffer{
+	u_int8_t  o_buffer[1024];
+	u_int16_t o_begin,o_end;
+	const struct ccterm_ops* ops;
+};
+
+#define CCTB_IDX(buf,i) (buf)->o_buffer[ ((buf)->o_begin+i)&1023 ]
+#define CCTB_CUT(i) ((i)&1023)
+#define CCTB_EOB(buf,i) (((buf)->o_begin+i)&1023)==((buf)->o_end)
 

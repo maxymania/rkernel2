@@ -22,12 +22,25 @@
  */
 #pragma once
 
-#include <machine/stdtypes.h>
+#include <machine/types.h>
 
-void console_init();
-void console_carriage_return();
-void console_newline();
-void console_putchar(char c);
-void console_write_text(const char* data, size_t size);
+enum {
+	CM_DEFAULT, /* Default. */
+	CM_PRINT,
+	CM_IGNORE,
+	CM_CR,
+	CM_NL,
+	CM_TAB,
+	CM_BACKSPACE,
+};
 
+static const char ansi_charmap[] = {
+	['\r'] = CM_CR,
+	['\n'] = CM_NL,
+	[0x08] = CM_BACKSPACE,
+	['\t'] = CM_TAB,
+	[0x0b] = CM_TAB,
+	[0x7f] = CM_IGNORE,
+	[0xff] = CM_DEFAULT, /* Ensure, Array is 256 elements long. */
+};
 

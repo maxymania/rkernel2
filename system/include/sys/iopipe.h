@@ -22,12 +22,18 @@
  */
 #pragma once
 
+#include <machine/types.h>
 #include <machine/stdtypes.h>
 
-void console_init();
-void console_carriage_return();
-void console_newline();
-void console_putchar(char c);
-void console_write_text(const char* data, size_t size);
+struct iopipe;
 
+struct iopipe_ops {
+	ssize_t (*io_read) (struct iopipe* iopipe, void* buf, size_t size);
+	ssize_t (*io_write) (struct iopipe* iopipe, const void* buf, size_t size);
+};
+
+struct iopipe{
+	void*                    iop_data;
+	const struct iopipe_ops* iop_ops;
+};
 

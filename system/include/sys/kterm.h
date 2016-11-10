@@ -22,12 +22,9 @@
  */
 #pragma once
 
-#include <machine/stdtypes.h>
+#include <sys/iopipe.h>
 
-void console_init();
-void console_carriage_return();
-void console_newline();
-void console_putchar(char c);
-void console_write_text(const char* data, size_t size);
+extern struct iopipe* kern_instance;
 
+void kterm_init();
 

@@ -20,31 +20,61 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-
-#include <sysmaster/syscalls.h>
 #include <sysplatform/console.h>
-#include <sys/kterm.h>
-#include <sysarch/halt.h>
+#include "ccterm_output.h"
+#include "ansi_charmap.h"
 
-static int cous(const char* chr){
-	int i=0;
-	while(*chr)chr++,i++;
-	return i;
+static void ccterm_std_ops_consume (struct ccterm_buffer* buf){
+	u_int16_t i = 0;
+	u_int8_t curb;
+	char cmc;
+	for(;;){
+		if(CCTB_EOB(buf,i)) break;
+		curb = CCTB_IDX(buf,i);
+		cmc = ansi_charmap[curb];
+		if(!cmc) cmc = (curb<0x20)?CM_IGNORE:CM_PRINT;
+		switch(cmc){
+		case CM_PRINT:
+			console_putchar(curb);
+			break;
+		case CM_CR:
+			console_carriage_return();
+			break;
+		case CM_NL:
+			console_newline();
+			break;
+		//case CM_TAB:
+		//case CM_BACKSPACE:
+		}
+		++i;
+	}
+	buf->o_begin = CCTB_CUT(buf->o_begin+i);
 }
 
-static void print(const char* chr){
-	//console_write_text(chr,cous(chr));
-	kern_instance->iop_ops->io_write(kern_instance,chr,cous(chr));
+
+static void ccterm_lite_ops_consume (struct ccterm_buffer* buf){
+	u_int16_t i = 0;
+	u_int8_t curb;
+	char cmc;
+	for(;;){
+		if(CCTB_EOB(buf,i)) break;
+		curb = CCTB_IDX(buf,i);
+		cmc = ansi_charmap[curb];
+		if(!cmc) cmc = (curb<0x20)?CM_IGNORE:CM_PRINT;
+		switch(cmc){
+		case CM_PRINT:
+			console_putchar(curb);
+			break;
+		case CM_NL:
+			console_carriage_return();
+			console_newline();
+			break;
+		}
+		++i;
+	}
+	buf->o_begin = CCTB_CUT(buf->o_begin+i);
 }
 
+const struct ccterm_ops ccterm_std_ops = { ccterm_std_ops_consume };
 
-/*
- * When called, we should print something, to proove, that we live.
- */
-void kern_prove_alive() {
-	print("Dear developer, We are alive!\n");
-	print("WE ARE ALIVE!\n");
-	print("WE ARE ALIVE!\n");
-	arch_halt();
-}
-
+const struct ccterm_ops ccterm_lite_ops = { ccterm_lite_ops_consume };

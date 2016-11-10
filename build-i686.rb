@@ -23,6 +23,7 @@ Makefile.project("","KBuild-i686/")
 Makefile.rule "all",["kernel.i686"],[]
 
 MKList.add "kernel", Makefile.glob("system/kern/*.c")
+MKList.add "kernel", Makefile.glob("system/terminal/*.c")
 
 
 add_mod "kernel.i686" , *(MKList.get ["archdep","kernel"] )
