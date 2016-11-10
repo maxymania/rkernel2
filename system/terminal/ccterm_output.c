@@ -78,3 +78,5 @@ static void ccterm_lite_ops_consume (struct ccterm_buffer* buf){
 const struct ccterm_ops ccterm_std_ops = { ccterm_std_ops_consume };
 
 const struct ccterm_ops ccterm_lite_ops = { ccterm_lite_ops_consume };
+
+

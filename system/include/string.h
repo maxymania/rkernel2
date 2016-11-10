@@ -20,32 +20,30 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
+#pragma once
 
-#include <sysmaster/syscalls.h>
-#include <sysplatform/console.h>
-#include <sys/kterm.h>
-#include <sysarch/halt.h>
+#include <machine/stdtypes.h>
 
-static int cous(const char* chr){
-	int i=0;
-	while(*chr)chr++,i++;
-	return i;
-}
+size_t strlen(const char* str) ;
 
-static void print(const char* chr){
-	//console_write_text(chr,cous(chr));
-	kern_instance->iop_ops->io_write(kern_instance,chr,cous(chr));
-}
+char *strcpy( char* dest, const char* src ) ;
 
+char *strncpy( char* dest, const char* src ,size_t n) ;
 
-/*
- * When called, we should print something, to proove, that we live.
- */
-void kern_prove_alive() {
-	print("Dear developer, We are alive!\n");
-	print("WE ARE ALIVE!\n");
-	print("WE ARE ALIVE!\n");
-	arch_halt();
-}
+char *strcat( char* __restrict__ dest, const char* src ) ;
+
+char *strncat( char* dest, const char* src ,size_t n) ;
+
+int strcmp(const char* string1, const char* string2) ;
+
+void *memset( void *dest, int ch, size_t count ) ;
+
+void* memcpy( void *dest, const void *src, size_t n ) ;
+
+int memcmp( const void* lhs, const void* rhs, size_t n ) ;
+
+void* memmove( void* dest, const void* src, size_t n ) ;
+
+void* memchr( const void* ptr, int ch, size_t n ) ;
 
 
