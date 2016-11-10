@@ -20,34 +20,26 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
+#pragma once
 
-#include <sysmaster/syscalls.h>
-#include <sysplatform/console.h>
-#include <sys/kterm.h>
-#include <sysarch/halt.h>
-#include <stdio.h>
+/* stdarg.h - handle variable argument list. */
 
-static int cous(const char* chr){
-	int i=0;
-	while(*chr)chr++,i++;
-	return i;
-}
+/* Conveniently, the GCC compiler defines a builtin va_list system. */
 
-static void print(const char* chr){
-	//console_write_text(chr,cous(chr));
-	kern_instance->iop_ops->io_write(kern_instance,chr,cous(chr));
-}
+typedef __builtin_va_list va_list;
 
 
-/*
- * When called, we should print something, to proove, that we live.
- */
-void kern_prove_alive() {
-	printf("Test <( %i )>\n",99);
-	print("Dear developer, We are alive!\n");
-	print("WE ARE ALIVE!\n");
-	print("WE ARE ALIVE!\n");
-	arch_halt();
-}
+
+/* void va_start(va_list ap, argN); */
+#define va_start(ap,argN)  __builtin_va_start(ap,argN)
+
+/* void va_copy(va_list dest, va_list src); */
+#define va_copy(dest,src)  __builtin_va_copy(dest,src)
+
+/* type va_arg(va_list ap, type); */
+#define va_arg(ap,type)    __builtin_va_arg(ap,type)
+
+/* void va_end(va_list ap); */
+#define va_end(ap)         __builtin_va_end(ap)
 
 

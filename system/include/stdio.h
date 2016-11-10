@@ -20,34 +20,8 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
+#pragma once
 
-#include <sysmaster/syscalls.h>
-#include <sysplatform/console.h>
-#include <sys/kterm.h>
-#include <sysarch/halt.h>
-#include <stdio.h>
-
-static int cous(const char* chr){
-	int i=0;
-	while(*chr)chr++,i++;
-	return i;
-}
-
-static void print(const char* chr){
-	//console_write_text(chr,cous(chr));
-	kern_instance->iop_ops->io_write(kern_instance,chr,cous(chr));
-}
-
-
-/*
- * When called, we should print something, to proove, that we live.
- */
-void kern_prove_alive() {
-	printf("Test <( %i )>\n",99);
-	print("Dear developer, We are alive!\n");
-	print("WE ARE ALIVE!\n");
-	print("WE ARE ALIVE!\n");
-	arch_halt();
-}
+int printf(const char* fmt,...);
 
 
