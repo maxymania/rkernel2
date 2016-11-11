@@ -23,8 +23,6 @@
 #include <machine/types.h>
 #include <sys/kernslice.h>
 #include <sys/cpu.h>
-#include <sys/kterm.h>
-#include <stdio.h>
 
 extern const u_int32_t  _i686_multiboot_memdata[5];
 extern const char _kernel_end[];
@@ -67,6 +65,10 @@ static void _i686_init(){
 
 
 void _i686_boot_main(void) {
+	/*
+	 * We put it into a seperate function to prevent it's variables to reside
+	 * on the Stack.
+	 */
 	_i686_init();
 	
 	kernel_main();

@@ -24,6 +24,8 @@
 #include <sysmaster/syscalls.h>
 #include <sysplatform/console.h>
 #include <sys/kterm.h>
+#include <sys/cpu.h>
+#include <sys/kernslice.h>
 #include <sysarch/halt.h>
 #include <stdio.h>
 
@@ -43,11 +45,26 @@ static void print(const char* chr){
  * When called, we should print something, to proove, that we live.
  */
 void kern_prove_alive() {
-	struct cpu *cpu;
+	struct cpu           *cpu = 0;
+	struct kernslice     *kern = 0;
+	struct physmem_range *prange = 0;
+	u_intptr_t            prangen = 0;
+	u_int32_t i;
 	
 	cpu = kernel_get_current_cpu();
+	if(cpu) kern = cpu->cpu_kernel_slice;
+	if(kern) prange  = kern->ks_memory_ranges;
+	if(kern) prangen = kern->ks_num_memory_ranges;
+	
 	printf("Test <( %i )>\n",99);
 	printf("cpu = %p\n",cpu);
+	printf("kern = %p\n",kern);
+	printf("prange = %p\n",prange);
+	printf("prangen = %u\n",(unsigned int)prangen+1);
+	for(i=0;i<prangen;++i){
+		printf("\tprange[%u].pm_begin = %p\n",(unsigned int)i,(u_intptr_t)(prange[i].pm_begin));
+		printf("\tprange[%u].pm_end   = %p\n",(unsigned int)i,(u_intptr_t)(prange[i].pm_end  ));
+	}
 	
 	arch_halt();
 }

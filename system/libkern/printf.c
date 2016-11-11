@@ -43,10 +43,10 @@ static char* i2a(int i,char* buffer){
 		i = -i;
 		pre = '-';
 	}
-	while(i){
+	do{
 		*--buffer = '0' + (i%10);
 		i /= 10;
-	}
+	}while(i);
 	if(pre) *--buffer = pre;
 	return buffer;
 }
@@ -54,50 +54,50 @@ static char* i2a(int i,char* buffer){
 static char* u2a(unsigned int i,char* buffer){
 	buffer+=98;
 	*buffer=0;
-	while(i){
+	do{
 		*--buffer = '0' + (i%10);
 		i /= 10;
-	}
+	}while(i);
 	return buffer;
 }
 
 static char* x2a(unsigned int i,char* buffer){
 	buffer+=98;
 	*buffer=0;
-	while(i){
+	do{
 		*--buffer = hexlow[i&0xf];
 		i >>= 4;
-	}
+	}while(i);
 	return buffer;
 }
 
 static char* X2a(unsigned int i,char* buffer){
 	buffer+=98;
 	*buffer=0;
-	while(i){
+	do{
 		*--buffer = hexhig[i&0xf];
 		i >>= 4;
-	}
+	}while(i);
 	return buffer;
 }
 
 static char* o2a(unsigned int i,char* buffer){
 	buffer+=98;
 	*buffer=0;
-	while(i){
+	do{
 		*--buffer = '0' + (i&0x7);
 		i >>= 3;
-	}
+	}while(i);
 	return buffer;
 }
 static char* p2a(void* ptr,char* buffer){
 	buffer+=98;
 	*buffer=0;
 	u_intptr_t i = (u_intptr_t)ptr;
-	while(i){
+	do{
 		*--buffer = hexlow[i&0xf];
 		i >>= 4;
-	}
+	}while(i);
 	*--buffer = 'x';
 	*--buffer = '0';
 	return buffer;
@@ -113,10 +113,10 @@ static char* li2a(long int i,char* buffer){
 		i = -i;
 		pre = '-';
 	}
-	while(i){
+	do{
 		*--buffer = '0' + (i%10);
 		i /= 10;
-	}
+	}while(i);
 	if(pre) *--buffer = pre;
 	return buffer;
 }
@@ -124,40 +124,40 @@ static char* li2a(long int i,char* buffer){
 static char* lu2a(unsigned long int i,char* buffer){
 	buffer+=98;
 	*buffer=0;
-	while(i){
+	do{
 		*--buffer = '0' + (i%10);
 		i /= 10;
-	}
+	}while(i);
 	return buffer;
 }
 
 static char* lx2a(unsigned long int i,char* buffer){
 	buffer+=98;
 	*buffer=0;
-	while(i){
+	do{
 		*--buffer = hexlow[i&0xf];
 		i >>= 4;
-	}
+	}while(i);
 	return buffer;
 }
 
 static char* lX2a(unsigned long int i,char* buffer){
 	buffer+=98;
 	*buffer=0;
-	while(i){
+	do{
 		*--buffer = hexhig[i&0xf];
 		i >>= 4;
-	}
+	}while(i);
 	return buffer;
 }
 
 static char* lo2a(unsigned long int i,char* buffer){
 	buffer+=98;
 	*buffer=0;
-	while(i){
+	do{
 		*--buffer = '0' + (i&0x7);
 		i >>= 3;
-	}
+	}while(i);
 	return buffer;
 }
 
@@ -171,10 +171,10 @@ static char* lli2a(long long int i,char* buffer){
 		i = -i;
 		pre = '-';
 	}
-	while(i){
+	do{
 		*--buffer = '0' + (i%10);
 		i /= 10;
-	}
+	}while(i);
 	if(pre) *--buffer = pre;
 	return buffer;
 }
@@ -182,40 +182,40 @@ static char* lli2a(long long int i,char* buffer){
 static char* llu2a(unsigned long long int i,char* buffer){
 	buffer+=98;
 	*buffer=0;
-	while(i){
+	do{
 		*--buffer = '0' + (i%10);
 		i /= 10;
-	}
+	}while(i);
 	return buffer;
 }
 
 static char* llx2a(unsigned long long int i,char* buffer){
 	buffer+=98;
 	*buffer=0;
-	while(i){
+	do{
 		*--buffer = hexlow[i&0xf];
 		i >>= 4;
-	}
+	}while(i);
 	return buffer;
 }
 
 static char* llX2a(unsigned long long int i,char* buffer){
 	buffer+=98;
 	*buffer=0;
-	while(i){
+	do{
 		*--buffer = hexhig[i&0xf];
 		i >>= 4;
-	}
+	}while(i);
 	return buffer;
 }
 
 static char* llo2a(unsigned long long int i,char* buffer){
 	buffer+=98;
 	*buffer=0;
-	while(i){
+	do{
 		*--buffer = '0' + (i&0x7);
 		i >>= 3;
-	}
+	}while(i);
 	return buffer;
 }
 
@@ -229,10 +229,10 @@ static char* zi2a(ssize_t i,char* buffer){
 		i = -i;
 		pre = '-';
 	}
-	while(i){
+	do{
 		*--buffer = '0' + (i%10);
 		i /= 10;
-	}
+	}while(i);
 	if(pre) *--buffer = pre;
 	return buffer;
 }
@@ -240,40 +240,40 @@ static char* zi2a(ssize_t i,char* buffer){
 static char* zu2a(size_t i,char* buffer){
 	buffer+=98;
 	*buffer=0;
-	while(i){
+	do{
 		*--buffer = '0' + (i%10);
 		i /= 10;
-	}
+	}while(i);
 	return buffer;
 }
 
 static char* zx2a(size_t i,char* buffer){
 	buffer+=98;
 	*buffer=0;
-	while(i){
+	do{
 		*--buffer = hexlow[i&0xf];
 		i >>= 4;
-	}
+	}while(i);
 	return buffer;
 }
 
 static char* zX2a(size_t i,char* buffer){
 	buffer+=98;
 	*buffer=0;
-	while(i){
+	do{
 		*--buffer = hexhig[i&0xf];
 		i >>= 4;
-	}
+	}while(i);
 	return buffer;
 }
 
 static char* zo2a(size_t i,char* buffer){
 	buffer+=98;
 	*buffer=0;
-	while(i){
+	do{
 		*--buffer = '0' + (i&0x7);
 		i >>= 3;
-	}
+	}while(i);
 	return buffer;
 }
 
@@ -287,10 +287,10 @@ static char* ti2a(ptrdiff_t i,char* buffer){
 		i = -i;
 		pre = '-';
 	}
-	while(i){
+	do{
 		*--buffer = '0' + (i%10);
 		i /= 10;
-	}
+	}while(i);
 	if(pre) *--buffer = pre;
 	return buffer;
 }
@@ -298,40 +298,40 @@ static char* ti2a(ptrdiff_t i,char* buffer){
 static char* tu2a(u_intptr_t i,char* buffer){
 	buffer+=98;
 	*buffer=0;
-	while(i){
+	do{
 		*--buffer = '0' + (i%10);
 		i /= 10;
-	}
+	}while(i);
 	return buffer;
 }
 
 static char* tx2a(u_intptr_t i,char* buffer){
 	buffer+=98;
 	*buffer=0;
-	while(i){
+	do{
 		*--buffer = hexlow[i&0xf];
 		i >>= 4;
-	}
+	}while(i);
 	return buffer;
 }
 
 static char* tX2a(u_intptr_t i,char* buffer){
 	buffer+=98;
 	*buffer=0;
-	while(i){
+	do{
 		*--buffer = hexhig[i&0xf];
 		i >>= 4;
-	}
+	}while(i);
 	return buffer;
 }
 
 static char* to2a(u_intptr_t i,char* buffer){
 	buffer+=98;
 	*buffer=0;
-	while(i){
+	do{
 		*--buffer = '0' + (i&0x7);
 		i >>= 3;
-	}
+	}while(i);
 	return buffer;
 }
 
