@@ -1,6 +1,13 @@
 /*
- * 
  * Copyright (c) 2016 Simon Schmidt
+ *
+ * All or some portions of this file are derived from specifications of UNIX
+ * error codes as seen in other UNIX-systems and UNIX-like systems such as Linux,
+ * BSD, research-UNIX version 7, and System V. For the fundamental source, that
+ * inspired the structure of this file, I credit:
+ *  - Bell Labs (AT&T/Unix System Laboratories, Inc.), the team that worked on
+ *                             UNIX especially Dennis Ritchie and Ken Thompson.
+ *  - CSRG at University of California, Berkeley.
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -72,6 +79,5 @@
 #define	EWOULDBLOCK   EAGAIN /* Operation would block */
 #define	EINPROGRESS   36 /* Operation now in progress */
 #define	EALREADY      37 /* Operation already in progress */
-
 
 
