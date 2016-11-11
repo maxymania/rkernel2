@@ -43,10 +43,12 @@ static void print(const char* chr){
  * When called, we should print something, to proove, that we live.
  */
 void kern_prove_alive() {
+	struct cpu *cpu;
+	
+	cpu = kernel_get_current_cpu();
 	printf("Test <( %i )>\n",99);
-	print("Dear developer, We are alive!\n");
-	print("WE ARE ALIVE!\n");
-	print("WE ARE ALIVE!\n");
+	printf("cpu = %p\n",cpu);
+	
 	arch_halt();
 }
 

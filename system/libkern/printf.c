@@ -94,12 +94,12 @@ static char* p2a(void* ptr,char* buffer){
 	buffer+=98;
 	*buffer=0;
 	u_intptr_t i = (u_intptr_t)ptr;
-	*--buffer = '0';
-	*--buffer = 'x';
 	while(i){
 		*--buffer = hexlow[i&0xf];
 		i >>= 4;
 	}
+	*--buffer = 'x';
+	*--buffer = '0';
 	return buffer;
 }
 

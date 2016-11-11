@@ -23,9 +23,13 @@
 #include <machine/types.h>
 #include <sys/kernslice.h>
 #include <sys/cpu.h>
+#include <sys/kterm.h>
+#include <stdio.h>
 
 extern const u_int32_t  _i686_multiboot_memdata[5];
 extern const char _kernel_end[];
+
+struct cpu _i686_boot_cpu;
 
 static struct kernslice slice;
 static struct cpu cpu;
@@ -33,15 +37,15 @@ static struct physmem_range memrange[2];
 
 void kernel_main(void);
 
+/*
+ * Currently, we only have one CPU.
+ */
+
 struct cpu *kernel_get_current_cpu() {
-	void* cpuptr;
-	asm("movl %%gs, %0":"=r"(cpuptr));
-	return cpuptr;
+	return &cpu;
 }
 
-void _i686_boot_main(void) {
-	void* cpuptr;
-	
+static void _i686_init(){
 	u_int32_t endkernel = (u_int32_t)(const void*)_kernel_end;
 	endkernel-=0xC0000000;
 	u_int32_t flags = _i686_multiboot_memdata[0];
@@ -59,8 +63,11 @@ void _i686_boot_main(void) {
 		memrange[1].pm_end = (_i686_multiboot_memdata[2]<<10)+0x100000;
 		slice.ks_num_memory_ranges = 2;
 	}
-	cpuptr = &cpu;
-	asm("movl %0, %%gs":"=r"(cpuptr));
+}
+
+
+void _i686_boot_main(void) {
+	_i686_init();
 	
 	kernel_main();
 }

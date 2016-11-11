@@ -175,9 +175,14 @@ _start:
 
 	# Set up the stack.
 	mov $stack_top, %esp
-
+	
 	# Call the global constructors.
 	call _init
+
+	# Sanitize General Purpose Registers
+	xor %ecx, %ecx
+	movl %ecx, %gs
+	movl %ecx, %fs
 
 	# Transfer control to the main kernel.
 	#  call kernel_main
