@@ -24,24 +24,21 @@
 
 #include <machine/types.h>
 
-#define THREAD_STACK_INT  0
-#define THREAD_STACK_KERN 1
-#define THREAD_STACK_USER 2
-
-/*
- * Note that the CPU stack is shared accros threads on a CPU. Used for the thread
- * scheduler and other Thread switching functions.
- */
-#define THREAD_STACK_CPU  3
-
-
 struct cpu;
 
 struct thread{
 	struct thread* t_next_queue;  /* Next thread in queue. */
 	struct cpu*    t_current_cpu; /* The CPU this thread is currently running on. */
-	u_intptr_t     t_stacks[4];   /* The Stack pointers. */
+	u_intptr_t     t_storage[4];  /* The thread's TLS (ASM). */
+	u_intptr_t     t_istacks[2];  /* Interupt stacks. Default is t_istacks[0] */
+	u_intptr_t     t_stateflags;  /* Flags, indicating the Thread's state. */
 };
+
+#define THREAD_LOCAL_INT_STACK    t_storage[0] /* (current)Interupt stack. */
+#define THREAD_LOCAL_CONTEXT      t_storage[1] /* Pointer to saved context. */
+
+#define THREAD_SF_INTSTACK_2      0x0001   /* If set, interrupt stack is t_istacks[1] */
+#define THREAD_SF_PREEMPT         0x0002   /* If set, thread is preempted. */
 
 struct thread* kernel_get_current_thread();
 
