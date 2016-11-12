@@ -63,7 +63,8 @@ _start:
 	
 	# *(_i686_multiboot_memdata+0) = *(%ebx+0)
 	movl (%ebx), %edi
-	movl %edi, _i686_multiboot_memdata
+	movl $(_i686_multiboot_memdata - 0xC0000000), %esi
+	movl %edi, (%esi)
 	
 	# *(_i686_multiboot_memdata+4) = *(%ebx+4)
 	#        *(%esi)               =  *(%edi)
