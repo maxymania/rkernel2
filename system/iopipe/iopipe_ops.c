@@ -20,23 +20,16 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-#pragma once
+#include <sys/iopipe.h>
 
-#include <machine/types.h>
-#include <machine/stdtypes.h>
 
-struct iopipe;
+ssize_t iopipe_read (struct iopipe* iopipe, void* buf, size_t size){
+	return iopipe->iop_ops->io_read(iopipe,buf,size);
+}
 
-struct iopipe_ops {
-	ssize_t (*io_read) (struct iopipe* iopipe, void* buf, size_t size);
-	ssize_t (*io_write) (struct iopipe* iopipe, const void* buf, size_t size);
-};
+ssize_t iopipe_write (struct iopipe* iopipe, const void* buf, size_t size){
+	return iopipe->iop_ops->io_write(iopipe,buf,size);
+}
 
-struct iopipe{
-	void*                    iop_data;
-	const struct iopipe_ops* iop_ops;
-};
 
-ssize_t iopipe_read (struct iopipe* iopipe, void* buf, size_t size);
-ssize_t iopipe_write (struct iopipe* iopipe, const void* buf, size_t size);
 

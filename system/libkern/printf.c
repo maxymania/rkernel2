@@ -350,11 +350,11 @@ static int iopipe_vioprintf(struct iopipe* iopipe,const char* fmt,va_list ap){
 		case '%':
 			fmt++;
 			count += fmt-last;
-			if(fmt>last)iopipe->iop_ops->io_write(iopipe,last,fmt-last);
+			if(fmt>last)iopipe_write(iopipe,last,fmt-last);
 			break;
 		default:
 			count += fmt-last;
-			if(fmt>last)iopipe->iop_ops->io_write(iopipe,last,fmt-last);
+			if(fmt>last)iopipe_write(iopipe,last,fmt-last);
 			fmt++;
 		}
 		
@@ -365,23 +365,23 @@ static int iopipe_vioprintf(struct iopipe* iopipe,const char* fmt,va_list ap){
 			case 'd':
 			case 'i':
 				nb = zi2a(va_arg(ap, ssize_t),numbuf);
-				iopipe->iop_ops->io_write(iopipe,nb,siz=strlen(nb) ); count += siz;
+				iopipe_write(iopipe,nb,siz=strlen(nb) ); count += siz;
 				break;
 			case 'u':
 				nb = zu2a(va_arg(ap, size_t),numbuf);
-				iopipe->iop_ops->io_write(iopipe,nb,siz=strlen(nb) ); count += siz;
+				iopipe_write(iopipe,nb,siz=strlen(nb) ); count += siz;
 				break;
 			case 'x':
 				nb = zx2a(va_arg(ap, size_t),numbuf);
-				iopipe->iop_ops->io_write(iopipe,nb,siz=strlen(nb) ); count += siz;
+				iopipe_write(iopipe,nb,siz=strlen(nb) ); count += siz;
 				break;
 			case 'X':
 				nb = zX2a(va_arg(ap, size_t),numbuf);
-				iopipe->iop_ops->io_write(iopipe,nb,siz=strlen(nb) ); count += siz;
+				iopipe_write(iopipe,nb,siz=strlen(nb) ); count += siz;
 				break;
 			case 'o':
 				nb = zo2a(va_arg(ap, size_t),numbuf);
-				iopipe->iop_ops->io_write(iopipe,nb,siz=strlen(nb) ); count += siz;
+				iopipe_write(iopipe,nb,siz=strlen(nb) ); count += siz;
 				break;
 			}
 			break;
@@ -391,23 +391,23 @@ static int iopipe_vioprintf(struct iopipe* iopipe,const char* fmt,va_list ap){
 			case 'd':
 			case 'i':
 				nb = ti2a(va_arg(ap, ptrdiff_t),numbuf);
-				iopipe->iop_ops->io_write(iopipe,nb,siz=strlen(nb) ); count += siz;
+				iopipe_write(iopipe,nb,siz=strlen(nb) ); count += siz;
 				break;
 			case 'u':
 				nb = tu2a(va_arg(ap, u_intptr_t),numbuf);
-				iopipe->iop_ops->io_write(iopipe,nb,siz=strlen(nb) ); count += siz;
+				iopipe_write(iopipe,nb,siz=strlen(nb) ); count += siz;
 				break;
 			case 'x':
 				nb = tx2a(va_arg(ap, u_intptr_t),numbuf);
-				iopipe->iop_ops->io_write(iopipe,nb,siz=strlen(nb) ); count += siz;
+				iopipe_write(iopipe,nb,siz=strlen(nb) ); count += siz;
 				break;
 			case 'X':
 				nb = tX2a(va_arg(ap, u_intptr_t),numbuf);
-				iopipe->iop_ops->io_write(iopipe,nb,siz=strlen(nb) ); count += siz;
+				iopipe_write(iopipe,nb,siz=strlen(nb) ); count += siz;
 				break;
 			case 'o':
 				nb = to2a(va_arg(ap, u_intptr_t),numbuf);
-				iopipe->iop_ops->io_write(iopipe,nb,siz=strlen(nb) ); count += siz;
+				iopipe_write(iopipe,nb,siz=strlen(nb) ); count += siz;
 				break;
 			}
 			break;
@@ -420,89 +420,89 @@ static int iopipe_vioprintf(struct iopipe* iopipe,const char* fmt,va_list ap){
 				case 'd':
 				case 'i':
 					nb = lli2a(va_arg(ap, long long int),numbuf);
-					iopipe->iop_ops->io_write(iopipe,nb,siz=strlen(nb) ); count += siz;
+					iopipe_write(iopipe,nb,siz=strlen(nb) ); count += siz;
 					break;
 				case 'u':
 					nb = llu2a(va_arg(ap, unsigned long long int),numbuf);
-					iopipe->iop_ops->io_write(iopipe,nb,siz=strlen(nb) ); count += siz;
+					iopipe_write(iopipe,nb,siz=strlen(nb) ); count += siz;
 					break;
 				case 'x':
 					nb = llx2a(va_arg(ap, unsigned long long int),numbuf);
-					iopipe->iop_ops->io_write(iopipe,nb,siz=strlen(nb) ); count += siz;
+					iopipe_write(iopipe,nb,siz=strlen(nb) ); count += siz;
 					break;
 				case 'X':
 					nb = llX2a(va_arg(ap, unsigned long long int),numbuf);
-					iopipe->iop_ops->io_write(iopipe,nb,siz=strlen(nb) ); count += siz;
+					iopipe_write(iopipe,nb,siz=strlen(nb) ); count += siz;
 					break;
 				case 'o':
 					nb = llo2a(va_arg(ap, unsigned long long int),numbuf);
-					iopipe->iop_ops->io_write(iopipe,nb,siz=strlen(nb) ); count += siz;
+					iopipe_write(iopipe,nb,siz=strlen(nb) ); count += siz;
 					break;
 				}
 				break;
 			case 'd':
 			case 'i':
 				nb = li2a(va_arg(ap, long int),numbuf);
-				iopipe->iop_ops->io_write(iopipe,nb,siz=strlen(nb) ); count += siz;
+				iopipe_write(iopipe,nb,siz=strlen(nb) ); count += siz;
 				break;
 			case 'u':
 				nb = lu2a(va_arg(ap, unsigned long int),numbuf);
-				iopipe->iop_ops->io_write(iopipe,nb,siz=strlen(nb) ); count += siz;
+				iopipe_write(iopipe,nb,siz=strlen(nb) ); count += siz;
 				break;
 			case 'x':
 				nb = lx2a(va_arg(ap, unsigned long int),numbuf);
-				iopipe->iop_ops->io_write(iopipe,nb,siz=strlen(nb) ); count += siz;
+				iopipe_write(iopipe,nb,siz=strlen(nb) ); count += siz;
 				break;
 			case 'X':
 				nb = lX2a(va_arg(ap, unsigned long int),numbuf);
-				iopipe->iop_ops->io_write(iopipe,nb,siz=strlen(nb) ); count += siz;
+				iopipe_write(iopipe,nb,siz=strlen(nb) ); count += siz;
 				break;
 			case 'o':
 				nb = lo2a(va_arg(ap, unsigned long int),numbuf);
-				iopipe->iop_ops->io_write(iopipe,nb,siz=strlen(nb) ); count += siz;
+				iopipe_write(iopipe,nb,siz=strlen(nb) ); count += siz;
 				break;
 			}
 			break;
 		case 'd':
 		case 'i':
 			nb = i2a(va_arg(ap, int),numbuf);
-			iopipe->iop_ops->io_write(iopipe,nb,siz=strlen(nb) ); count += siz;
+			iopipe_write(iopipe,nb,siz=strlen(nb) ); count += siz;
 			break;
 		case 'u':
 			nb = u2a(va_arg(ap, unsigned int),numbuf);
-			iopipe->iop_ops->io_write(iopipe,nb,siz=strlen(nb) ); count += siz;
+			iopipe_write(iopipe,nb,siz=strlen(nb) ); count += siz;
 			break;
 		case 'x':
 			nb = x2a(va_arg(ap, unsigned int),numbuf);
-			iopipe->iop_ops->io_write(iopipe,nb,siz=strlen(nb) ); count += siz;
+			iopipe_write(iopipe,nb,siz=strlen(nb) ); count += siz;
 			break;
 		case 'X':
 			nb = X2a(va_arg(ap, unsigned int),numbuf);
-			iopipe->iop_ops->io_write(iopipe,nb,siz=strlen(nb) ); count += siz;
+			iopipe_write(iopipe,nb,siz=strlen(nb) ); count += siz;
 			break;
 		case 'o':
 			nb = o2a(va_arg(ap, unsigned int),numbuf);
-			iopipe->iop_ops->io_write(iopipe,nb,siz=strlen(nb) ); count += siz;
+			iopipe_write(iopipe,nb,siz=strlen(nb) ); count += siz;
 			break;
 		case 'p':
 			nb = p2a(va_arg(ap, void*),numbuf);
-			iopipe->iop_ops->io_write(iopipe,nb,siz=strlen(nb) ); count += siz;
+			iopipe_write(iopipe,nb,siz=strlen(nb) ); count += siz;
 			break;
 		case 'c':
 			numbuf[0] = va_arg(ap,int);
-			iopipe->iop_ops->io_write(iopipe,numbuf,1); count++;
+			iopipe_write(iopipe,numbuf,1); count++;
 			break;
 		case 's':
 			nb = va_arg(ap,const char*);
 			if(!nb) nb = "(null)";
-			iopipe->iop_ops->io_write(iopipe,nb,siz=strlen(nb) ); count += siz;
+			iopipe_write(iopipe,nb,siz=strlen(nb) ); count += siz;
 			break;
 		}
 		fmt++;
 		last = fmt;
 	}
 	count += fmt-last;
-	if(fmt>last)iopipe->iop_ops->io_write(iopipe,last,fmt-last);
+	if(fmt>last)iopipe_write(iopipe,last,fmt-last);
 	return count;
 }
 
