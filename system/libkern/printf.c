@@ -338,7 +338,7 @@ static char* to2a(u_intptr_t i,char* buffer){
 /* -------------------------------------------------------------------- */
 
 
-static int iopipe_vioprintf(struct iopipe* iopipe,const char* fmt,va_list ap){
+int iopipe_vioprintf(struct iopipe* iopipe,const char* fmt,va_list ap){
 	int count = 0;
 	const char* last = fmt;
 	char numbuf[100];
@@ -504,6 +504,14 @@ static int iopipe_vioprintf(struct iopipe* iopipe,const char* fmt,va_list ap){
 	count += fmt-last;
 	if(fmt>last)iopipe_write(iopipe,last,fmt-last);
 	return count;
+}
+
+int iopipe_printf(struct iopipe* iopipe,const char* fmt,...){
+	va_list ap;
+	va_start(ap, fmt); 
+	int ret = iopipe_vioprintf(iopipe,fmt,ap);
+	va_end(ap);
+	return ret;
 }
 
 

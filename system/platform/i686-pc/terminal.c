@@ -38,6 +38,10 @@ void terminal_putentryat(unsigned char c, u_int8_t color, size_t x, size_t y) {
 	terminal_buffer[index] = vga_entry(c, color);
 }
 
+size_t console_get_col(){
+	return terminal_column;
+}
+
 void console_carriage_return() {
 	terminal_column = 0;
 };

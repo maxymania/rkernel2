@@ -24,6 +24,14 @@
 #include "ccterm_output.h"
 #include "ansi_charmap.h"
 
+#define TABWIDTH 4
+
+static void cc_tab(){
+	const int n = TABWIDTH-(console_get_col()%TABWIDTH);
+	int i;
+	for(i=0;i<n;++i)console_putchar(' ');
+}
+
 static void ccterm_std_ops_consume (struct ccterm_buffer* buf){
 	u_int16_t i = 0;
 	u_int8_t curb;
@@ -43,7 +51,9 @@ static void ccterm_std_ops_consume (struct ccterm_buffer* buf){
 		case CM_NL:
 			console_newline();
 			break;
-		//case CM_TAB:
+		case CM_TAB:
+			cc_tab();
+			break;
 		//case CM_BACKSPACE:
 		}
 		++i;
@@ -68,6 +78,9 @@ static void ccterm_lite_ops_consume (struct ccterm_buffer* buf){
 		case CM_NL:
 			console_carriage_return();
 			console_newline();
+			break;
+		case CM_TAB:
+			cc_tab();
 			break;
 		}
 		++i;

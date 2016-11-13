@@ -29,5 +29,5 @@ void console_carriage_return();
 void console_newline();
 void console_putchar(char c);
 void console_write_text(const char* data, size_t size);
-
+size_t console_get_col();
 
