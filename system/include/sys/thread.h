@@ -42,3 +42,5 @@ struct thread{
 
 struct thread* kernel_get_current_thread();
 
+void kernel_set_current_thread(struct thread* thread);
+

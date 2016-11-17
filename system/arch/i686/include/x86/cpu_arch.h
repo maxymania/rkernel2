@@ -26,5 +26,5 @@
 struct cpu_arch{
 	struct segdesc   gdt[NSEGS];
 	struct taskstate tss;
-}
+};
 

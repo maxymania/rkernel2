@@ -1,5 +1,7 @@
 /*
  * 
+ * Copyright (c) 2006-2016 Frans Kaashoek, Robert Morris, Russ Cox,
+ *                         Massachusetts Institute of Technology
  * Copyright (c) 2016 Simon Schmidt
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -21,28 +23,63 @@
  * SOFTWARE.
  */
 #pragma once
-
 #include <machine/types.h>
-struct kernslice;
 
-/* Architecture specific part of 'struct cpu'. */
-struct cpu_arch;
+// Routines to let C code use special x86 instructions.
 
-struct cpu{
-	u_intptr_t        cpu_cpu_id;         /* The ID of this CPU. */
-	struct kernslice* cpu_kernel_slice;   /* The kernel slice, this CPU belongs to. */
-	struct cpu*       cpu_ks_next;        /* Next CPU within this kernel slice. */
-	
-	struct thread*    cpu_current_thread; /* The thread currently running on this CPU. */
-	u_intptr_t        cpu_stack;          /* Stack pointer of the Per-CPU stack. */
-	u_intptr_t        cpu_local[3];       /* CPU-private segment. */
-	struct cpu_arch*  cpu_arch;           /* Architecture specific part */
-};
+static inline void
+lgdt(u_intptr_t p, int size)
+{
+  volatile u_int16_t pd[3];
 
-#define CPU_LOCAL_SELF   cpu_local[0]   /* struct cpu-instance. */
-#define CPU_LOCAL_TLS    cpu_local[1]   /* The current thread's TLS. */
-#define CPU_LOCAL_STACK  cpu_local[2]   /* CPU local stack. */
+  pd[0] = size-1;
+  pd[1] = (p      )&0xFFFF;
+  pd[2] = (p >> 16)&0xFFFF;
+
+  asm volatile("lgdt (%0)" : : "r" (pd));
+}
+
+static inline void
+lidt(u_intptr_t p, int size)
+{
+  volatile u_int16_t pd[3];
+
+  pd[0] = size-1;
+  pd[1] = (p      )&0xFFFF;
+  pd[2] = (p >> 16)&0xFFFF;
+
+  asm volatile("lidt (%0)" : : "r" (pd));
+}
+
+static inline void
+loadgs(u_int16_t v)
+{
+  asm volatile("movw %0, %%gs" : : "r" (v));
+}
 
 
-struct cpu* kernel_get_current_cpu();
+static inline void
+cli(void)
+{
+  asm volatile("cli");
+}
 
+static inline void
+sti(void)
+{
+  asm volatile("sti");
+}
+
+static inline u_int32_t
+rcr2(void)
+{
+  uint val;
+  asm volatile("movl %%cr2,%0" : "=r" (val));
+  return val;
+}
+
+static inline void
+lcr3(u_int32_t val)
+{
+  asm volatile("movl %0,%%cr3" : : "r" (val));
+}

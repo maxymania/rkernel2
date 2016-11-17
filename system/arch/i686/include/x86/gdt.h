@@ -23,6 +23,7 @@
  * SOFTWARE.
  */
 #pragma once
+#include <machine/types.h>
 #include <sysstd/uint.h>
 
 
@@ -64,47 +65,71 @@ struct segdesc {
 { (lim) & 0xffff, (uint)(base) & 0xffff,              \
   ((uint)(base) >> 16) & 0xff, type, 1, dpl, 1,       \
   (uint)(lim) >> 16, 0, 0, 1, 0, (uint)(base) >> 24 }
-#endif
+
+
+#define DPL_USER    0x3     /* User DPL */
+
+/* Application segment type bits */
+#define STA_X       0x8     /* Executable segment */
+#define STA_E       0x4     /* Expand down (non-executable segments) */
+#define STA_C       0x4     /* Conforming code segment (executable only) */
+#define STA_W       0x2     /* Writeable (non-executable segments) */
+#define STA_R       0x2     /* Readable (executable segments) */
+#define STA_A       0x1     /* Accessed */
+
+// System segment type bits
+#define STS_T16A    0x1     /* Available 16-bit TSS */
+#define STS_LDT     0x2     /* Local Descriptor Table */
+#define STS_T16B    0x3     /* Busy 16-bit TSS */
+#define STS_CG16    0x4     /* 16-bit Call Gate */
+#define STS_TG      0x5     /* Task Gate / Coum Transmitions */
+#define STS_IG16    0x6     /* 16-bit Interrupt Gate */
+#define STS_TG16    0x7     /* 16-bit Trap Gate */
+#define STS_T32A    0x9     /* Available 32-bit TSS */
+#define STS_T32B    0xB     /* Busy 32-bit TSS */
+#define STS_CG32    0xC     /* 32-bit Call Gate */
+#define STS_IG32    0xE     /* 32-bit Interrupt Gate */
+#define STS_TG32    0xF     /* 32-bit Trap Gate */
 
 // Task state segment format
 struct taskstate {
-  uint link;         // Old ts selector
-  uint esp0;         // Stack pointers and segment selectors
-  ushort ss0;        //   after an increase in privilege level
-  ushort padding1;
-  uint *esp1;
-  ushort ss1;
-  ushort padding2;
-  uint *esp2;
-  ushort ss2;
-  ushort padding3;
+  u_int32_t link;         // Old ts selector
+  u_int32_t esp0;         // Stack pointers and segment selectors
+  u_int16_t ss0;        //   after an increase in privilege level
+  u_int16_t padding1;
+  u_int32_t *esp1;
+  u_int16_t ss1;
+  u_int16_t padding2;
+  u_int32_t *esp2;
+  u_int16_t ss2;
+  u_int16_t padding3;
   void *cr3;         // Page directory base
-  uint *eip;         // Saved state from last task switch
-  uint eflags;
-  uint eax;          // More saved state (registers)
-  uint ecx;
-  uint edx;
-  uint ebx;
-  uint *esp;
-  uint *ebp;
-  uint esi;
-  uint edi;
-  ushort es;         // Even more saved state (segment selectors)
-  ushort padding4;
-  ushort cs;
-  ushort padding5;
-  ushort ss;
-  ushort padding6;
-  ushort ds;
-  ushort padding7;
-  ushort fs;
-  ushort padding8;
-  ushort gs;
-  ushort padding9;
-  ushort ldt;
-  ushort padding10;
-  ushort t;          // Trap on task switch
-  ushort iomb;       // I/O map base address
+  u_int32_t *eip;         // Saved state from last task switch
+  u_int32_t eflags;
+  u_int32_t eax;          // More saved state (registers)
+  u_int32_t ecx;
+  u_int32_t edx;
+  u_int32_t ebx;
+  u_int32_t *esp;
+  u_int32_t *ebp;
+  u_int32_t esi;
+  u_int32_t edi;
+  u_int16_t es;         // Even more saved state (segment selectors)
+  u_int16_t padding4;
+  u_int16_t cs;
+  u_int16_t padding5;
+  u_int16_t ss;
+  u_int16_t padding6;
+  u_int16_t ds;
+  u_int16_t padding7;
+  u_int16_t fs;
+  u_int16_t padding8;
+  u_int16_t gs;
+  u_int16_t padding9;
+  u_int16_t ldt;
+  u_int16_t padding10;
+  u_int16_t t;          // Trap on task switch
+  u_int16_t iomb;       // I/O map base address
 };
 
 // Gate descriptors for interrupts and traps

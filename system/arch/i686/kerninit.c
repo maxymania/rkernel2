@@ -1,5 +1,4 @@
 /*
- * 
  * Copyright (c) 2016 Simon Schmidt
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -23,25 +22,22 @@
 #include <machine/types.h>
 #include <sys/kernslice.h>
 #include <sys/cpu.h>
+#include <sysarch/hal.h>
+#include <x86/cpu_arch.h>
 
 extern const u_int32_t  _i686_multiboot_memdata[5];
-extern const char _kernel_end[];
 
-struct cpu _i686_boot_cpu;
+/*
+ * A Pointer to the end of the Kernel.
+ */
+extern const char _kernel_end[];
 
 static struct kernslice slice;
 static struct cpu cpu;
 static struct physmem_range memrange[2];
+static struct cpu_arch cpu_arch;
 
 void kernel_main(void);
-
-/*
- * Currently, we only have one CPU.
- */
-
-struct cpu *kernel_get_current_cpu() {
-	return &cpu;
-}
 
 static void _i686_init(){
 	u_int32_t endkernel = (u_int32_t)(const void*)_kernel_end;
@@ -51,6 +47,13 @@ static void _i686_init(){
 	cpu.cpu_kernel_slice = &slice;
 	cpu.cpu_ks_next = 0;
 	cpu.cpu_current_thread = 0;
+	cpu.cpu_arch = &cpu_arch;
+	
+	/*
+	 * Assign the pointer to the CPU structure to the field in the CPU-private segment.
+	 */
+	cpu.CPU_LOCAL_SELF  = (u_intptr_t)&cpu;
+	
 	slice.ks_kernslice_id  = 0;
 	slice.ks_memory_ranges = memrange;
 	if(flags&1){
@@ -61,6 +64,8 @@ static void _i686_init(){
 		memrange[1].pm_end = (_i686_multiboot_memdata[2]<<10)+0x100000;
 		slice.ks_num_memory_ranges = 2;
 	}
+	
+	hal_initcpu(&cpu);
 }
 
 
