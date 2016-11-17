@@ -24,10 +24,10 @@
 #include <sysplatform/console.h>
 #include "ccterm_output.h"
 
-static ssize_t ccterm_read (struct iopipe* iopipe, void* buf, size_t size){
+/*static ssize_t ccterm_readraw (struct iopipe* iopipe, void* buf, size_t size){
 	return 0;
-}
-static ssize_t ccterm_write (struct iopipe* iopipe, const void* buf, size_t size){
+}*/
+static ssize_t ccterm_writeraw (struct iopipe* iopipe, const void* buf, size_t size){
 	const u_int8_t* cbuf = buf;
 	size_t i,j;
 	struct ccterm_buffer* cctb = iopipe->iop_data;
@@ -50,6 +50,17 @@ static ssize_t ccterm_write (struct iopipe* iopipe, const void* buf, size_t size
 	}
 	if(cctb->o_begin != cctb->o_end) cctb->ops->o_consume(cctb);
 	return size;
+}
+
+static ssize_t ccterm_read (struct iopipe* iopipe, struct kern_uio* kbu){
+	return 0;
+}
+static ssize_t ccterm_write (struct iopipe* iopipe, struct kern_uio* kbu){
+	if((kbu->kbu_origin==KBU_AS_SYS)&&(kbu->kbu_iovec_n==1)){
+		return ccterm_writeraw(iopipe, kbu->kbu_iovec->iov_base,kbu->kbu_iovec->iov_len);
+	}
+	// TODO: implements writes from userspace.
+	return 0;
 }
 
 static struct ccterm_buffer ccbuffer;

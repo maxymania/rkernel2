@@ -1,6 +1,13 @@
 /*
- * 
  * Copyright (c) 2016 Simon Schmidt
+ *
+ * All or some portions of this file are derived from specifications of UNIX
+ * error codes as seen in other UNIX-systems and UNIX-like systems such as Linux,
+ * BSD, research-UNIX version 7, and System V. For the fundamental source, that
+ * inspired the structure of this file, I credit:
+ *  - Bell Labs (AT&T/Unix System Laboratories, Inc.), the team that worked on
+ *                             UNIX especially Dennis Ritchie and Ken Thompson.
+ *  - CSRG at University of California, Berkeley.
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -21,28 +28,22 @@
  * SOFTWARE.
  */
 #pragma once
+#include <sys/uio.h>
 
-#include <machine/types.h>
-#include <machine/stdtypes.h>
-#include <sys/kbuio.h>
-
-struct iopipe;
-
-struct iopipe_ops {
-	//ssize_t (*io_read) (struct iopipe* iopipe, void* buf, size_t size);
-	//ssize_t (*io_write) (struct iopipe* iopipe, const void* buf, size_t size);
-	ssize_t (*io_read) (struct iopipe* iopipe, struct kern_uio* kbu);
-	ssize_t (*io_write) (struct iopipe* iopipe, struct kern_uio* kbu);
+enum kbu_rw{
+	KBU_READ,
+	KBU_WRITE
+};
+enum kbu_origin{
+	KBU_AS_USR,
+	KBU_AS_SYS
 };
 
-struct iopipe{
-	void*                    iop_data;
-	const struct iopipe_ops* iop_ops;
+struct kern_uio{
+	struct iovec*    kbu_iovec;
+	size_t           kbu_iovec_n;
+	size_t           kbu_totalsize;
+	enum kbu_rw      kbu_rw;
+	enum kbu_origin  kbu_origin;
 };
-
-ssize_t iopipe_read (struct iopipe* iopipe, void* buf, size_t size);
-ssize_t iopipe_write (struct iopipe* iopipe, const void* buf, size_t size);
-
-ssize_t iopipe_read_v (struct iopipe* iopipe, struct kern_uio* kbu);
-ssize_t iopipe_write_v (struct iopipe* iopipe, struct kern_uio* kbu);
 

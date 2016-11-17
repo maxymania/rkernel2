@@ -22,14 +22,32 @@
  */
 #include <sys/iopipe.h>
 
-
 ssize_t iopipe_read (struct iopipe* iopipe, void* buf, size_t size){
-	return iopipe->iop_ops->io_read(iopipe,buf,size);
+	struct kern_uio     kbu;
+	struct iovec iov  = { buf,size };
+	kbu.kbu_iovec     = &iov;
+	kbu.kbu_iovec_n   = 1;
+	kbu.kbu_totalsize = size;
+	kbu.kbu_rw        = KBU_READ;
+	kbu.kbu_origin    = KBU_AS_SYS;
+	return iopipe->iop_ops->io_read(iopipe,&kbu);
 }
 
 ssize_t iopipe_write (struct iopipe* iopipe, const void* buf, size_t size){
-	return iopipe->iop_ops->io_write(iopipe,buf,size);
+	struct kern_uio     kbu;
+	struct iovec iov  = { (void*)buf,size };
+	kbu.kbu_iovec     = &iov;
+	kbu.kbu_iovec_n   = 1;
+	kbu.kbu_totalsize = size;
+	kbu.kbu_rw        = KBU_WRITE;
+	kbu.kbu_origin    = KBU_AS_SYS;
+	return iopipe->iop_ops->io_write(iopipe,&kbu);
 }
 
-
+ssize_t iopipe_read_v (struct iopipe* iopipe, struct kern_uio* kbu){
+	return iopipe->iop_ops->io_read(iopipe,&kbu);
+}
+ssize_t iopipe_write_v (struct iopipe* iopipe, struct kern_uio* kbu){
+	return iopipe->iop_ops->io_write(iopipe,&kbu);
+}
 

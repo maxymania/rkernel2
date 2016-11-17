@@ -1,6 +1,13 @@
 /*
- * 
  * Copyright (c) 2016 Simon Schmidt
+ *
+ * All or some portions of this file are derived from specifications of UNIX
+ * error codes as seen in other UNIX-systems and UNIX-like systems such as Linux,
+ * BSD, research-UNIX version 7, and System V. For the fundamental source, that
+ * inspired the structure of this file, I credit:
+ *  - Bell Labs (AT&T/Unix System Laboratories, Inc.), the team that worked on
+ *                             UNIX especially Dennis Ritchie and Ken Thompson.
+ *  - CSRG at University of California, Berkeley.
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -21,28 +28,13 @@
  * SOFTWARE.
  */
 #pragma once
-
-#include <machine/types.h>
 #include <machine/stdtypes.h>
-#include <sys/kbuio.h>
 
-struct iopipe;
-
-struct iopipe_ops {
-	//ssize_t (*io_read) (struct iopipe* iopipe, void* buf, size_t size);
-	//ssize_t (*io_write) (struct iopipe* iopipe, const void* buf, size_t size);
-	ssize_t (*io_read) (struct iopipe* iopipe, struct kern_uio* kbu);
-	ssize_t (*io_write) (struct iopipe* iopipe, struct kern_uio* kbu);
+struct iovec{
+	void*   iov_base; /* Begin of the memory Region. */
+	size_t  iov_len;  /* Length of the memory Region */
 };
 
-struct iopipe{
-	void*                    iop_data;
-	const struct iopipe_ops* iop_ops;
-};
-
-ssize_t iopipe_read (struct iopipe* iopipe, void* buf, size_t size);
-ssize_t iopipe_write (struct iopipe* iopipe, const void* buf, size_t size);
-
-ssize_t iopipe_read_v (struct iopipe* iopipe, struct kern_uio* kbu);
-ssize_t iopipe_write_v (struct iopipe* iopipe, struct kern_uio* kbu);
+#define UIO_SMALLIOV    8       /* 8 on stack, else malloc */
+#define UIO_MAXIOV      1024    /* max 1K of iov's */
 
