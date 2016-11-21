@@ -20,8 +20,9 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-#include <sysplatform/caps.h>
+#pragma once
 
-int platform_get_cap_stage(){
-	return platform_CPU_PTR;
-}
+/* i686 page size (4096 byte, or 0x1000, or 1<<12). */
+#define SYSARCH_PAGESIZE       0x1000
+#define SYSARCH_PAGESIZE_SHIFT 12
+

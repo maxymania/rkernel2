@@ -21,16 +21,50 @@
  * SOFTWARE.
  */
 #include <sysmaster/syscalls.h>
-//#include <sysplatform/console.h>
+#include <sys/cpu.h>
+#include <sys/kernslice.h>
 #include <sys/kterm.h>
 #include <sysplatform/caps.h>
 #include <sysarch/halt.h>
+#include <sys/physmem_alloc.h>
+#include <stdio.h>
 
 void kern_prove_alive();
+
+static void kern_initmem(){
+	u_intptr_t             Pi;
+	paddr_t                Pt;
+	struct kernslice*      kern;
+	struct physmem_bmaset* bmas;
+	int i;
+	kern = kernel_get_current_cpu()->cpu_kernel_slice;
+	i = vm_phys_bm_bootinit(
+		kern->ks_memory_ranges,
+		kern->ks_num_memory_ranges,
+		&Pi,
+		&Pt,
+		&bmas
+	);
+	kern->ks_memory_allocator = bmas;
+	printf("vm_phys_bm_bootinit() = %d\n",i);
+	printf("bmas = %p\n",bmas);
+	if(bmas){
+		printf("bmas->pmb_maps = %p\n",bmas->pmb_maps);
+		printf("bmas->pmb_n_maps = %u\n",(unsigned int)bmas->pmb_n_maps);
+		for(i=0;i<bmas->pmb_n_maps;++i){
+			printf("bmas->pmb_maps[%d] = %d\n",i,(unsigned int)(bmas->pmb_maps[i]->pmb_length));
+		}
+	}
+}
 
 void kernel_main(void) {
 	int caps = platform_get_cap_stage();
 	switch(caps){
+	case platform_CPU_PTR:
+		kterm_init();
+		kern_initmem();
+		kern_prove_alive();
+		break;
 	case platform_ALIVE:
 	case platform_HIGHER_HALF:
 		//console_init();

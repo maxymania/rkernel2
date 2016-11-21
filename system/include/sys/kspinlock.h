@@ -20,8 +20,18 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-#include <sysplatform/caps.h>
+#pragma once
+#include <machine/types.h>
 
-int platform_get_cap_stage(){
-	return platform_CPU_PTR;
+typedef int8_t kspinlock_t;
+
+#define kernlock_try_lock(lkp)   __atomic_exchange_n((lkp),(int8_t)(-1),__ATOMIC_ACQUIRE)
+#define kernlock_unlock(lkp)     __atomic_store_n((lkp),(int8_t)(0),__ATOMIC_RELEASE)
+
+#define kernlock_init(lkp)     __atomic_store_n((lkp),(int8_t)(0),__ATOMIC_RELAXED)
+
+static inline int8_t kernlock_lock(kspinlock_t* lkp){
+	while(kernlock_try_lock(lkp));
+	return 0;
 }
+

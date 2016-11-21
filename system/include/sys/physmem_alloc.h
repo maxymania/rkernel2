@@ -20,8 +20,40 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-#include <sysplatform/caps.h>
+#pragma once
+#include <machine/types.h>
+#include <sys/physmem.h>
+#include <sys/kspinlock.h>
 
-int platform_get_cap_stage(){
-	return platform_CPU_PTR;
-}
+/*
+ * A page-allocation-Bitmap.
+ */
+struct physmem_bmalloc {
+	struct physmem_range  pmb_range;
+	u_int32_t*            pmb_bitmap;
+	paddr_t               pmb_length;
+};
+
+struct physmem_bmaset {
+	struct physmem_bmalloc** pmb_maps;
+	u_int32_t                pmb_n_maps;
+	kspinlock_t              pmb_lock;
+};
+
+int vm_phys_alloc(struct physmem_bmaset* pmas,paddr_t *res);
+
+int vm_phys_free(struct physmem_bmaset* pmas,paddr_t page);
+
+/*
+ * 'vm_phys_bm_bootinit()' initializes a physical memory allocator, without actually
+ * allocating any page of memory. This function is called even before initializing
+ * the paging subsystem.
+ */
+int vm_phys_bm_bootinit(
+		struct physmem_range *rng,
+		u_intptr_t n_ranges,
+		u_intptr_t *Pi,
+		paddr_t *Pt,
+		struct physmem_bmaset** Pbma
+);
+

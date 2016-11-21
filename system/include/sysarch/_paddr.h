@@ -21,7 +21,7 @@
  * SOFTWARE.
  */
 #pragma once
-/* This is a Template file for each CPU-architecture's <sysarch/halt.h> file. */
+/* This is a Template file for each CPU-architecture's <sysarch/paddr.h> file. */
 
 /* Default paddr_t implementation. */
 typedef unsigned int paddr_t __attribute__((mode(__word__)));

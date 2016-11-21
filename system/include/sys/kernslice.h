@@ -26,6 +26,7 @@
 #include <sys/physmem.h>
 
 struct cpu;
+struct physmem_bmaset;
 
 /*
  * A kernel Slice represent a Set of CPUs and resources, that belong together.
@@ -37,9 +38,10 @@ struct cpu;
  * appropriate.
  */
 struct kernslice{
-	u_intptr_t            ks_kernslice_id;       /* The unique ID of this kernel Slice. */
-	struct physmem_range* ks_memory_ranges;      /* Table of Physical Memory Ranges. */
-	u_intptr_t            ks_num_memory_ranges;  /* The length of the Table of Physical Memory Ranges. */
-	struct cpu*           ks_cpu_list;           /* The first CPU in the CPU list. Use cpu->cpu_ks_next for the next one. */
+	u_intptr_t             ks_kernslice_id;       /* The unique ID of this kernel Slice. */
+	struct physmem_range*  ks_memory_ranges;      /* Table of Physical Memory Ranges. */
+	u_intptr_t             ks_num_memory_ranges;  /* The length of the Table of Physical Memory Ranges. */
+	struct cpu*            ks_cpu_list;           /* The first CPU in the CPU list. Use cpu->cpu_ks_next for the next one. */
+	struct physmem_bmaset* ks_memory_allocator;   /* Physical page allocator bitmap-set. */
 };
 

@@ -20,8 +20,10 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-#include <sysplatform/caps.h>
+#pragma once
+/* This is a Template file for each CPU-architecture's <sysarch/pages.h> file. */
 
-int platform_get_cap_stage(){
-	return platform_CPU_PTR;
-}
+/* Default implementation (4k). */
+#define SYSARCH_PAGESIZE       0x1000
+#define SYSARCH_PAGESIZE_SHIFT 12
+

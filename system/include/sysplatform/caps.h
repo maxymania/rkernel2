@@ -31,6 +31,11 @@ enum {
 	 * Indicates, that this port is already a "Higher Half Kernel".
 	 */
 	platform_HIGHER_HALF = 1,
+	/*
+	 * Indicates, that this port has a working 'struct cpu'-pointer,
+	 * including 'struct kernslice'-instance and other accessoires.
+	 */
+	platform_CPU_PTR = 2,
 };
 
 /*
