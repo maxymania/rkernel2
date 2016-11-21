@@ -41,7 +41,14 @@ void kernel_main(void);
 
 static void _i686_init(){
 	u_int32_t endkernel = (u_int32_t)(const void*)_kernel_end;
-	endkernel-=0xC0000000;
+	endkernel -= 0xC0000000;
+	/*
+	 * The end of the kernel marks the begin of the *usable* high memory.
+	 * So we need to round it up to 4kb, in order to align it.
+	 */
+	endkernel +=  0xfff;
+	endkernel &= ~0xfff;
+	
 	u_int32_t flags = _i686_multiboot_memdata[0];
 	cpu.cpu_cpu_id = 0;
 	cpu.cpu_kernel_slice = &slice;
@@ -59,9 +66,27 @@ static void _i686_init(){
 	if(flags&1){
 		memrange[0].pm_begin = 0;
 		memrange[0].pm_end = _i686_multiboot_memdata[1]<<10;
-		if(endkernel>0x100000) memrange[1].pm_begin = endkernel;
-		else memrange[1].pm_begin = 0x100000;
+		/*
+		 * Round-Down the End-Of-Memory in order to align 4kb pages.
+		 */
+		memrange[0].pm_end &= ~0xfff;
+		
+		/*
+		 * The 'upper memory' begins after the first megabyte. The Kernel itself is also
+		 * located at this position - so that the usable memory starts after the kernel.
+		 * However, if something bad happens - and 'endkernel' points below 1 MB, this
+		 * check is going to catch it.
+		 */
+		if(endkernel>0x100000) /* If 'endkernel' is correct, skip the kernel. */
+			memrange[1].pm_begin = endkernel;
+		else /* Else skip the first 12 MB, the kernel is assumed to be small enough, to fit in. */
+			memrange[1].pm_begin = 0xC00000;
+		
 		memrange[1].pm_end = (_i686_multiboot_memdata[2]<<10)+0x100000;
+		/*
+		 * Round-Down the End-Of-Memory in order to align 4kb pages.
+		 */
+		memrange[1].pm_end &= ~0xfff;
 		slice.ks_num_memory_ranges = 2;
 	}
 	
