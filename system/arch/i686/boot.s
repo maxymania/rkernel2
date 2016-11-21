@@ -33,6 +33,12 @@ _i686_kernel_page_table:
 boot_pagetab1:
 boot_page_table1:
 	.skip 4096
+boot_page_table2:
+	.skip 4096
+boot_page_table3:
+	.skip 4096
+boot_page_table4:
+	.skip 4096
 
 _i686_multiboot_memdata:
 	.skip 4
@@ -137,8 +143,8 @@ _start:
 	loop 1b
 
 3:
-	# Map VGA video memory to 0xC03FF000 as "present, writable".
-	movl $(0x000B8000 | 0x003), boot_pagetab1 - 0xC0000000 + 1023 * 4
+	# Map VGA video memory to 0xC0BFF000 as "present, writable".
+	movl $(0x000B8000 | 0x003), boot_page_table3 - 0xC0000000 + 1023 * 4
 
 	# The page table is used at both page directory entry 0 (virtually from 0x0
 	# to 0x3FFFFF) (thus identity mapping the kernel) and page directory entry
@@ -150,6 +156,15 @@ _start:
 	# Map the page table to both virtual addresses 0x00000000 and 0xC0000000.
 	movl $(boot_page_table1 - 0xC0000000 + 0x003), boot_page_directory - 0xC0000000 + 0
 	movl $(boot_page_table1 - 0xC0000000 + 0x003), boot_page_directory - 0xC0000000 + 768 * 4
+	
+	movl $(boot_page_table2 - 0xC0000000 + 0x003), boot_page_directory - 0xC0000000 + 4 + 0
+	movl $(boot_page_table2 - 0xC0000000 + 0x003), boot_page_directory - 0xC0000000 + 4 + 768 * 4
+	
+	movl $(boot_page_table3 - 0xC0000000 + 0x003), boot_page_directory - 0xC0000000 + 8 + 0
+	movl $(boot_page_table3 - 0xC0000000 + 0x003), boot_page_directory - 0xC0000000 + 8 + 768 * 4
+	
+	movl $(boot_page_table4 - 0xC0000000 + 0x003), boot_page_directory - 0xC0000000 + 12 + 0
+	movl $(boot_page_table4 - 0xC0000000 + 0x003), boot_page_directory - 0xC0000000 + 12 + 768 * 4
 
 	# Set cr3 to the address of the boot_page_directory.
 	movl $(boot_page_directory - 0xC0000000), %ecx
@@ -169,6 +184,9 @@ _start:
 
 	# Unmap the identity mapping as it is now unnecessary. 
 	movl $0, boot_page_directory + 0
+	movl $0, boot_page_directory + 4
+	movl $0, boot_page_directory + 8
+	movl $0, boot_page_directory + 12
 
 	# Reload crc3 to force a TLB flush so the changes to take effect.
 	movl %cr3, %ecx
