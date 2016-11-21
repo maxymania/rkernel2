@@ -31,6 +31,11 @@
  */
 extern struct cpu *cpu_ptr asm("%gs:0");
 
+/*
+ * The thread-local storage.
+ */
+extern u_intptr_t *cpu_tls asm("%gs:4");
+
 struct cpu *kernel_get_current_cpu() {
 	return cpu_ptr;
 }
@@ -48,6 +53,8 @@ void hal_initcpu(struct cpu* cpu){
 	cpu_arch->gdt[SEG_KDATA] = SEG(STA_W, 0, 0xffffffff, 0);
 	cpu_arch->gdt[SEG_UCODE] = SEG(STA_X|STA_R, 0, 0xffffffff, DPL_USER);
 	cpu_arch->gdt[SEG_UDATA] = SEG(STA_W, 0, 0xffffffff, DPL_USER);
+	cpu_arch->gdt[SEG_TSS]   = SEG16(STS_T32A, &cpu_arch->tss, sizeof(cpu_arch->tss)-1, 0);
+	cpu_arch->gdt[SEG_TSS].s = 0;
 	
 	/* Map cpu_local -- that's private per cpu. */
 	cpu_arch->gdt[SEG_KCPU] = SEG(STA_W, cpu->cpu_local, sizeof(cpu->cpu_local), 0);
@@ -57,5 +64,14 @@ void hal_initcpu(struct cpu* cpu){
 }
 
 void hal_after_thread_switch(){
+	struct cpu_arch *cpu_arch = cpu_ptr->cpu_arch;
+	cpu_arch->tss.ss0  = SEG_KDATA << 3;
+	cpu_arch->tss.esp0 = cpu_tls[1];
+	/*
+	 * setting IOPL=0 in eflags *and* iomb beyond the tss segment limit
+	 * forbids I/O instructions (e.g., inb and outb) from user space
+	 */
+	cpu_arch->tss.iomb = (ushort) 0xFFFF;
+	ltr(SEG_TSS << 3);
 }
 

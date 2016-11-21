@@ -83,3 +83,10 @@ lcr3(u_int32_t val)
 {
   asm volatile("movl %0,%%cr3" : : "r" (val));
 }
+
+static inline void
+ltr(u_int16_t sel)
+{
+  asm volatile("ltr %0" : : "r" (sel));
+}
+
