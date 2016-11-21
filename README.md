@@ -29,3 +29,9 @@ I call it *easy to port* in opposition to *portable*. For example, Linux is "*po
 
 In contrast, *easy to port* means, that it only supports a few architectures (or just one) but is carefully designed to be ported to other architectures later, and with minimal efforts.
 
+#### having a *clean system call interface*
+
+This kernel will have only one ABI per architecture, and one system call table across all architectures. This makes it easy to add system calls to the kernel without having any duplicate work per supported architecture.
+
+Furthermore, system calls have a unified calling convetion - every argument is represented as a `register_t` or `u_register_t`; every argument is passed through the registers (only if enough registers are available) and every system call generically has the same number of arguments. If a system call has less arguments, the superflous arguments are simply discarded. Using this technique, the entire ABI is greatly unified.
+
