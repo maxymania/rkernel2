@@ -85,9 +85,11 @@ int vm_phys_bm_bootinit(
 		if(bitmap_current >= bitmap_last){
 			*Pi = i;
 			*Pt = range[i].pm_begin+MUL_PAGESIZE( MUL_32(j) );
+			if( (*Pt >= range[i].pm_end) && ((i+1) >= n_ranges) ) return 0;
 			return -1;
 		}
 	}
 	return 0;
 }
+
 
