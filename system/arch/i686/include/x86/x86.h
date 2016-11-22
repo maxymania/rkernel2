@@ -73,7 +73,7 @@ sti(void)
 static inline u_int32_t
 rcr2(void)
 {
-  uint val;
+  u_int32_t val;
   asm volatile("movl %%cr2,%0" : "=r" (val));
   return val;
 }
@@ -88,5 +88,10 @@ static inline void
 ltr(u_int16_t sel)
 {
   asm volatile("ltr %0" : : "r" (sel));
+}
+
+static inline void
+invlpg(void *addr) {
+	asm volatile ("invlpg (%0)"::"r"(addr));
 }
 
