@@ -52,7 +52,6 @@ void pmap_init(){
 	p_inst_kernel.vab  = (u_intptr_t)0xC1000000;
 	p_inst_kernel.vae  = (u_intptr_t)0xFFFFFFFF;
 	/* We have already initialized the following page tables in boot.s: 768 .. 768+3 */
-	//1024
 	for(i = 768+4; i<1024; ++i){
 		if(vm_phys_alloc(bmas, &phys)){
 			pmap_zero_page(phys);

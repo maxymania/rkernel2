@@ -26,6 +26,7 @@
 #include <sys/kernslice.h>
 #include <sys/kspinlock.h>
 #include <string.h>
+#include <libkern/panic.h>
 
 static kspinlock_t map_sl = 0;
 
@@ -62,7 +63,7 @@ static void unmap_page(u_intptr_t va){
  */
 void pmap_zero_page(paddr_t pa){
 	u_intptr_t va = map_page(pa);
-	if(!va)return; /* This should not happen. TODO: panic. */
+	if(!va)panic("Cannot map Physical page.");
 	memset((void*)va,0,4096);
 	unmap_page(va);
 }
@@ -72,7 +73,7 @@ void pmap_zero_page(paddr_t pa){
  */
 void _i686_pmap_pte_set(paddr_t pa,int i,pte_t pte){
 	u_intptr_t va = map_page(pa);
-	if(!va)return; /* This should not happen. TODO: panic. */
+	if(!va)panic("Cannot map Physical page.");
 	((pte_t*)va)[i] = pte;
 	unmap_page(va);
 }
@@ -95,7 +96,7 @@ pte_t _i686_pmap_pte_get(paddr_t pa,int i){
 void _i686_pmap_pdinit(paddr_t pa){
 	int i;
 	u_intptr_t va = map_page(pa);
-	if(!va)return; /* This should not happen. TODO: panic. */
+	if(!va)panic("Cannot map Physical page.");
 	for(i=0;i<768;++i){
 		((pte_t*)va)[i] = 0;
 	}
