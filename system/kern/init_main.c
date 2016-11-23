@@ -27,6 +27,7 @@
 #include <sysplatform/caps.h>
 #include <sysarch/halt.h>
 #include <sys/physmem_alloc.h>
+#include <vm/pmap.h>
 #include <stdio.h>
 
 void kern_prove_alive();
@@ -55,6 +56,7 @@ static void kern_initmem(){
 			printf("bmas->pmb_maps[%d] = %d\n",i,(unsigned int)(bmas->pmb_maps[i]->pmb_length));
 		}
 	}
+	pmap_init();
 }
 
 void kernel_main(void) {

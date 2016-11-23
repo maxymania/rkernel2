@@ -109,6 +109,10 @@ int pmap_remove_all(pmap_t pmap);
  */
 int pmap_protect(pmap_t pmap, u_intptr_t vab, u_intptr_t vae, vm_prot_t prot);
 
+/*
+ * This function zeroes out a Memory Page.
+ */
+void pmap_zero_page(paddr_t pa);
 
 /*
  * ----------------------------------------------

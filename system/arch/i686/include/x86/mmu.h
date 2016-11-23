@@ -1,5 +1,7 @@
 /*
  * 
+ * Copyright (c) 2006-2016 Frans Kaashoek, Robert Morris, Russ Cox,
+ *                         Massachusetts Institute of Technology
  * Copyright (c) 2016 Simon Schmidt
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -21,13 +23,28 @@
  * SOFTWARE.
  */
 #pragma once
-#include <vm/pmap.h>
+#include <sysarch/paddr.h>
+#include <machine/types.h>
 
-struct pmap{
-	struct kernslice* slice; /* Kernel-slice. */
-	paddr_t           pdir;  /* Page Directory. */
-	u_intptr_t        vab;   /* The first address in the address range. */
-	u_intptr_t        vae;   /* The last valid address in the range. Range := [vab,vae]  */
-};
+/*
+ * This flag-combo is also used in boot.s
+ */
+#define PTE_PW          0x003   // Present | Writable
 
+
+// Page table/directory entry flags.
+#define PTE_P           0x001   // Present
+#define PTE_W           0x002   // Writeable
+#define PTE_U           0x004   // User
+#define PTE_PWT         0x008   // Write-Through
+#define PTE_PCD         0x010   // Cache-Disable
+#define PTE_A           0x020   // Accessed
+#define PTE_D           0x040   // Dirty
+#define PTE_PS          0x080   // Page Size
+#define PTE_MBZ 0x180 // Bits must be zero
+
+typedef paddr_t pte_t;
+
+#define PTE_ADDR(pte)   ((pte_t)(pte) & ~0xFFF)
+#define PTE_FLAGS(pte) ((pte_t)(pte) & 0xFFF)
 

@@ -21,11 +21,18 @@
  */
 #include <x86/pmap.h>
 #include <x86/x86.h>
+#include <x86/mmu.h>
+#include <sys/cpu.h>
 #include <sys/kernslice.h>
+#include <sys/physmem_alloc.h>
 
 static struct pmap p_inst_kernel;
 
-extern const char _i686_kernel_page_dir[];
+extern pte_t _i686_kernel_page_dir[];
+
+void  _i686_pmap_pte_set(paddr_t pa,int i,pte_t pte);
+pte_t _i686_pmap_pte_get(paddr_t pa,int i);
+void  _i686_pmap_pdinit(paddr_t pa);
 
 //static int is_kernel(pmap_t pmap){
 //	return ((&p_inst_kernel) == pmap)?1:0;
@@ -35,7 +42,24 @@ extern const char _i686_kernel_page_dir[];
  * Initializes the MMU subsystem of the HAL.
  */
 void pmap_init(){
+	int i;
+	paddr_t phys;
+	struct physmem_bmaset* bmas;
+	
+	p_inst_kernel.slice = kernel_get_current_cpu()->cpu_kernel_slice;
+	bmas = p_inst_kernel.slice->ks_memory_allocator;
 	p_inst_kernel.pdir = ((u_intptr_t)_i686_kernel_page_dir)-0xC0000000;
+	p_inst_kernel.vab  = (u_intptr_t)0xC1000000;
+	p_inst_kernel.vae  = (u_intptr_t)0xFFFFFFFF;
+	/* We have already initialized the following page tables in boot.s: 768 .. 768+3 */
+	//1024
+	for(i = 768+4; i<1024; ++i){
+		if(vm_phys_alloc(bmas, &phys)){
+			pmap_zero_page(phys);
+			phys |= PTE_PW;
+		}else phys = 0;
+		_i686_kernel_page_dir[i] = phys;
+	}
 }
 
 /*
@@ -113,6 +137,7 @@ int pmap_protect(pmap_t pmap, u_intptr_t vab, u_intptr_t vae, vm_prot_t prot){
  * TLB flush all.
  */
 void pmap_tlb_flush_all(){
+	asm volatile("mov %%cr3,%%eax;mov %%eax,%%cr3" ::);
 }
 
 /*
