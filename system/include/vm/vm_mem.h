@@ -51,8 +51,8 @@ struct vm_mem {
 	};
 	unsigned int
 		mem_phys_type : 2, /* The type of the physical memory. */
-		accessed : 1,      /* The memory has been read or written to. */
-		dirty : 1,         /* The memory has been written to. */
-		precious : 1;      /* Data must be written back, even if clean. (Bstore) */
+		mem_accessed : 1,  /* The memory has been read or written to. */
+		mem_dirty : 1,     /* The memory has been written to. */
+		mem_precious : 1;  /* Data must be written back, even if clean. (Bstore) */
 };
 
