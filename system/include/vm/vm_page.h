@@ -37,10 +37,10 @@
  *  - Otherwise this kernslice (KS) is obtained through 'pmap_kernslice(vm_as_t->as_pmap)'
  *  - There are no additional attributes to the page necessary than its 'paddr_t'.
  *
- * If one of those predicates don't match, be it that there is more than one reference to
- * the page, or it is allocated from a different 'kernslice' than that of the 'vm_range_t'
- * or the 'vm_as_t', or additional attributes are needed, a small structure is kept for
- * this page.
+ * If one of those predicates don't match, be it that there is more than one
+ * reference to the page, or it is allocated from a different 'kernslice' than
+ * that of the 'vm_range_t' or the 'vm_as_t', or additional attributes are needed,
+ * a small structure is kept for this page.
  */
 
 struct vm_page {
@@ -51,5 +51,4 @@ struct vm_page {
 	kspinlock_t       pg_lock;   /* Modification lock. */
 };
 typedef struct vm_page *vm_page_t;
-
 

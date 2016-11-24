@@ -47,6 +47,9 @@ struct vm_seg {
 	/* The resident memory object. NULL if the segment is not resident, right now. */
 	vm_mem_t    seg_mem;
 	
+	/* The protection for this segment. */
+	vm_prot_t   seg_prot;
+	
 	/* The backing storage of this segment. NULL, if there is no backing storage. */
 	vm_bstore_t seg_bstore;
 	u_intptr_t  seg_bstore_offset; /* The offset within the backing store. */

@@ -36,6 +36,9 @@
  *
  * Legend:
  *  (B) : 'vm_bstore_t' aka. "backing storage"
+ *  (f) : this information is determined by page-faults and possibly a false
+ *        negative.
+ *  (x) : provided, the platform supports executable space protection.
  */
 
 /* The type of Physical Memory. */
@@ -52,9 +55,12 @@ struct vm_mem {
 		vm_range_t mem_pmrange;
 	};
 	unsigned int
-		mem_phys_type : 2, /* The type of the physical memory. */
-		mem_accessed : 1,  /* The memory has been read or written to. */
-		mem_dirty : 1,     /* The memory has been written to. */
-		mem_precious : 1;  /* Data must be written back, even if clean. (B) */
+		mem_phys_type : 2,  /* The type of the physical memory. */
+		mem_default_ro : 1, /* Default to Read-only, when mapped. */
+		mem_default_nx : 1, /* Default to non-executable, when mapped. (x) */
+		mem_accessed : 1,   /* The memory has been read or written to. (f) */
+		mem_dirty : 1,      /* The memory has been written to. (f) */
+		mem_executed : 1,   /* The memory has been executed. (f) (x) */
+		mem_precious : 1;   /* Data must be written back, even if clean. (B) */
 };
 
