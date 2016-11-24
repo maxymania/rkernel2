@@ -33,8 +33,10 @@
  *
  * Fields in this structure are locked either by the lock on the segment that the
  * vm_mem_t belongs to.
+ *
+ * Legend:
+ *  (B) : 'vm_bstore_t' aka. "backing storage"
  */
-
 
 /* The type of Physical Memory. */
 #define VMM_IS_INVAL   0
@@ -53,6 +55,6 @@ struct vm_mem {
 		mem_phys_type : 2, /* The type of the physical memory. */
 		mem_accessed : 1,  /* The memory has been read or written to. */
 		mem_dirty : 1,     /* The memory has been written to. */
-		mem_precious : 1;  /* Data must be written back, even if clean. (Bstore) */
+		mem_precious : 1;  /* Data must be written back, even if clean. (B) */
 };
 
