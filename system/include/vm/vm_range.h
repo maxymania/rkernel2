@@ -40,6 +40,7 @@ struct vm_range {
 	union vm_range_page rang_pages[VM_RANGE_NUM];
 	u_int32_t           rang_pages_tbm[4]; /* Type-bitmap for rang_pages. */
 	u_int32_t           rang_refc;
+	struct kernslice*   rang_slice;  /* The kslice, the pages is belonging to (by default). */
 	struct vm_range*    rang_next;
 	kspinlock_t         rang_lock;
 };

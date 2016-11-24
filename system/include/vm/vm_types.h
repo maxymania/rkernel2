@@ -32,7 +32,7 @@ typedef u_int16_t  vm_flags_t;
  *
  * Address-ranges are expressed by specifying the first and the last valid pointer
  * in the address range. So, in order to iterate through a range, the following
- * code is needen:     for(i = begin; i <= end; i+=STEP);
+ * code is needed:     for(i = begin; i <= end; i+=STEP);
  */
 typedef u_intptr_t vaddr_t;
 
