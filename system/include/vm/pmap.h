@@ -22,11 +22,11 @@
  */
 #pragma once
 #include <sysarch/paddr.h>
-#include <machine/types.h>
+#include <vm/vm_types.h>
 
 /*
  * This entire API is being implemented by the hardware-abstraction layer (HAL).
- * This API is heavily inspired by Mach's pmap API and NetBSD's pmap(9) API.
+ * This API is heavily inspired by Mach's pmap API.
  */
 
 /*
@@ -46,15 +46,6 @@ struct pmap;
 typedef struct pmap *pmap_t;
 
 struct kernslice;
-
-typedef u_int16_t vm_prot_t;
-typedef u_int16_t vm_flags_t;
-
-#define VM_PROT_READ     4
-#define VM_PROT_WRITE    2
-#define VM_PROT_EXECUTE  1
-
-#define PMAP_NOCACHE     1
 
 /*
  * Initializes the MMU subsystem of the HAL.
@@ -87,17 +78,17 @@ struct kernslice* pmap_kernslice(pmap_t pmap);
  *
  * The range is [ vstartp , vendp+1 ) or [ vstartp , vendp ] .
  */
-void pmap_get_address_range(pmap_t pmap, u_intptr_t *vstartp, u_intptr_t *vendp);
+void pmap_get_address_range(pmap_t pmap, vaddr_t *vstartp, vaddr_t *vendp);
 
 /*
  * Maps a given physical memory page (pa) to a given virtual address (va).
  */
-int pmap_enter(pmap_t pmap, u_intptr_t va, paddr_t pa, vm_prot_t prot, vm_flags_t flags);
+int pmap_enter(pmap_t pmap, vaddr_t va, paddr_t pa, vm_prot_t prot, vm_flags_t flags);
 
 /*
  * Unmap a certain range of virtual addresses from this address space.
  */
-int pmap_remove(pmap_t pmap, u_intptr_t vab, u_intptr_t vae);
+int pmap_remove(pmap_t pmap, vaddr_t vab, vaddr_t vae);
 
 /*
  * Unmap all pages from this address space.
@@ -107,7 +98,7 @@ int pmap_remove_all(pmap_t pmap);
 /*
  * Changes the mappings in the range by replacing the memory protection.
  */
-int pmap_protect(pmap_t pmap, u_intptr_t vab, u_intptr_t vae, vm_prot_t prot);
+int pmap_protect(pmap_t pmap, vaddr_t vab, vaddr_t vae, vm_prot_t prot);
 
 /*
  * This function zeroes out a Memory Page.

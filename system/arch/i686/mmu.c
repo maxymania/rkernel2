@@ -94,20 +94,20 @@ struct kernslice* pmap_kernslice(pmap_t pmap){
  *
  * The range is [ vstartp , vendp+1 ) or [ vstartp , vendp ] .
  */
-void pmap_get_address_range(pmap_t pmap, u_intptr_t *vstartp, u_intptr_t *vendp){
+void pmap_get_address_range(pmap_t pmap, vaddr_t *vstartp, vaddr_t *vendp){
 }
 
 /*
  * Maps a given physical memory page (pa) to a given virtual address (va).
  */
-int pmap_enter(pmap_t pmap, u_intptr_t va, paddr_t pa, vm_prot_t prot, vm_flags_t flags){
+int pmap_enter(pmap_t pmap, vaddr_t va, paddr_t pa, vm_prot_t prot, vm_flags_t flags){
 	return 0;
 }
 
 /*
  * Unmap a certain range of virtual addresses from this address space.
  */
-int pmap_remove(pmap_t pmap, u_intptr_t vab, u_intptr_t vae){
+int pmap_remove(pmap_t pmap, vaddr_t vab, vaddr_t vae){
 	return 0;
 }
 
@@ -121,7 +121,7 @@ int pmap_remove_all(pmap_t pmap){
 /*
  * Changes the mappings in the range by replacing the memory protection.
  */
-int pmap_protect(pmap_t pmap, u_intptr_t vab, u_intptr_t vae, vm_prot_t prot){
+int pmap_protect(pmap_t pmap, vaddr_t vab, vaddr_t vae, vm_prot_t prot){
 	return 0;
 }
 
@@ -145,7 +145,7 @@ void pmap_tlb_flush_all(){
 void pmap_tlb_flush_range(u_intptr_t begin, u_intptr_t end){
 	begin &= ~0xfff;
 	end   &= ~0xfff;
-	for(;begin<end;begin+=0x1000)
+	for(;begin<=end;begin+=0x1000)
 		invlpg((void*)begin);
 }
 
