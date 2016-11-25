@@ -29,6 +29,7 @@
 #include <sys/physmem_alloc.h>
 #include <vm/pmap.h>
 #include <stdio.h>
+#include <kern/zalloc.h>
 
 void kern_prove_alive();
 
@@ -56,6 +57,7 @@ static void kern_initmem(){
 			printf("bmas->pmb_maps[%d] = %d\n",i,(unsigned int)(bmas->pmb_maps[i]->pmb_length));
 		}
 	}
+	zone_bootstrap();
 	pmap_init();
 }
 
