@@ -21,8 +21,9 @@
  * SOFTWARE.
  */
 #pragma once
-#include <sysarch/paddr.h>
+//#include <sysarch/paddr.h>
 #include <vm/vm_types.h>
+#include <vm/tree.h>
 #include <sys/kspinlock.h>
 
 typedef struct vm_mem    *vm_mem_t;
@@ -40,6 +41,9 @@ typedef struct vm_bstore *vm_bstore_t;
  */
 
 struct vm_seg {
+	/* The binary tree node structure. */
+	struct bintree_node _bt_node;
+	
 	/* The address-range of the segment. */
 	vaddr_t     seg_begin;
 	vaddr_t     seg_end;
@@ -59,4 +63,5 @@ struct vm_seg {
 };
 
 typedef struct vm_seg *vm_seg_t;
+
 

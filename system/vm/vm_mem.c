@@ -20,41 +20,24 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-#pragma once
-#include <vm/vm_types.h>
-#include <vm/pmap.h>
-#include <vm/tree.h>
-#include <sys/kspinlock.h>
+#include <vm/vm_mem.h>
 
-/*
- * Type: vm_bintree_t
- *
- * Description:
- *      A table of segments ('vm_seg_t' objects) in this address space, indexed
- *      after their address ranges.
- *
- * Implementation:
- *      The index consists of a Binary Searcht Tree using the begin-attribute of
- *      the address range ('vm_seg_t->seg_begin') as key. Lookups are performed by
- *      first doing a floor-lookup on the tree, so that an entry is returned,
- *      which's key is eighter equals or lower than the address (L), the lookup
- *      searches for, and then, it is checked, wether or not the address (L) is
- *      in the range of the segment.
- */
-typedef struct bintree_node* vm_bintree_t; /* TODO: implement the binary tree. */
 
-/*
- * A virtual address space.
- */
-struct vm_as {
-	vaddr_t       as_begin;
-	vaddr_t       as_end;
-	vm_bintree_t  as_segs;
-	pmap_t        as_pmap;
-	kspinlock_t   as_lock;
-};
-
-typedef struct vm_as* vm_as_t;
-
-int vm_as_pagefault(vm_as_t as,vaddr_t va, vm_prot_t prot);
+int vm_mem_lookup(struct vm_mem* mem, vaddr_t rva, paddr_t *pag, vm_prot_t *prot){
+	vm_page_t pgobj;
+	switch(mem->mem_phys_type){
+	case VMM_IS_PGADDR:
+		*pag = mem->mem_pgaddr;
+		return -1;
+	case VMM_IS_PGOBJ:
+		pgobj = mem->mem_pgobj;
+		if(!pgobj)return 0;
+		*pag = pgobj->pg_phys;
+		*prot &= ~(pgobj->pg_prohib);
+		return -1;
+	case VMM_IS_PMRANGE:
+		return vm_range_get(mem->mem_pmrange,rva,pag,prot);
+	}
+	return 0;
+}
 

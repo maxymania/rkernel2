@@ -55,12 +55,13 @@ struct vm_mem {
 		vm_range_t mem_pmrange;
 	};
 	unsigned int
-		mem_phys_type : 2,  /* The type of the physical memory. */
+		mem_phys_type  : 2, /* The type of the physical memory. */
 		mem_default_ro : 1, /* Default to Read-only, when mapped. */
 		mem_default_nx : 1, /* Default to non-executable, when mapped. (x) */
-		mem_accessed : 1,   /* The memory has been read or written to. (f) */
-		mem_dirty : 1,      /* The memory has been written to. (f) */
-		mem_executed : 1,   /* The memory has been executed. (f) (x) */
-		mem_precious : 1;   /* Data must be written back, even if clean. (B) */
+		mem_accessed   : 1, /* The memory has been read or written to. (f) */
+		mem_dirty      : 1, /* The memory has been written to. (f) */
+		mem_executed   : 1, /* The memory has been executed. (f) (x) */
+		mem_precious   : 1; /* Data must be written back, even if clean. (B) */
 };
+int vm_mem_lookup(struct vm_mem* mem, vaddr_t rva, paddr_t *pag, vm_prot_t *prot);
 

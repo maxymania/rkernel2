@@ -21,40 +21,8 @@
  * SOFTWARE.
  */
 #pragma once
-#include <vm/vm_types.h>
-#include <vm/pmap.h>
-#include <vm/tree.h>
-#include <sys/kspinlock.h>
 
-/*
- * Type: vm_bintree_t
- *
- * Description:
- *      A table of segments ('vm_seg_t' objects) in this address space, indexed
- *      after their address ranges.
- *
- * Implementation:
- *      The index consists of a Binary Searcht Tree using the begin-attribute of
- *      the address range ('vm_seg_t->seg_begin') as key. Lookups are performed by
- *      first doing a floor-lookup on the tree, so that an entry is returned,
- *      which's key is eighter equals or lower than the address (L), the lookup
- *      searches for, and then, it is checked, wether or not the address (L) is
- *      in the range of the segment.
- */
-typedef struct bintree_node* vm_bintree_t; /* TODO: implement the binary tree. */
-
-/*
- * A virtual address space.
- */
-struct vm_as {
-	vaddr_t       as_begin;
-	vaddr_t       as_end;
-	vm_bintree_t  as_segs;
-	pmap_t        as_pmap;
-	kspinlock_t   as_lock;
-};
-
-typedef struct vm_as* vm_as_t;
-
-int vm_as_pagefault(vm_as_t as,vaddr_t va, vm_prot_t prot);
+#define VM_OK       0
+#define VM_FAILURE  1
+#define VM_SEGFAULT 2
 

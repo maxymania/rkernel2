@@ -47,3 +47,6 @@ struct vm_range {
 
 typedef struct vm_range *vm_range_t;
 
+int vm_range_bmlkup(vm_range_t range, int i);
+int vm_range_get   (vm_range_t range, vaddr_t rva, paddr_t *pag, vm_prot_t *prot);
+
