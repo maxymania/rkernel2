@@ -40,7 +40,7 @@
 static int vm_seg_pagefault(vm_as_t as, vm_seg_t seg, vaddr_t va, vm_prot_t prot);
 
 int vm_as_pagefault(vm_as_t as,vaddr_t va, vm_prot_t prot) {
-	struct bintree_node **bt;
+	vm_bintree_t * __restrict__ bt;
 	int ret;
 	kernlock_lock(&(as->as_lock));
 	
@@ -77,6 +77,7 @@ static int vm_seg_pagefault(vm_as_t as,vm_seg_t seg, vaddr_t va, vm_prot_t prot)
 	va -= seg->seg_begin;
 	
 	if(prot & ~(seg->seg_prot)) DO_SEGFAULT;
+	
 	iprod = seg->seg_prot;
 	
 	mem = seg->seg_mem;
@@ -84,10 +85,10 @@ static int vm_seg_pagefault(vm_as_t as,vm_seg_t seg, vaddr_t va, vm_prot_t prot)
 	if(!mem) GIVE_UP;
 	
 	if(mem->mem_default_ro && NOT(mem->mem_dirty   ) && NOT(prot & VM_PROT_WRITE  ))
-	iprod &= ~VM_PROT_WRITE  ;
+		iprod &= ~VM_PROT_WRITE  ;
 	
 	if(mem->mem_default_nx && NOT(mem->mem_executed) && NOT(prot & VM_PROT_EXECUTE))
-	iprod &= ~VM_PROT_EXECUTE;
+		iprod &= ~VM_PROT_EXECUTE;
 	
 	if(!vm_mem_lookup(mem,va, &pa, &iprod)) GIVE_UP;
 	if(prot & ~(iprod)) DO_SEGFAULT;
