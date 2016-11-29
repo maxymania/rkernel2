@@ -20,6 +20,7 @@
  * SOFTWARE.
  */
 #include <x86/pmap.h>
+#include <vm/tlb_cache.h>
 #include <x86/x86.h>
 #include <x86/mmu.h>
 #include <sys/cpu.h>
@@ -135,14 +136,14 @@ int pmap_protect(pmap_t pmap, vaddr_t vab, vaddr_t vae, vm_prot_t prot){
 /*
  * TLB flush all.
  */
-void pmap_tlb_flush_all(){
-	asm volatile("mov %%cr3,%%eax;mov %%eax,%%cr3" ::);
+void mmu_tlb_flush_all(){
+	asm volatile("movl %%cr3,%%eax;movl %%eax,%%cr3" ::);
 }
 
 /*
  * Flush a range of page-mappings from the TLB.
  */
-void pmap_tlb_flush_range(u_intptr_t begin, u_intptr_t end){
+void mmu_tlb_flush_range(vaddr_t begin, vaddr_t end){
 	begin &= ~0xfff;
 	end   &= ~0xfff;
 	for(;begin<=end;begin+=0x1000)
@@ -152,7 +153,31 @@ void pmap_tlb_flush_range(u_intptr_t begin, u_intptr_t end){
 /*
  * Flush a single page-mapping from the TLB.
  */
-void pmap_tlb_flush_page(u_intptr_t pos){
+void mmu_tlb_flush_page(vaddr_t pos){
 	invlpg((void*)pos);
+}
+
+/*
+ * The i686 Architecture is not Virtually Indexed, so these functions don't need to be implemented.
+ */
+
+/*
+ * TLB flush all.
+ */
+void mmu_cache_flush_all(){}
+
+/*
+ * Flush a range of page-mappings from the TLB.
+ */
+void mmu_cache_flush_range(vaddr_t begin, vaddr_t end){
+	(void)begin;
+	(void)end;
+}
+
+/*
+ * Flush a single page-mapping from the TLB.
+ */
+void mmu_cache_flush_page(vaddr_t pos){
+	(void)pos;
 }
 

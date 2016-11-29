@@ -24,6 +24,14 @@
 #include <vm/vm_seg.h>
 #include <vm/vm_mem.h>
 #include <vm/vm_errcode.h>
+#include <sysarch/pages.h>
+#include <xcpu/vm.h>
+
+#ifdef SYSARCH_PAGESIZE_SHIFT
+#define ROUND_DOWN(x) x &= ~((1<<SYSARCH_PAGESIZE_SHIFT)-1)
+#else
+#define ROUND_DOWN(x) x -= (x%SYSARCH_PAGESIZE)
+#endif
 
 #define NOT(x) (!(x))
 
@@ -37,18 +45,23 @@
 		return VM_SEGFAULT; \
 	} while(0)
 
-static int vm_seg_pagefault(vm_as_t as, vm_seg_t seg, vaddr_t va, vm_prot_t prot);
+static int vm_seg_pagefault(vm_as_t as, vm_seg_t seg, vaddr_t va, vm_prot_t fault_type);
 
-int vm_as_pagefault(vm_as_t as,vaddr_t va, vm_prot_t prot) {
+int vm_as_pagefault(vm_as_t as,vaddr_t va, vm_prot_t fault_type) {
+	ROUND_DOWN(va);
 	vm_bintree_t * __restrict__ bt;
 	int ret;
 	kernlock_lock(&(as->as_lock));
 	
 	bt = bt_floor(&(as->as_segs),va);
+	
+	/*
+	 * If no entry has been found, The pointer is not in an valid (mapped) address range.
+	 */
 	if(!bt) DO_SEGFAULT;
 	if(!*bt) DO_SEGFAULT;
 	
-	ret = vm_seg_pagefault(as,((vm_seg_t)((*bt)->V)),va,prot);
+	ret = vm_seg_pagefault(as,((vm_seg_t)((*bt)->V)),va,fault_type);
 	
 	kernlock_unlock(&(as->as_lock));
 	return ret;
@@ -68,36 +81,77 @@ int vm_as_pagefault(vm_as_t as,vaddr_t va, vm_prot_t prot) {
 	} while(0)
 
 
-static int vm_seg_pagefault(vm_as_t as,vm_seg_t seg, vaddr_t va, vm_prot_t prot) {
+static int vm_seg_pagefault(vm_as_t as,vm_seg_t seg, vaddr_t va, vm_prot_t fault_type) {
 	paddr_t pa;
 	vm_prot_t iprod;
 	struct vm_mem * mem;
 	
 	kernlock_lock(&(seg->seg_lock));
+	
+	/*
+	 * If the address is outside the Segment, this is a segmentation fault.
+	 */
+	if(va > seg->seg_end) DO_SEGFAULT;
+	
 	va -= seg->seg_begin;
 	
-	if(prot & ~(seg->seg_prot)) DO_SEGFAULT;
-	
+	/*
+	 * Obtain the segment's memory protection.
+	 */
 	iprod = seg->seg_prot;
+	
+	/*
+	 * Check, if the access type violates the protection.
+	 */
+	if(fault_type & ~(iprod)) DO_SEGFAULT;
 	
 	mem = seg->seg_mem;
 	
+	/* TODO: Pagein. */
 	if(!mem) GIVE_UP;
 	
-	if(mem->mem_default_ro && NOT(mem->mem_dirty   ) && NOT(prot & VM_PROT_WRITE  ))
+	/*
+	 * If Read-Only by Default is set on this segment, and no write access
+	 * is being performed, then remove write from the privileges.
+	 */
+	if(mem->mem_default_ro && NOT(mem->mem_dirty   ) && NOT(fault_type & VM_PROT_WRITE  ))
 		iprod &= ~VM_PROT_WRITE  ;
 	
-	if(mem->mem_default_nx && NOT(mem->mem_executed) && NOT(prot & VM_PROT_EXECUTE))
+	/*
+	 * If No-Execute by Default is set on this segment, and no execute access
+	 * is being performed, then remove execute from the privileges.
+	 */
+	if(mem->mem_default_nx && NOT(mem->mem_executed) && NOT(fault_type & VM_PROT_EXECUTE))
 		iprod &= ~VM_PROT_EXECUTE;
 	
+	/*
+	 * If the lookup failes, give up. XXX: It shouldn't behave like this.
+	 */
 	if(!vm_mem_lookup(mem,va, &pa, &iprod)) GIVE_UP;
-	if(prot & ~(iprod)) DO_SEGFAULT;
 	
-	if(prot & VM_PROT_WRITE  ) mem->mem_dirty    = 1;
-	if(prot & VM_PROT_EXECUTE) mem->mem_executed = 1;
+	/*
+	 * Check, if the access type violates those protection imposed by individual
+	 * page-objects (if any).
+	 */
+	if(fault_type & ~(iprod)) DO_SEGFAULT;
+	
+	/*
+	 * Based on the fault-type, some of the following bits will be set: the 'accessed-bit',
+	 * the 'dirty-bit' and the 'executed-bit'.
+	 */
+	if(fault_type & VM_PROT_WRITE  ) mem->mem_dirty    = 1;
+	if(fault_type & VM_PROT_EXECUTE) mem->mem_executed = 1;
 	mem->mem_accessed = 1;
 	
-	pmap_enter(as->as_pmap,va,pa,iprod,0);
+	/*
+	 * Map the memory. If it failes, give up.
+	 */
+	if( pmap_enter(as->as_pmap,va,pa,iprod,0) ) GIVE_UP;
+	
+	/*
+	 * Flush the faulted page on the given Page address only for the current pmap_t.
+	 */
+	xcpu_tlb_flush_page(as->as_pmap,va);
 	
 	kernlock_unlock(&(seg->seg_lock));
 	return VM_OK;

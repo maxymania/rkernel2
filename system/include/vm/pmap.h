@@ -82,6 +82,10 @@ void pmap_get_address_range(pmap_t pmap, vaddr_t *vstartp, vaddr_t *vendp);
 
 /*
  * Maps a given physical memory page (pa) to a given virtual address (va).
+ * If there is already a mapping at the given virtual address (va), it will
+ * be overwriten.
+ *
+ * This function returns 0 on success, non-0 otherwise.
  */
 int pmap_enter(pmap_t pmap, vaddr_t va, paddr_t pa, vm_prot_t prot, vm_flags_t flags);
 
@@ -104,26 +108,4 @@ int pmap_protect(pmap_t pmap, vaddr_t vab, vaddr_t vae, vm_prot_t prot);
  * This function zeroes out a Memory Page.
  */
 void pmap_zero_page(paddr_t pa);
-
-/*
- * ----------------------------------------------
- * | TLB management (local CPU/local CPU-core). |
- * ----------------------------------------------
- */
-
-/*
- * TLB flush all.
- */
-void pmap_tlb_flush_all();
-
-/*
- * Flush a range of page-mappings from the TLB.
- */
-void pmap_tlb_flush_range(u_intptr_t begin, u_intptr_t end);
-
-/*
- * Flush a single page-mapping from the TLB.
- */
-void pmap_tlb_flush_page(u_intptr_t pos);
-
 

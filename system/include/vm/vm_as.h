@@ -56,5 +56,5 @@ struct vm_as {
 
 typedef struct vm_as* vm_as_t;
 
-int vm_as_pagefault(vm_as_t as,vaddr_t va, vm_prot_t prot);
+int vm_as_pagefault(vm_as_t as,vaddr_t va, vm_prot_t fault_type);
 

@@ -20,40 +20,56 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-#include <vm/vm_range.h>
-#include <sysarch/pages.h>
+#include <xcpu/vm.h>
+#include <vm/tlb_cache.h>
 
-#ifdef SYSARCH_PAGESIZE_SHIFT
-#define DIV_PAGESIZE(x)  ((x)>>SYSARCH_PAGESIZE_SHIFT)
-#else
-#define DIV_PAGESIZE(x)  ((x)/SYSARCH_PAGESIZE)
-#endif
-
-int vm_range_bmlkup(vm_range_t range, int i){
-	int s = i % 32;
-	i /= 32;
-	return (range->rang_pages_tbm[i]>>s) & 1;
+/*
+ * TLB flush all.
+ */
+void xcpu_tlb_flush_all(pmap_t pmap){
+	(void)pmap;
+	mmu_tlb_flush_all();
 }
 
-int vm_range_get   (vm_range_t range, vaddr_t rva, paddr_t *pag, vm_prot_t *prot){
-	vm_page_t pobj;
-	rva = DIV_PAGESIZE(rva);
-	for(;;){
-		if(!range) return 0;
-		if(rva>=VM_RANGE_NUM) {
-			range = range->rang_next;
-			rva -= VM_RANGE_NUM;
-			continue;
-		}
-		if(vm_range_bmlkup(range,(int)rva)) { // 1 => paddr_t
-			*pag = range->rang_pages[rva].page_addr;
-		} else {                              // 0 => vm_page_t
-			pobj = range->rang_pages[rva].page_obj ;
-			if(!pobj) return 0;
-			*pag = pobj->pg_phys;
-			*prot &= ~(pobj->pg_prohib);
-		}
-		return -1;
-	}
+/*
+ * Flush a range of page-mappings from the TLB.
+ */
+void xcpu_tlb_flush_range(pmap_t pmap, vaddr_t begin, vaddr_t end){
+	(void)pmap;
+	mmu_tlb_flush_range(begin,end);
+}
+
+/*
+ * Flush a single page-mapping from the TLB.
+ */
+void xcpu_tlb_flush_page(pmap_t pmap, vaddr_t pos){
+	(void)pmap;
+	mmu_tlb_flush_page(pos);
+}
+
+
+
+/*
+ * Cache flush all.
+ */
+void xcpu_cache_flush_all(pmap_t pmap){
+	(void)pmap;
+}
+
+/*
+ * Flush a range of page-mappings from the Cache.
+ */
+void xcpu_cache_flush_range(pmap_t pmap, vaddr_t begin, vaddr_t end){
+	(void)pmap;
+	(void)begin;
+	(void)end;
+}
+
+/*
+ * Flush a single page-mapping from the Cache.
+ */
+void xcpu_cache_flush_page(pmap_t pmap, vaddr_t pos){
+	(void)pmap;
+	(void)pos;
 }
 

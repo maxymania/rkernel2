@@ -9,6 +9,7 @@
 
 MKList.add "kernel", Makefile.glob("system/kern/*.c")
 MKList.add "kernel", Makefile.glob("system/vm/*.c")
+MKList.add "kernel", Makefile.glob("system/xcpu/*.c")
 MKList.add "kernel", Makefile.glob("system/libkern/*.c")
 MKList.add "kernel", Makefile.glob("system/terminal/*.c")
 MKList.add "kernel", Makefile.glob("system/iopipe/*.c")
