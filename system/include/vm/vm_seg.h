@@ -64,4 +64,8 @@ struct vm_seg {
 
 typedef struct vm_seg *vm_seg_t;
 
+void vm_seg_init();
+
+vm_seg_t vm_seg_alloc(int kernel);
+void vm_seg_initobj(vm_seg_t seg);
 

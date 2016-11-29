@@ -41,7 +41,8 @@
  *      searches for, and then, it is checked, wether or not the address (L) is
  *      in the range of the segment.
  */
-typedef struct bintree_node* vm_bintree_t; /* TODO: implement the binary tree. */
+typedef struct bintree_node* vm_bintree_t;
+struct vm_seg;
 
 /*
  * A virtual address space.
@@ -56,5 +57,9 @@ struct vm_as {
 
 typedef struct vm_as* vm_as_t;
 
+void vm_as_init();
+
 int vm_as_pagefault(vm_as_t as,vaddr_t va, vm_prot_t fault_type);
+
+struct vm_seg *vm_create_entry(vm_as_t as, vaddr_t size);
 
