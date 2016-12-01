@@ -29,6 +29,7 @@
 
 static zone_t vm_range_zone;  /* Zone for user vm_range structures. */
 static zone_t vm_krange_zone; /* Zone for kernel vm_range structures. */
+static zone_t vm_crange_zone; /* Zone for critical kernel vm_range structures. */
 
 #ifdef SYSARCH_PAGESIZE_SHIFT
 #define DIV_PAGESIZE(x)  ((x)>>SYSARCH_PAGESIZE_SHIFT)
@@ -43,16 +44,17 @@ static u_intptr_t z_range_buf[1<<12] __attribute__ ((aligned (CACHE_LINE)));
 
 void vm_range_init(){
 	vm_range_zone = zinit(sizeof(struct vm_range),ZONE_AUTO_REFILL,"user-mode range zone");
-	vm_krange_zone = zinit(sizeof(struct vm_range),0,"kernel-mode range zone");
-	zcram(vm_krange_zone,(void*)z_range_buf,sizeof(z_range_buf));
+	vm_krange_zone = zinit(sizeof(struct vm_range),ZONE_AUTO_REFILL|ZONE_AR_CRITICAL,"kernel-mode range zone");
+	vm_crange_zone = zinit(sizeof(struct vm_range),0,"critical kernel-mode range zone");
+	zcram(vm_crange_zone,(void*)z_range_buf,sizeof(z_range_buf));
 }
 
 void vm_range_refill(){
 	vaddr_t begin,size;
-	if( zcount(vm_krange_zone) < 128 ){
-		size = (vaddr_t)zbufsize(vm_krange_zone) * 256;
+	if( zcount(vm_crange_zone) < 128 ){
+		size = (vaddr_t)zbufsize(vm_crange_zone) * 256;
 		if(!vm_alloc_critical(&begin,&size)) return;
-		zcram(vm_krange_zone,(void*)begin,(size_t)size);
+		zcram(vm_crange_zone,(void*)begin,(size_t)size);
 	}
 }
 
@@ -98,7 +100,6 @@ int vm_range_get   (vm_range_t range, vaddr_t rva, paddr_t *pag, vm_prot_t *prot
 
 vm_range_t vm_range_alloc(int kernel, struct kernslice* slice){
 	vm_range_t range = zalloc(kernel ? vm_krange_zone : vm_range_zone);
-	//vm_range_t range = zalloc(vm_range_zone);
 	if(!range) return 0;
 	memset((void*)range,0,sizeof(struct vm_range));
 	kernlock_init(&(range->rang_lock));
@@ -108,7 +109,7 @@ vm_range_t vm_range_alloc(int kernel, struct kernslice* slice){
 }
 
 struct vm_range *vm_range_alloc_critical(struct kernslice* slice){
-	vm_range_t range = zalloc(vm_krange_zone);
+	vm_range_t range = zalloc(vm_crange_zone);
 	if(!range) return 0;
 	memset((void*)range,0,sizeof(struct vm_range));
 	kernlock_init(&(range->rang_lock));

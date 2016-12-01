@@ -26,12 +26,14 @@
 #include <vm/pmap.h>
 #include <kern/zalloc.h>
 
+#include <stdio.h>
+
 static zone_t vm_as_zone; /* Zone for vm_as structures. */
 
 static struct vm_as kernel_as;
 
 void vm_as_init(){
-	vm_as_zone = zinit(sizeof(struct vm_as),ZONE_AUTO_REFILL,"VM address space");
+	vm_as_zone = zinit(sizeof(struct vm_as),ZONE_AUTO_REFILL,"VM address space zone");
 	kernel_as.as_segs = 0;
 	kernel_as.as_pmap = pmap_kernel();
 	kernlock_init(&(kernel_as.as_lock));
@@ -66,6 +68,22 @@ static int vm_find_free(vm_as_t as, vm_seg_t dseg, vaddr_t lrp /* Last relative 
 }
 
 vm_as_t vm_as_get_kernel(){ return &kernel_as; }
+
+int vm_insert_entry(vm_as_t as, vaddr_t size, struct vm_seg * seg){
+	vm_bintree_t entry;
+	
+	if(!vm_find_free(as,seg,size-1)) {
+		return 0;
+	}
+	
+	vm_seg_initobj(seg);
+	entry = &(seg->_bt_node);
+	bt_insert(&(as->as_segs),&entry);
+	if(entry) { /* Insert failed. */
+		return 0;
+	}
+	return 1;
+}
 
 struct vm_seg *vm_create_entry(vm_as_t as, vaddr_t size) {
 	int kernel = as==&kernel_as;

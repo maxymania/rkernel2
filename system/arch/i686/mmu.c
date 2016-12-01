@@ -88,7 +88,7 @@ void pmap_destroy(pmap_t pmap){
  * Returns the Kernel-slice, this pagetable allocates it's memory from.
  */
 struct kernslice* pmap_kernslice(pmap_t pmap){
-	return 0;
+	return pmap->slice;
 }
 
 /* 
@@ -98,6 +98,8 @@ struct kernslice* pmap_kernslice(pmap_t pmap){
  * The range is [ vstartp , vendp+1 ) or [ vstartp , vendp ] .
  */
 void pmap_get_address_range(pmap_t pmap, vaddr_t *vstartp, vaddr_t *vendp){
+	*vstartp = pmap->vab;
+	*vendp   = pmap->vae;
 }
 
 /*

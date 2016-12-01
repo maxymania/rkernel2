@@ -26,6 +26,7 @@
 #include <vm/tree.h>
 #include <sys/kspinlock.h>
 
+struct vm_as;
 typedef struct vm_mem    *vm_mem_t;
 typedef struct vm_bstore *vm_bstore_t;
 
@@ -71,4 +72,6 @@ void vm_seg_refill();
 vm_seg_t vm_seg_alloc(int kernel);
 
 void vm_seg_initobj(vm_seg_t seg);
+
+int  vm_seg_eager_map(vm_seg_t seg,struct vm_as* as, vm_prot_t prot);
 

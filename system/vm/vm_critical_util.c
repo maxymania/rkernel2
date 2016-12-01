@@ -31,7 +31,6 @@
 #include <sys/physmem_alloc.h>
 #include <vm/pmap.h>
 #include <kern/zalloc.h>
-#include <stdio.h>
 
 #ifdef SYSARCH_PAGESIZE_SHIFT
 #define MUL_PAGESIZE(x)  ((x)<<SYSARCH_PAGESIZE_SHIFT)
@@ -49,7 +48,7 @@
 #define VM_PROT_KMEM  VM_PROT_READ | VM_PROT_WRITE
 
 
-static struct vm_mem* vm_mem_kcfilled(pmap_t pmap, vaddr_t begin,vaddr_t size,struct kernslice* slice){
+static struct vm_mem* vm_mem_kcfilled(vaddr_t size,struct kernslice* slice){
 	/*
 	 * Assumption: size is a multiple of SYSARCH_PAGESIZE.
 	 */
@@ -74,7 +73,6 @@ static struct vm_mem* vm_mem_kcfilled(pmap_t pmap, vaddr_t begin,vaddr_t size,st
 		if(!vm_phys_alloc(PMBM(slice),&page)) goto FAILED;
 		mem->mem_phys_type = VMM_IS_PGADDR;
 		mem->mem_pgaddr = page;
-		pmap_enter(pmap,begin,page,VM_PROT_KMEM,0);
 		return mem;
 	}
 	
@@ -95,8 +93,6 @@ static struct vm_mem* vm_mem_kcfilled(pmap_t pmap, vaddr_t begin,vaddr_t size,st
 		if(!vm_phys_alloc(PMBM(slice),&page)) goto FAILED2;
 		range->rang_pages[j].page_addr = page;
 		vm_range_bmset(range,j);
-		pmap_enter(pmap,begin,page,VM_PROT_KMEM,0);
-		begin += SYSARCH_PAGESIZE;
 	}
 	
 	/*
@@ -120,8 +116,6 @@ static struct vm_mem* vm_mem_kcfilled(pmap_t pmap, vaddr_t begin,vaddr_t size,st
 			if(!vm_phys_alloc(PMBM(slice),&page)) goto FAILED2;
 			range->rang_pages[j].page_addr = page;
 			vm_range_bmset(range,j);
-			pmap_enter(pmap,begin,page,VM_PROT_KMEM,0);
-			begin += SYSARCH_PAGESIZE;
 		}
 	}
 	return mem;
@@ -148,7 +142,7 @@ static struct vm_mem* vm_mem_kcfilled(pmap_t pmap, vaddr_t begin,vaddr_t size,st
 static int vm_seg_kcfill(vm_seg_t seg,pmap_t pmap){
 	vaddr_t size = (seg->seg_end - seg->seg_begin)+1;
 	seg->seg_prot = VM_PROT_KMEM;
-	seg->seg_mem = vm_mem_kcfilled(pmap,seg->seg_begin,size,pmap_kernslice(pmap));
+	seg->seg_mem = vm_mem_kcfilled(size,pmap_kernslice(pmap));
 	if(!(seg->seg_mem)){
 		pmap_remove(pmap,seg->seg_begin,seg->seg_end);
 		return 0;
@@ -160,7 +154,6 @@ int vm_alloc_critical(vaddr_t *addr /* [out] */,vaddr_t *size /* [in/out]*/){
 	int res = 0;
 	vm_as_t as;
 	vm_seg_t seg;
-	printf("vm_alloc_critical(%d)\n",(int)(*size));
 	
 	/*
 	 * Round-Up the size.
@@ -169,18 +162,29 @@ int vm_alloc_critical(vaddr_t *addr /* [out] */,vaddr_t *size /* [in/out]*/){
 	ROUND_DOWN(lsiz);
 	
 	as = vm_as_get_kernel();
+	seg = vm_seg_alloc_critical();
+	if(!seg) return res;
 	
 	kernlock_lock(&(as->as_lock));
 	
-	seg = vm_create_entry_critical(as,lsiz);
-	if(!seg) goto endKalloc;
+	if(! vm_insert_entry(as,lsiz,seg)) {
+		zfree((void*)seg);
+		goto endKalloc;
+	}
+	kernlock_lock(&(seg->seg_lock));
+	kernlock_unlock(&(as->as_lock));
 	
-	if(!vm_seg_kcfill(seg,as->as_pmap)) goto endKalloc; /* TODO: Remove segment. */
+	if(!vm_seg_kcfill(seg,as->as_pmap)) goto endKalloc2; /* TODO: Remove segment. */
+	
+	if(!vm_seg_eager_map(seg,as,VM_PROT_KMEM)) goto endKalloc2; /* TODO: Deallocate. */
 	
 	*addr = seg->seg_begin;
 	*size = (seg->seg_end - seg->seg_begin)+1;
 	res = 1;
 	
+endKalloc2:
+	kernlock_unlock(&(seg->seg_lock));
+	return res;
 endKalloc:
 	kernlock_unlock(&(as->as_lock));
 	return res;

@@ -66,12 +66,19 @@ void vm_init(){
 	vm_mem_init   ();
 	vm_range_init ();
 	
-	testmapping();
+	//testmapping();
 	
-	//vm_seg_refill  ();
-	//vm_mem_refill  ();
-	//vm_range_refill();
-	//vm_as_refill   ();
+	vm_seg_refill  ();
+	vm_mem_refill  ();
+	vm_range_refill();
+	vm_as_refill   ();
+	/*
+	vaddr_t begin,end = 4096*2;
+	printf("vm_alloc_critical = %d\n",(int)vm_alloc_critical(&begin,&end));
+	printf("begin = %p\n",(void*)begin);
+	printf("vm_kalloc_ll = %d\n",(int)vm_kalloc_ll(&begin,&end));
+	printf("begin = %p\n",(void*)begin);
+	*/
 }
 
 void vm_refill(){

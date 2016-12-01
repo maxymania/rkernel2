@@ -42,15 +42,15 @@ void vm_mem_init(){
 	vm_kmem_zone = zinit(sizeof(struct vm_mem),
 	               ZONE_AUTO_REFILL|ZONE_AR_CRITICAL,"kernel-mode memory zone");
 	vm_cmem_zone = zinit(sizeof(struct vm_mem),0,"critical kernel-mode memory zone");
-	zcram(vm_kmem_zone,(void*)z_mem_buf,sizeof(z_mem_buf));
+	zcram(vm_cmem_zone,(void*)z_mem_buf,sizeof(z_mem_buf));
 }
 
 void vm_mem_refill(){
 	vaddr_t begin,size;
-	if( zcount(vm_kmem_zone) < 64 ){
-		size = (vaddr_t)zbufsize(vm_kmem_zone) * 256;
+	if( zcount(vm_cmem_zone) < 64 ){
+		size = (vaddr_t)zbufsize(vm_cmem_zone) * 256;
 		if(!vm_alloc_critical(&begin,&size)) return;
-		zcram(vm_kmem_zone,(void*)begin,(size_t)size);
+		zcram(vm_cmem_zone,(void*)begin,(size_t)size);
 	}
 }
 

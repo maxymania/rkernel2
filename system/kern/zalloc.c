@@ -23,7 +23,6 @@
 #include <kern/zalloc_priv.h>
 #include <libkern/panic.h>
 #include <vm/vm_top.h>
-#include <stdio.h>
 
 static struct zone s_zone_zone;
 typedef void* Pointer;
@@ -152,11 +151,9 @@ static void _zrefill(zone_t zone, u_int32_t min, u_int32_t num){
 	if( zone->zn_count < min ){
 		size = (vaddr_t)(zone->zn_bufsize) * num;
 		if((zone->zn_memtype) & ZONE_AR_CRITICAL){
-			printf("%s : vm_alloc_critical\n",zone->zn_name);
 			vm_refill();
 			if(!vm_alloc_critical(&begin,&size)) return;
 		}else{
-			printf("%s : vm_kalloc_ll\n",zone->zn_name);
 			if(!vm_kalloc_ll(&begin,&size)) return;
 		}
 		_zcram(zone,(void*)begin,(size_t)size);

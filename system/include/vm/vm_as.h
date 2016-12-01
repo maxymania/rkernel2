@@ -65,5 +65,7 @@ int vm_as_pagefault(vm_as_t as,vaddr_t va, vm_prot_t fault_type);
 
 vm_as_t vm_as_get_kernel();
 
+int vm_insert_entry(vm_as_t as, vaddr_t size, struct vm_seg * seg);
+
 struct vm_seg *vm_create_entry(vm_as_t as, vaddr_t size);
 

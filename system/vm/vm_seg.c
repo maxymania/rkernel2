@@ -22,8 +22,11 @@
  */
 #include <vm/vm_as.h>
 #include <vm/vm_seg.h>
+#include <vm/vm_mem.h>
 #include <vm/vm_top.h>
 #include <vm/vm_priv.h>
+#include <vm/pmap.h>
+#include <sysarch/pages.h>
 #include <kern/zalloc.h>
 #include <string.h>
 
@@ -72,4 +75,30 @@ void vm_seg_initobj(vm_seg_t seg){
 	seg->_bt_node.V = seg;
 	seg->_bt_node.K = seg->seg_begin;
 }
+
+int  vm_seg_eager_map(vm_seg_t seg,struct vm_as* as, vm_prot_t prot) {
+	int ret = 0;
+	vaddr_t begin,cursor,size;
+	paddr_t pa;
+	vm_prot_t iprod;
+	vm_mem_t mem;
+	
+	//kernlock_lock(&(seg->seg_lock));
+	mem = seg->seg_mem;
+	if(!mem) goto endEM;
+	
+	begin = seg->seg_begin;
+	cursor = 0;
+	size   = (seg->seg_end - seg->seg_begin)+1;
+	for(;cursor<size; cursor += SYSARCH_PAGESIZE){
+		iprod = prot;
+		if(! vm_mem_lookup(mem,cursor,&pa,&iprod) ) goto endEM;
+		if(! pmap_enter(as->as_pmap,begin+cursor,pa,iprod,0) ) goto endEM;
+	}
+	ret = 1;
+endEM:
+	//kernlock_unlock(&(seg->seg_lock));
+	return ret;
+}
+
 
