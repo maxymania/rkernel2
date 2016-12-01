@@ -32,6 +32,10 @@ struct bintree_node {
 };
 
 void bt_insert(struct bintree_node **node,struct bintree_node **it);
+void bt_put(struct bintree_node **node,struct bintree_node **it);
+
+/* In-Place version of bt_put. */
+void bt_put_ip(struct bintree_node **node,struct bintree_node **it);
 void bt_remove(struct bintree_node **node,struct bintree_node **it);
 struct bintree_node** bt_lookup(struct bintree_node **node,u_intptr_t K);
 struct bintree_node** bt_floor(struct bintree_node **node,u_intptr_t K);

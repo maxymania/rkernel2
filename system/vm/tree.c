@@ -32,8 +32,8 @@ static u_int32_t bt_depth(struct bintree_node *node){
 	return 0;
 }
 
-static u_int32_t bt_calcdepth(struct bintree_node *node){
-	if(!node) return 0;
+static void bt_calcdepth(struct bintree_node *node){
+	if(!node) return;
 	node->depth = bt_max(bt_depth(node->left),bt_depth(node->right))+1;
 }
 
@@ -70,6 +70,90 @@ static void bt_balance(struct bintree_node **node){
 }
 
 void bt_insert(struct bintree_node **node,struct bintree_node **it){
+	struct bintree_node *n;
+	u_intptr_t K = (*it)->K;
+	u_intptr_t N;
+	(*it)->left = (*it)->right = 0;
+	struct bintree_node **narr[64];
+	int i;
+	for(i=0;i<64;++i)narr[i]=0;
+	narr[m64(i)]=node;
+	
+	for(;;){
+		n = *node;
+		if(!n){
+			*node = *it;
+			*it = 0;
+			break;
+		}
+		N = n->K;
+		if(K<N){
+			node = &(n->left);
+			narr[m64(++i)]=node;
+			continue;
+		}
+		if(N<K){
+			node = &(n->right);
+			narr[m64(++i)]=node;
+			continue;
+		}
+		/* If we get here, the element exist. Give up. */
+		return;
+	}
+	/* Backtracking. */
+	for(;narr[m64(i)];--i){
+		bt_balance(narr[m64(i)]);
+		narr[m64(i)] = 0;
+	}
+}
+
+void bt_put(struct bintree_node **node,struct bintree_node **it){
+	struct bintree_node *n;
+	u_intptr_t K = (*it)->K;
+	u_intptr_t N;
+	(*it)->left = (*it)->right = 0;
+	struct bintree_node **narr[64];
+	int i;
+	for(i=0;i<64;++i)narr[i]=0;
+	narr[m64(i)]=node;
+	
+	for(;;){
+		n = *node;
+		if(!n){
+			*node = *it;
+			*it = 0;
+			break;
+		}
+		N = n->K;
+		if(K<N){
+			node = &(n->left);
+			narr[m64(++i)]=node;
+			continue;
+		}
+		if(N<K){
+			node = &(n->right);
+			narr[m64(++i)]=node;
+			continue;
+		}
+		/*
+		 * If we get here, the element exist.
+		 *
+		 * Replace the existing node with the new one.
+		 */
+		(*it)->left  = n->left;
+		(*it)->right = n->right;
+		*node = *it;
+		*it = n; /* Return the old node. */
+		break;
+	}
+	/* Backtracking. */
+	for(;narr[m64(i)];--i){
+		bt_balance(narr[m64(i)]);
+		narr[m64(i)] = 0;
+	}
+}
+
+void bt_put_ip(struct bintree_node **node,struct bintree_node **it){
 	struct bintree_node *n;
 	u_intptr_t K = (*it)->K;
 	u_intptr_t N;
