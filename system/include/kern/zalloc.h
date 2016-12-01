@@ -34,6 +34,10 @@
 
 typedef struct zone *zone_t;
 
+#define ZONE_AUTO_REFILL   1
+#define ZONE_AR_CRITICAL   2
+
+
 void zone_bootstrap();
 
 /* Initialize a zone. */
@@ -47,4 +51,13 @@ void   zfree(void* object);
 
 /* Cram new memory into the zone. */
 void   zcram(zone_t zone, void* mem, size_t size);
+
+/*
+ * Returns the number of free objects in the zone.
+ */
+u_int32_t zcount(zone_t zone);
+
+size_t zbufsize(zone_t zone);
+
+void zrefill(zone_t zone, u_int32_t min, u_int32_t num);
 

@@ -63,5 +63,12 @@ struct vm_mem {
 		mem_executed   : 1, /* The memory has been executed. (f) (x) */
 		mem_precious   : 1; /* Data must be written back, even if clean. (B) */
 };
+
+void vm_mem_init();
+
+void vm_mem_refill();
+
 int vm_mem_lookup(struct vm_mem* mem, vaddr_t rva, paddr_t *pag, vm_prot_t *prot);
+
+struct vm_mem* vm_mem_alloc(int kernel);
 

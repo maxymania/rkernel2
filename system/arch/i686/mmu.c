@@ -27,6 +27,8 @@
 #include <sys/kernslice.h>
 #include <sys/physmem_alloc.h>
 
+//#include <stdio.h>
+
 static struct pmap p_inst_kernel;
 
 extern pte_t _i686_kernel_page_dir[];
@@ -102,6 +104,21 @@ void pmap_get_address_range(pmap_t pmap, vaddr_t *vstartp, vaddr_t *vendp){
  * Maps a given physical memory page (pa) to a given virtual address (va).
  */
 int pmap_enter(pmap_t pmap, vaddr_t va, paddr_t pa, vm_prot_t prot, vm_flags_t flags){
+	unsigned int i = PDX(va);
+	unsigned int j = PTX(va);
+	paddr_t pta;
+	pte_t   pte = PTE_ADDR(pa) | PTE_P;
+	
+	if(prot & VM_PROT_WRITE) pte |= PTE_W;
+	
+	if(pmap == &p_inst_kernel){
+		pta = _i686_kernel_page_dir[i];
+		if(!PTE_FLAGS(pta)) return 0;
+		_i686_pmap_pte_set(PTE_ADDR(pta),i,pte);
+		return 1;
+	}
+	
+	
 	return 0;
 }
 

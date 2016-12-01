@@ -22,6 +22,7 @@
  */
 #include <vm/vm_as.h>
 #include <vm/vm_seg.h>
+#include <vm/vm_priv.h>
 #include <vm/pmap.h>
 #include <kern/zalloc.h>
 
@@ -30,13 +31,16 @@ static zone_t vm_as_zone; /* Zone for vm_as structures. */
 static struct vm_as kernel_as;
 
 void vm_as_init(){
-	vm_as_zone = zinit(sizeof(struct vm_as),0,"VM address space");
+	vm_as_zone = zinit(sizeof(struct vm_as),ZONE_AUTO_REFILL,"VM address space");
 	kernel_as.as_segs = 0;
 	kernel_as.as_pmap = pmap_kernel();
 	kernlock_init(&(kernel_as.as_lock));
 	pmap_get_address_range(kernel_as.as_pmap, &(kernel_as.as_begin),&(kernel_as.as_end));
 }
-//
+
+void vm_as_refill(){
+	zrefill(vm_as_zone,64,64);
+}
 
 static int vm_find_free(vm_as_t as, vm_seg_t dseg, vaddr_t lrp /* Last relative pointer (size -1) */){
 	vm_bintree_t * __restrict__ bt;
@@ -61,6 +65,8 @@ static int vm_find_free(vm_as_t as, vm_seg_t dseg, vaddr_t lrp /* Last relative 
 	return 0;
 }
 
+vm_as_t vm_as_get_kernel(){ return &kernel_as; }
+
 struct vm_seg *vm_create_entry(vm_as_t as, vaddr_t size) {
 	int kernel = as==&kernel_as;
 	vm_bintree_t entry;
@@ -76,6 +82,31 @@ struct vm_seg *vm_create_entry(vm_as_t as, vaddr_t size) {
 	vm_seg_initobj(seg);
 	entry = &(seg->_bt_node);
 	bt_insert(&(as->as_segs),&entry);
+	if(entry) { /* Insert failed. */
+		zfree(seg);
+		return 0;
+	}
+	return seg;
+}
+
+struct vm_seg *vm_create_entry_critical(vm_as_t as, vaddr_t size) {
+	vm_bintree_t entry;
+	
+	vm_seg_t seg = vm_seg_alloc_critical();
+	if(!seg) return 0;
+	
+	if(!vm_find_free(as,seg,size-1)) {
+		zfree(seg);
+		return 0;
+	}
+	
+	vm_seg_initobj(seg);
+	entry = &(seg->_bt_node);
+	bt_insert(&(as->as_segs),&entry);
+	if(entry) { /* Insert failed. */
+		zfree(seg);
+		return 0;
+	}
 	return seg;
 }
 

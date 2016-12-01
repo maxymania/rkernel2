@@ -30,6 +30,7 @@
 #include <vm/pmap.h>
 #include <stdio.h>
 #include <kern/zalloc.h>
+#include <vm/vm_top.h>
 
 void kern_prove_alive();
 
@@ -57,8 +58,9 @@ static void kern_initmem(){
 			printf("bmas->pmb_maps[%d] = %d\n",i,(unsigned int)(bmas->pmb_maps[i]->pmb_length));
 		}
 	}
-	zone_bootstrap();
-	pmap_init();
+	//zone_bootstrap();
+	//pmap_init();
+	vm_init();
 }
 
 void kernel_main(void) {

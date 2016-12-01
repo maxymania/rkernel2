@@ -22,21 +22,48 @@
  */
 #include <vm/vm_as.h>
 #include <vm/vm_seg.h>
+#include <vm/vm_top.h>
+#include <vm/vm_priv.h>
 #include <kern/zalloc.h>
 #include <string.h>
 
+/* This is the size of a cache line (in x86). */
+#define CACHE_LINE  128
+
+static u_intptr_t z_seg_buf[1<<10] __attribute__ ((aligned (CACHE_LINE)));
+
 static zone_t vm_seg_zone;  /* Zone for user vm_seg structures. */
 static zone_t vm_kseg_zone; /* Zone for kernel vm_seg structures. */
+static zone_t vm_cseg_zone; /* Zone for critical kernel vm_seg structures. */
 
 void vm_seg_init(){
-	vm_seg_zone = zinit(sizeof(struct vm_seg),0,"user-mode segment zone");
-	vm_kseg_zone = zinit(sizeof(struct vm_seg),0,"kernel-mode segment zone");
+	vm_seg_zone = zinit(sizeof(struct vm_seg),ZONE_AUTO_REFILL,"user-mode segment zone");
+	vm_kseg_zone = zinit(sizeof(struct vm_seg),ZONE_AUTO_REFILL|ZONE_AR_CRITICAL,"kernel-mode segment zone");
+	vm_cseg_zone = zinit(sizeof(struct vm_seg),0,"critical kernel-mode segment zone");
+	zcram(vm_cseg_zone,(void*)z_seg_buf,sizeof(z_seg_buf));
+}
+
+void vm_seg_refill(){
+	vaddr_t begin,size;
+	if( zcount(vm_cseg_zone) < 64 ){
+		size = (vaddr_t)zbufsize(vm_cseg_zone) * 128;
+		if(!vm_alloc_critical(&begin,&size)) return;
+		zcram(vm_cseg_zone,(void*)begin,(size_t)size);
+	}
 }
 
 vm_seg_t vm_seg_alloc(int kernel){
 	vm_seg_t seg = zalloc(kernel ? vm_kseg_zone : vm_seg_zone);
 	if(!seg) return 0;
-	memset((void*)seg,0,sizeof(vm_seg_t));
+	memset((void*)seg,0,sizeof(struct vm_seg));
+	kernlock_init(&(seg->seg_lock));
+	return seg;
+}
+
+struct vm_seg *vm_seg_alloc_critical(){
+	vm_seg_t seg = zalloc(vm_cseg_zone);
+	if(!seg) return 0;
+	memset((void*)seg,0,sizeof(struct vm_seg));
 	kernlock_init(&(seg->seg_lock));
 	return seg;
 }
@@ -45,6 +72,4 @@ void vm_seg_initobj(vm_seg_t seg){
 	seg->_bt_node.V = seg;
 	seg->_bt_node.K = seg->seg_begin;
 }
-
-
 

@@ -21,7 +21,14 @@
  * SOFTWARE.
  */
 #include <vm/vm_range.h>
+#include <vm/vm_top.h>
+#include <vm/vm_priv.h>
 #include <sysarch/pages.h>
+#include <kern/zalloc.h>
+#include <string.h>
+
+static zone_t vm_range_zone;  /* Zone for user vm_range structures. */
+static zone_t vm_krange_zone; /* Zone for kernel vm_range structures. */
 
 #ifdef SYSARCH_PAGESIZE_SHIFT
 #define DIV_PAGESIZE(x)  ((x)>>SYSARCH_PAGESIZE_SHIFT)
@@ -29,10 +36,42 @@
 #define DIV_PAGESIZE(x)  ((x)/SYSARCH_PAGESIZE)
 #endif
 
+/* This is the size of a cache line (in x86). */
+#define CACHE_LINE  128
+
+static u_intptr_t z_range_buf[1<<12] __attribute__ ((aligned (CACHE_LINE)));
+
+void vm_range_init(){
+	vm_range_zone = zinit(sizeof(struct vm_range),ZONE_AUTO_REFILL,"user-mode range zone");
+	vm_krange_zone = zinit(sizeof(struct vm_range),0,"kernel-mode range zone");
+	zcram(vm_krange_zone,(void*)z_range_buf,sizeof(z_range_buf));
+}
+
+void vm_range_refill(){
+	vaddr_t begin,size;
+	if( zcount(vm_krange_zone) < 128 ){
+		size = (vaddr_t)zbufsize(vm_krange_zone) * 256;
+		if(!vm_alloc_critical(&begin,&size)) return;
+		zcram(vm_krange_zone,(void*)begin,(size_t)size);
+	}
+}
+
 int vm_range_bmlkup(vm_range_t range, int i){
 	int s = i % 32;
 	i /= 32;
 	return (range->rang_pages_tbm[i]>>s) & 1;
+}
+
+void vm_range_bmset(vm_range_t range, int i){
+	int s = i % 32;
+	i /= 32;
+	(range->rang_pages_tbm)[i] |= (1<<s);
+}
+
+void vm_range_bmclr(vm_range_t range, int i){
+	int s = i % 32;
+	i /= 32;
+	(range->rang_pages_tbm)[i] &= ~(1<<s);
 }
 
 int vm_range_get   (vm_range_t range, vaddr_t rva, paddr_t *pag, vm_prot_t *prot){
@@ -57,3 +96,23 @@ int vm_range_get   (vm_range_t range, vaddr_t rva, paddr_t *pag, vm_prot_t *prot
 	}
 }
 
+vm_range_t vm_range_alloc(int kernel, struct kernslice* slice){
+	vm_range_t range = zalloc(kernel ? vm_krange_zone : vm_range_zone);
+	//vm_range_t range = zalloc(vm_range_zone);
+	if(!range) return 0;
+	memset((void*)range,0,sizeof(struct vm_range));
+	kernlock_init(&(range->rang_lock));
+	range->rang_slice = slice;
+	range->rang_refc = 1;
+	return range;
+}
+
+struct vm_range *vm_range_alloc_critical(struct kernslice* slice){
+	vm_range_t range = zalloc(vm_krange_zone);
+	if(!range) return 0;
+	memset((void*)range,0,sizeof(struct vm_range));
+	kernlock_init(&(range->rang_lock));
+	range->rang_slice = slice;
+	range->rang_refc = 1;
+	return range;
+}

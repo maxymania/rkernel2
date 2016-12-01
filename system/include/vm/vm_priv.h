@@ -21,39 +21,20 @@
  * SOFTWARE.
  */
 #pragma once
-#include <vm/vm_page.h>
-/* #include <sys/kspinlock.h> */
+#include <vm/vm_types.h>
 
-#define VM_RANGE_NUM 116
+struct vm_seg;
+struct vm_mem;
+struct vm_as;
+struct vm_range;
+struct kernslice;
 
-/*
- * Type bits (vm_range_t->rang_pages_tbm) :
- *  0 => vm_page_t
- *  1 => paddr_t
- */
-union vm_range_page {
-	vm_page_t page_obj;
-	paddr_t   page_addr;
-};
+struct vm_seg *vm_seg_alloc_critical();
 
-struct vm_range {
-	union vm_range_page rang_pages[VM_RANGE_NUM];
-	u_int32_t           rang_pages_tbm[4]; /* Type-bitmap for rang_pages. */
-	u_int32_t           rang_refc;
-	struct kernslice*   rang_slice;  /* The kslice, the pages are belonging to (by default). */
-	struct vm_range*    rang_next;
-	kspinlock_t         rang_lock;
-};
+struct vm_seg *vm_create_entry_critical(struct vm_as* as, vaddr_t size);
 
-typedef struct vm_range *vm_range_t;
+struct vm_mem *vm_mem_alloc_critical();
 
-void vm_range_init();
+struct vm_range *vm_range_alloc_critical(struct kernslice* slice);
 
-void vm_range_refill();
-
-int vm_range_bmlkup(vm_range_t range, int i);
-int vm_range_get   (vm_range_t range, vaddr_t rva, paddr_t *pag, vm_prot_t *prot);
-void vm_range_bmset(vm_range_t range, int i);
-void vm_range_bmclr(vm_range_t range, int i);
-vm_range_t vm_range_alloc(int kernel, struct kernslice* slice);
 

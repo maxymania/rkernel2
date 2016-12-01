@@ -21,39 +21,24 @@
  * SOFTWARE.
  */
 #pragma once
-#include <vm/vm_page.h>
-/* #include <sys/kspinlock.h> */
-
-#define VM_RANGE_NUM 116
+#include <vm/vm_types.h>
 
 /*
- * Type bits (vm_range_t->rang_pages_tbm) :
- *  0 => vm_page_t
- *  1 => paddr_t
+ * This function initializes the kernel virtual memory system.
  */
-union vm_range_page {
-	vm_page_t page_obj;
-	paddr_t   page_addr;
-};
+void vm_init();
 
-struct vm_range {
-	union vm_range_page rang_pages[VM_RANGE_NUM];
-	u_int32_t           rang_pages_tbm[4]; /* Type-bitmap for rang_pages. */
-	u_int32_t           rang_refc;
-	struct kernslice*   rang_slice;  /* The kslice, the pages are belonging to (by default). */
-	struct vm_range*    rang_next;
-	kspinlock_t         rang_lock;
-};
+/*
+ * Allocates a chunk of kernel-memory.
+ */
+int vm_kalloc_ll(vaddr_t *addr /* [out] */,vaddr_t *size /* [in/out]*/);
 
-typedef struct vm_range *vm_range_t;
+/*
+ * Refills the critical kernel-vm object zones, if necessary. Do this after vm_alloc_critical().
+ */
+void vm_refill();
 
-void vm_range_init();
-
-void vm_range_refill();
-
-int vm_range_bmlkup(vm_range_t range, int i);
-int vm_range_get   (vm_range_t range, vaddr_t rva, paddr_t *pag, vm_prot_t *prot);
-void vm_range_bmset(vm_range_t range, int i);
-void vm_range_bmclr(vm_range_t range, int i);
-vm_range_t vm_range_alloc(int kernel, struct kernslice* slice);
-
+/*
+ * Allocates a critical chunk of memory. Used for the vm_seg_t, vm_mem_t and vm_range_t -zones.
+ */
+int vm_alloc_critical(vaddr_t *addr /* [out] */,vaddr_t *size /* [in/out]*/);

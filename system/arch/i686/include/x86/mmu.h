@@ -48,3 +48,21 @@ typedef paddr_t pte_t;
 #define PTE_ADDR(pte)   ((pte_t)(pte) & ~0xFFF)
 #define PTE_FLAGS(pte) ((pte_t)(pte) & 0xFFF)
 
+
+// A virtual address 'la' has a three-part structure as follows:
+//
+// +--------10------+-------10-------+---------12----------+
+// | Page Directory |   Page Table   | Offset within Page  |
+// |      Index     |      Index     |                     |
+// +----------------+----------------+---------------------+
+//  \--- PDX(va) --/ \--- PTX(va) --/
+
+#define PDXSHIFT 22
+#define PTXSHIFT 12
+
+// page directory index
+#define PDX(va)         (((unsigned int)(va) >> PDXSHIFT) & 0x3FF)
+
+// page table index
+#define PTX(va)         (((unsigned int)(va) >> PTXSHIFT) & 0x3FF)
+

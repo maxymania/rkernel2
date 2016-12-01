@@ -142,6 +142,7 @@ void bt_put(struct bintree_node **node,struct bintree_node **it){
 		 */
 		(*it)->left  = n->left;
 		(*it)->right = n->right;
+		(*it)->depth = n->depth;
 		*node = *it;
 		*it = n; /* Return the old node. */
 		break;

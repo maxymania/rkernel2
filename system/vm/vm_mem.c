@@ -21,7 +21,38 @@
  * SOFTWARE.
  */
 #include <vm/vm_mem.h>
+#include <vm/vm_top.h>
+#include <vm/vm_priv.h>
+#include <kern/zalloc.h>
+#include <string.h>
 
+static zone_t vm_mem_zone;  /* Zone for user vm_mem structures. */
+static zone_t vm_kmem_zone; /* Zone for kernel vm_mem structures. */
+static zone_t vm_cmem_zone; /* Zone for critical kernel vm_mem structures. */
+
+/* With auto-refill activated, */
+
+/* This is the size of a cache line (in x86). */
+#define CACHE_LINE  128
+
+static u_int8_t z_mem_buf[1<<12] __attribute__ ((aligned (CACHE_LINE)));
+
+void vm_mem_init(){
+	vm_mem_zone = zinit(sizeof(struct vm_mem),ZONE_AUTO_REFILL,"user-mode memory zone");
+	vm_kmem_zone = zinit(sizeof(struct vm_mem),
+	               ZONE_AUTO_REFILL|ZONE_AR_CRITICAL,"kernel-mode memory zone");
+	vm_cmem_zone = zinit(sizeof(struct vm_mem),0,"critical kernel-mode memory zone");
+	zcram(vm_kmem_zone,(void*)z_mem_buf,sizeof(z_mem_buf));
+}
+
+void vm_mem_refill(){
+	vaddr_t begin,size;
+	if( zcount(vm_kmem_zone) < 64 ){
+		size = (vaddr_t)zbufsize(vm_kmem_zone) * 256;
+		if(!vm_alloc_critical(&begin,&size)) return;
+		zcram(vm_kmem_zone,(void*)begin,(size_t)size);
+	}
+}
 
 int vm_mem_lookup(struct vm_mem* mem, vaddr_t rva, paddr_t *pag, vm_prot_t *prot){
 	vm_page_t pgobj;
@@ -41,3 +72,18 @@ int vm_mem_lookup(struct vm_mem* mem, vaddr_t rva, paddr_t *pag, vm_prot_t *prot
 	return 0;
 }
 
+struct vm_mem* vm_mem_alloc(int kernel){
+	struct vm_mem* mem = zalloc(kernel ? vm_kmem_zone : vm_mem_zone);
+	//struct vm_mem* mem = zalloc(vm_mem_zone);
+	if(!mem) return 0;
+	memset((void*)mem,0,sizeof(struct vm_mem));
+	return mem;
+}
+
+
+struct vm_mem* vm_mem_alloc_critical(){
+	struct vm_mem* mem = zalloc(vm_cmem_zone);
+	if(!mem) return 0;
+	memset((void*)mem,0,sizeof(struct vm_mem));
+	return mem;
+}
