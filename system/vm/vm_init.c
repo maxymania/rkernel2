@@ -44,15 +44,14 @@ static void testmapping(){
 		ok = pmap_enter(pmap_kernel(),va,pa,VM_PROT_READ|VM_PROT_WRITE,0);
 		printf("pmap_enter = %d\n",ok);
 		if(ok){
-			//char* chr = (char*)va;
-			//chr[0] = '1';
-			//chr[1] = '2';
-			//chr[2] = '3';
-			//chr[3] = 0;
-			//printf("chr = %s\n",chr);
+			char* chr = (char*)va;
+			chr[0] = '1';
+			chr[1] = '2';
+			chr[2] = '3';
+			chr[3] = 0;
+			printf("chr = %s\n",chr);
 		}
 	}
-	
 }
 
 
