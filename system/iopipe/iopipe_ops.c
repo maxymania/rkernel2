@@ -45,9 +45,9 @@ ssize_t iopipe_write (struct iopipe* iopipe, const void* buf, size_t size){
 }
 
 ssize_t iopipe_read_v (struct iopipe* iopipe, struct kern_uio* kbu){
-	return iopipe->iop_ops->io_read(iopipe,&kbu);
+	return iopipe->iop_ops->io_read(iopipe,kbu);
 }
 ssize_t iopipe_write_v (struct iopipe* iopipe, struct kern_uio* kbu){
-	return iopipe->iop_ops->io_write(iopipe,&kbu);
+	return iopipe->iop_ops->io_write(iopipe,kbu);
 }
 
