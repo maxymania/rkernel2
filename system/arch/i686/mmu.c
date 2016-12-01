@@ -115,13 +115,13 @@ int pmap_enter(pmap_t pmap, vaddr_t va, paddr_t pa, vm_prot_t prot, vm_flags_t f
 	
 	if(pmap == &p_inst_kernel){
 		pta = _i686_kernel_page_dir[i];
-		if(!PTE_FLAGS(pta)) return 0;
+		if(!PTE_FLAGS(pta)) return 1;
 		_i686_pmap_pte_set(PTE_ADDR(pta),j,pte);
-		return 1;
+		return 0;
 	}
 	
 	
-	return 0;
+	return 1;
 }
 
 /*

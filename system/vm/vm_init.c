@@ -41,7 +41,7 @@ static void testmapping(){
 	int ok = vm_phys_alloc(cpu->cpu_kernel_slice->ks_memory_allocator, &pa);
 	printf("vm_phys_alloc = %d , %p\n",ok,(void*)pa);
 	if(ok){
-		ok = pmap_enter(pmap_kernel(),va,pa,VM_PROT_READ|VM_PROT_WRITE,0);
+		ok = !pmap_enter(pmap_kernel(),va,pa,VM_PROT_READ|VM_PROT_WRITE,0);
 		printf("pmap_enter = %d\n",ok);
 		if(ok){
 			char* chr = (char*)va;

@@ -93,7 +93,7 @@ int  vm_seg_eager_map(vm_seg_t seg,struct vm_as* as, vm_prot_t prot) {
 	for(;cursor<size; cursor += SYSARCH_PAGESIZE){
 		iprod = prot;
 		if(! vm_mem_lookup(mem,cursor,&pa,&iprod) ) goto endEM;
-		if(! pmap_enter(as->as_pmap,begin+cursor,pa,iprod,0) ) goto endEM;
+		if( pmap_enter(as->as_pmap,begin+cursor,pa,iprod,0) ) goto endEM;
 	}
 	ret = 1;
 endEM:
