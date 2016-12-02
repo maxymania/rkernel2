@@ -43,7 +43,9 @@ void vm_init(){
 	vm_seg_refill  ();
 	vm_mem_refill  ();
 	vm_range_refill();
-	vm_as_refill   ();
+	
+	/* Initial vm_as_mcram(). */
+	vm_as_mcram    ();
 }
 
 void vm_refill(){

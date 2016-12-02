@@ -40,7 +40,7 @@ void vm_as_init(){
 	pmap_get_address_range(kernel_as.as_pmap, &(kernel_as.as_begin),&(kernel_as.as_end));
 }
 
-void vm_as_refill(){
+void vm_as_mcram(){
 	zrefill(vm_as_zone,64,64);
 }
 
