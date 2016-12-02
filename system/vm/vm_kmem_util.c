@@ -25,6 +25,7 @@
 #include <vm/vm_seg.h>
 #include <vm/vm_mem.h>
 #include <vm/vm_range.h>
+#include <vm/vm_priv.h>
 #include <sysarch/pages.h>
 #include <sys/kernslice.h>
 #include <sys/physmem_alloc.h>
@@ -41,12 +42,14 @@
 #define ROUND_DOWN(x) x -= (x%SYSARCH_PAGESIZE)
 #endif
 
+#define NORMAL   0
+#define CRITICAL 1
 
 #define PMBM(slice) ((slice)->ks_memory_allocator)
 
 #define VM_PROT_KMEM  VM_PROT_READ | VM_PROT_WRITE
 
-static struct vm_mem* vm_mem_kfilled(vaddr_t size,struct kernslice* slice){
+static struct vm_mem* vm_mem_kfilled(vaddr_t size,struct kernslice* slice, int level){
 	/*
 	 * Assumption: size is a multiple of SYSARCH_PAGESIZE.
 	 */
@@ -61,7 +64,9 @@ static struct vm_mem* vm_mem_kfilled(vaddr_t size,struct kernslice* slice){
 	/*
 	 * Allocate the memory structure.
 	 */
-	vm_mem_t mem = vm_mem_alloc(1);
+	vm_mem_t mem;
+	if(level) mem = vm_mem_alloc_critical();
+	else      mem = vm_mem_alloc(1);
 	if(!mem)return 0;
 	
 	/*
@@ -77,7 +82,8 @@ static struct vm_mem* vm_mem_kfilled(vaddr_t size,struct kernslice* slice){
 	/*
 	 * Otherwise, allocate one or more vm_range_t structs.
 	 */
-	range = vm_range_alloc(1,slice);
+	if(level) range = vm_range_alloc_critical(slice);
+	else      range = vm_range_alloc(1,slice);
 	if(!range) goto FAILED;
 	mem->mem_pmrange = range;
 	mem->mem_phys_type = VMM_IS_PMRANGE;
@@ -100,7 +106,8 @@ static struct vm_mem* vm_mem_kfilled(vaddr_t size,struct kernslice* slice){
 		/*
 		 * Allocate another range and append it to the list.
 		 */
-		next = vm_range_alloc(1,slice);
+		if(level) next = vm_range_alloc_critical(slice);
+		else      next = vm_range_alloc(1,slice);
 		if(!next) goto FAILED;
 		range->rang_next = next;
 		range = next;
@@ -137,10 +144,10 @@ static struct vm_mem* vm_mem_kfilled(vaddr_t size,struct kernslice* slice){
 	return 0;
 }
 
-static int vm_seg_kfill(vm_seg_t seg,pmap_t pmap){
+static int vm_seg_kfill(vm_seg_t seg,pmap_t pmap, int level){
 	vaddr_t size = (seg->seg_end - seg->seg_begin)+1;
 	seg->seg_prot = VM_PROT_KMEM;
-	seg->seg_mem = vm_mem_kfilled(size,pmap_kernslice(pmap));
+	seg->seg_mem = vm_mem_kfilled(size,pmap_kernslice(pmap),level);
 	if(!(seg->seg_mem)){
 		pmap_remove(pmap,seg->seg_begin,seg->seg_end);
 		return 0;
@@ -173,7 +180,7 @@ int vm_kalloc_ll(vaddr_t *addr /* [out] */,vaddr_t *size /* [in/out]*/){
 	kernlock_lock(&(seg->seg_lock));
 	kernlock_unlock(&(as->as_lock));
 	
-	if(!vm_seg_kfill(seg,as->as_pmap)) goto endKalloc2; /* TODO: Remove segment. */
+	if(!vm_seg_kfill(seg,as->as_pmap,NORMAL)) goto endKalloc2; /* TODO: Remove segment. */
 	
 	if(!vm_seg_eager_map(seg,as,VM_PROT_KMEM)) goto endKalloc2; /* TODO: Deallocate. */
 	
@@ -188,3 +195,44 @@ endKalloc:
 	kernlock_unlock(&(as->as_lock));
 	return res;
 }
+
+int vm_alloc_critical(vaddr_t *addr /* [out] */,vaddr_t *size /* [in/out]*/){
+	int res = 0;
+	vm_as_t as;
+	vm_seg_t seg;
+	
+	/*
+	 * Round-Up the size.
+	 */
+	vaddr_t lsiz = *size + SYSARCH_PAGESIZE - 1;
+	ROUND_DOWN(lsiz);
+	
+	as = vm_as_get_kernel();
+	seg = vm_seg_alloc_critical();
+	if(!seg) return res;
+	
+	kernlock_lock(&(as->as_lock));
+	
+	if(! vm_insert_entry(as,lsiz,seg)) {
+		zfree((void*)seg);
+		goto endKalloc;
+	}
+	kernlock_lock(&(seg->seg_lock));
+	kernlock_unlock(&(as->as_lock));
+	
+	if(!vm_seg_kfill(seg,as->as_pmap,CRITICAL)) goto endKalloc2; /* TODO: Remove segment. */
+	
+	if(!vm_seg_eager_map(seg,as,VM_PROT_KMEM)) goto endKalloc2; /* TODO: Deallocate. */
+	
+	*addr = seg->seg_begin;
+	*size = (seg->seg_end - seg->seg_begin)+1;
+	res = 1;
+	
+endKalloc2:
+	kernlock_unlock(&(seg->seg_lock));
+	return res;
+endKalloc:
+	kernlock_unlock(&(as->as_lock));
+	return res;
+}
+
