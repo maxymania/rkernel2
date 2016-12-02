@@ -85,6 +85,7 @@ int vm_as_pagefault(vm_as_t as,vaddr_t va, vm_prot_t fault_type) {
 
 static int vm_seg_pagefault(vm_as_t as,vm_seg_t seg, vaddr_t va, vm_prot_t fault_type) {
 	paddr_t pa;
+	vaddr_t rva;
 	vm_prot_t iprod;
 	struct vm_mem * mem;
 	
@@ -95,7 +96,7 @@ static int vm_seg_pagefault(vm_as_t as,vm_seg_t seg, vaddr_t va, vm_prot_t fault
 	 */
 	if(va > seg->seg_end) DO_SEGFAULT;
 	
-	va -= seg->seg_begin;
+	rva = va - seg->seg_begin;
 	
 	/*
 	 * Obtain the segment's memory protection.
@@ -129,7 +130,7 @@ static int vm_seg_pagefault(vm_as_t as,vm_seg_t seg, vaddr_t va, vm_prot_t fault
 	/*
 	 * If the lookup failes, give up. XXX: It shouldn't behave like this.
 	 */
-	if(!vm_mem_lookup(mem,va, &pa, &iprod)) GIVE_UP;
+	if(!vm_mem_lookup(mem,rva, &pa, &iprod)) GIVE_UP;
 	
 	/*
 	 * Check, if the access type violates those protection imposed by individual
