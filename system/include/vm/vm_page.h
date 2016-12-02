@@ -52,3 +52,8 @@ struct vm_page {
 };
 typedef struct vm_page *vm_page_t;
 
+void vm_page_free(struct kernslice* slice, paddr_t addr);
+
+void vm_page_drop(vm_page_t page);
+
+

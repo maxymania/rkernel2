@@ -149,14 +149,12 @@ static int vm_seg_kfill(vm_seg_t seg,pmap_t pmap, int level){
 	seg->seg_prot = VM_PROT_KMEM;
 	seg->seg_mem = vm_mem_kfilled(size,pmap_kernslice(pmap),level);
 	if(!(seg->seg_mem)){
-		pmap_remove(pmap,seg->seg_begin,seg->seg_end);
 		return 0;
 	}
 	return 1;
 }
 
 static int vm_kalloc_generic(vaddr_t *addr /* [out] */,vaddr_t *size /* [in/out]*/, int level){
-	int res = 0;
 	vm_as_t as;
 	vm_seg_t seg;
 	
@@ -166,35 +164,69 @@ static int vm_kalloc_generic(vaddr_t *addr /* [out] */,vaddr_t *size /* [in/out]
 	vaddr_t lsiz = *size + SYSARCH_PAGESIZE - 1;
 	ROUND_DOWN(lsiz);
 	
-	
 	as = vm_as_get_kernel();
+	
+	/*
+	 * Allocate a segment.
+	 */
 	if(level) seg = vm_seg_alloc_critical();
 	else      seg = vm_seg_alloc(1);
-	if(!seg) return res;
 	
-	kernlock_lock(&(as->as_lock));
+	/*
+	 * If the allocation failed, give up.
+	 */
+	if(!seg) return 0;
 	
+	/*
+	 * It is time to aquire the segment lock, 
+	 */
+	kernlock_lock(&(seg->seg_lock));
+	
+	/*
+	 * We try to attach the segment somewhere.
+	 */
 	if(! vm_insert_entry(as,lsiz,seg)) {
-		zfree((void*)seg);
+		/*
+		 * The attachment of the segment failed.
+		 */
 		goto endKalloc;
 	}
-	kernlock_lock(&(seg->seg_lock));
-	kernlock_unlock(&(as->as_lock));
 	
-	if(!vm_seg_kfill(seg,as->as_pmap,level)) goto endKalloc2; /* TODO: Remove segment. */
+	/*
+	 * Now, we allocate memory for this segment.
+	 */
+	if(!vm_seg_kfill(seg,as->as_pmap,level)) goto endKalloc2;
 	
-	if(!vm_seg_eager_map(seg,as,VM_PROT_KMEM)) goto endKalloc2; /* TODO: Deallocate. */
+	/*
+	 * Finally, we map the entire allocated memory to the segment's address range.
+	 */
+	if(!vm_seg_eager_map(seg,as,VM_PROT_KMEM)) goto endKalloc2;
 	
+	/*
+	 * Now, the memory had been successfully allocated and mapped. Return address and size.
+	 */
 	*addr = seg->seg_begin;
 	*size = (seg->seg_end - seg->seg_begin)+1;
-	res = 1;
 	
-endKalloc2:
 	kernlock_unlock(&(seg->seg_lock));
-	return res;
+	return 1;
+	
+	/*
+	 * In the error case, detach the segment and deallocate the memory from it.
+	 */
+endKalloc2:
+
+	/* XXX: This could potentially cause a deadlock in the future. */
+	vm_remove_entry(as,seg);
+	if(seg->seg_mem) vm_mem_destroy(seg->seg_mem,pmap_kernslice(as->as_pmap));
+	
+	/*
+	 * In the error case, unlock and free the vm_seg_t structure.
+	 */
 endKalloc:
-	kernlock_unlock(&(as->as_lock));
-	return res;
+	kernlock_unlock(&(seg->seg_lock));
+	zfree(seg);
+	return 0;
 }
 
 int vm_kalloc_ll(vaddr_t *addr /* [out] */,vaddr_t *size /* [in/out]*/){
@@ -204,3 +236,4 @@ int vm_kalloc_ll(vaddr_t *addr /* [out] */,vaddr_t *size /* [in/out]*/){
 int vm_alloc_critical(vaddr_t *addr /* [out] */,vaddr_t *size /* [in/out]*/){
 	return vm_kalloc_generic(addr,size,CRITICAL);
 }
+

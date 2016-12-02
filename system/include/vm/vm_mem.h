@@ -72,3 +72,5 @@ int vm_mem_lookup(struct vm_mem* mem, vaddr_t rva, paddr_t *pag, vm_prot_t *prot
 
 struct vm_mem* vm_mem_alloc(int kernel);
 
+void vm_mem_destroy(struct vm_mem* mem,struct kernslice* slice);
+

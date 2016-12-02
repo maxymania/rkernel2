@@ -52,7 +52,13 @@ struct vm_as {
 	vaddr_t       as_end;
 	vm_bintree_t  as_segs;
 	pmap_t        as_pmap;
-	kspinlock_t   as_lock;
+	
+	/*
+	 * vm_as_t uses a fine-grained locking model.
+	 */
+	kspinlock_t   as_lock_pmap; /* protects ->as_pmap */
+	kspinlock_t   as_lock_segs; /* protects ->as_segs */
+	kspinlock_t   as_lock;      /* cruft */
 };
 
 typedef struct vm_as* vm_as_t;
@@ -66,7 +72,9 @@ int vm_as_pagefault(vm_as_t as,vaddr_t va, vm_prot_t fault_type);
 
 vm_as_t vm_as_get_kernel();
 
+/* It is recommended to hold the 'struct vm_seg' lock in the vm_*_entry() functions. */
+
 int vm_insert_entry(vm_as_t as, vaddr_t size, struct vm_seg * seg);
 
-struct vm_seg *vm_create_entry(vm_as_t as, vaddr_t size);
+int vm_remove_entry(vm_as_t as, struct vm_seg * seg);
 

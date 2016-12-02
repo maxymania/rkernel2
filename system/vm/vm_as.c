@@ -36,6 +36,8 @@ void vm_as_init(){
 	vm_as_zone = zinit(sizeof(struct vm_as),ZONE_AUTO_REFILL,"VM address space zone");
 	kernel_as.as_segs = 0;
 	kernel_as.as_pmap = pmap_kernel();
+	kernlock_init(&(kernel_as.as_lock_pmap));
+	kernlock_init(&(kernel_as.as_lock_segs));
 	kernlock_init(&(kernel_as.as_lock));
 	pmap_get_address_range(kernel_as.as_pmap, &(kernel_as.as_begin),&(kernel_as.as_end));
 }
@@ -69,42 +71,53 @@ static int vm_find_free(vm_as_t as, vm_seg_t dseg, vaddr_t lrp /* Last relative 
 
 vm_as_t vm_as_get_kernel(){ return &kernel_as; }
 
-int vm_insert_entry(vm_as_t as, vaddr_t size, struct vm_seg * seg){
+int vm_insert_entry(vm_as_t as, vaddr_t size, struct vm_seg * seg) {
 	vm_bintree_t entry;
 	
+	kernlock_lock(&(as->as_lock_segs));
 	if(!vm_find_free(as,seg,size-1)) {
+		kernlock_unlock(&(as->as_lock_segs));
 		return 0;
 	}
 	
 	vm_seg_initobj(seg);
 	entry = &(seg->_bt_node);
 	bt_insert(&(as->as_segs),&entry);
+	
+	kernlock_unlock(&(as->as_lock_segs));
+	
 	if(entry) { /* Insert failed. */
 		return 0;
 	}
 	return 1;
 }
 
-/* XXX: Do we still need it? */
-struct vm_seg *vm_create_entry(vm_as_t as, vaddr_t size) {
-	int kernel = as==&kernel_as;
-	vm_bintree_t entry;
+int vm_remove_entry(vm_as_t as, struct vm_seg * seg) {
+	vm_bintree_t* entry = 0;
+	vm_bintree_t res;
+	vaddr_t begin = seg->seg_begin;
+	vaddr_t end = seg->seg_end;
 	
-	vm_seg_t seg = vm_seg_alloc(kernel);
-	if(!seg) return 0;
+	kernlock_lock(&(as->as_lock_segs));
+	entry = bt_lookup(&(as->as_segs),begin);
 	
-	if(!vm_find_free(as,seg,size-1)) {
-		zfree(seg);
+	if(entry && *entry){
+		if( (*entry)->V != seg ) entry = 0;
+		else bt_remove(entry,&res);
+	}
+	
+	kernlock_unlock(&(as->as_lock_segs));
+	
+	if(entry && *entry) { /* Remove failed. */
 		return 0;
 	}
 	
-	vm_seg_initobj(seg);
-	entry = &(seg->_bt_node);
-	bt_insert(&(as->as_segs),&entry);
-	if(entry) { /* Insert failed. */
-		zfree(seg);
-		return 0;
-	}
-	return seg;
+	kernlock_lock(&(as->as_lock_pmap));
+	
+	pmap_remove(as->as_pmap,begin,end);
+	
+	kernlock_unlock(&(as->as_lock_pmap));
+	
+	return 1;
 }
 

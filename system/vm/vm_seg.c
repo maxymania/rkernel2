@@ -83,13 +83,15 @@ int  vm_seg_eager_map(vm_seg_t seg,struct vm_as* as, vm_prot_t prot) {
 	vm_prot_t iprod;
 	vm_mem_t mem;
 	
-	//kernlock_lock(&(seg->seg_lock));
 	mem = seg->seg_mem;
-	if(!mem) goto endEM;
+	if(!mem) return ret;
 	
 	begin = seg->seg_begin;
 	cursor = 0;
 	size   = (seg->seg_end - seg->seg_begin)+1;
+	
+	kernlock_lock(&(as->as_lock_pmap));
+	
 	for(;cursor<size; cursor += SYSARCH_PAGESIZE){
 		iprod = prot;
 		if(! vm_mem_lookup(mem,cursor,&pa,&iprod) ) goto endEM;
@@ -97,8 +99,7 @@ int  vm_seg_eager_map(vm_seg_t seg,struct vm_as* as, vm_prot_t prot) {
 	}
 	ret = 1;
 endEM:
-	//kernlock_unlock(&(seg->seg_lock));
+	kernlock_unlock(&(as->as_lock_pmap));
 	return ret;
 }
-
 

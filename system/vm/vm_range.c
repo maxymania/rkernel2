@@ -117,3 +117,30 @@ struct vm_range *vm_range_alloc_critical(struct kernslice* slice){
 	range->rang_refc = 1;
 	return range;
 }
+
+static void vm_range_destroy(vm_range_t range){
+	int i;
+	for(i=0;i<VM_RANGE_NUM;++i){
+		if(vm_range_bmlkup(range,i))
+			vm_page_free(range->rang_slice,range->rang_pages[i].page_addr);
+		else	vm_page_drop(range->rang_pages[i].page_obj);
+	}
+	zfree((void*)range);
+}
+
+void vm_range_drop(vm_range_t range){
+	vm_range_t next;
+	u_int32_t refc;
+	
+restart:
+	kernlock_lock(&(range->rang_lock));
+		range->rang_refc--;
+		refc = range->rang_refc;
+	kernlock_unlock(&(range->rang_lock));
+	if(refc) return;
+	
+	next = range->rang_next;
+	vm_range_destroy(range);
+	range = next;
+	goto restart;
+}

@@ -84,3 +84,17 @@ struct vm_mem* vm_mem_alloc_critical(){
 	return mem;
 }
 
+void vm_mem_destroy(struct vm_mem* mem,struct kernslice* slice) {
+	switch(mem->mem_phys_type){
+	case VMM_IS_PGADDR:
+		vm_page_free(slice,mem->mem_pgaddr);
+		return;
+	case VMM_IS_PGOBJ:
+		if(mem->mem_pgobj)   vm_page_drop(mem->mem_pgobj);
+		return;
+	case VMM_IS_PMRANGE:
+		if(mem->mem_pmrange) vm_range_drop(mem->mem_pmrange);
+		return;
+	}
+}
+
