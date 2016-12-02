@@ -155,7 +155,7 @@ static int vm_seg_kfill(vm_seg_t seg,pmap_t pmap, int level){
 	return 1;
 }
 
-int vm_kalloc_ll(vaddr_t *addr /* [out] */,vaddr_t *size /* [in/out]*/){
+static int vm_kalloc_generic(vaddr_t *addr /* [out] */,vaddr_t *size /* [in/out]*/, int level){
 	int res = 0;
 	vm_as_t as;
 	vm_seg_t seg;
@@ -168,7 +168,8 @@ int vm_kalloc_ll(vaddr_t *addr /* [out] */,vaddr_t *size /* [in/out]*/){
 	
 	
 	as = vm_as_get_kernel();
-	seg = vm_seg_alloc(1);
+	if(level) seg = vm_seg_alloc_critical();
+	else      seg = vm_seg_alloc(1);
 	if(!seg) return res;
 	
 	kernlock_lock(&(as->as_lock));
@@ -180,7 +181,7 @@ int vm_kalloc_ll(vaddr_t *addr /* [out] */,vaddr_t *size /* [in/out]*/){
 	kernlock_lock(&(seg->seg_lock));
 	kernlock_unlock(&(as->as_lock));
 	
-	if(!vm_seg_kfill(seg,as->as_pmap,NORMAL)) goto endKalloc2; /* TODO: Remove segment. */
+	if(!vm_seg_kfill(seg,as->as_pmap,level)) goto endKalloc2; /* TODO: Remove segment. */
 	
 	if(!vm_seg_eager_map(seg,as,VM_PROT_KMEM)) goto endKalloc2; /* TODO: Deallocate. */
 	
@@ -194,45 +195,12 @@ endKalloc2:
 endKalloc:
 	kernlock_unlock(&(as->as_lock));
 	return res;
+}
+
+int vm_kalloc_ll(vaddr_t *addr /* [out] */,vaddr_t *size /* [in/out]*/){
+	return vm_kalloc_generic(addr,size,NORMAL);
 }
 
 int vm_alloc_critical(vaddr_t *addr /* [out] */,vaddr_t *size /* [in/out]*/){
-	int res = 0;
-	vm_as_t as;
-	vm_seg_t seg;
-	
-	/*
-	 * Round-Up the size.
-	 */
-	vaddr_t lsiz = *size + SYSARCH_PAGESIZE - 1;
-	ROUND_DOWN(lsiz);
-	
-	as = vm_as_get_kernel();
-	seg = vm_seg_alloc_critical();
-	if(!seg) return res;
-	
-	kernlock_lock(&(as->as_lock));
-	
-	if(! vm_insert_entry(as,lsiz,seg)) {
-		zfree((void*)seg);
-		goto endKalloc;
-	}
-	kernlock_lock(&(seg->seg_lock));
-	kernlock_unlock(&(as->as_lock));
-	
-	if(!vm_seg_kfill(seg,as->as_pmap,CRITICAL)) goto endKalloc2; /* TODO: Remove segment. */
-	
-	if(!vm_seg_eager_map(seg,as,VM_PROT_KMEM)) goto endKalloc2; /* TODO: Deallocate. */
-	
-	*addr = seg->seg_begin;
-	*size = (seg->seg_end - seg->seg_begin)+1;
-	res = 1;
-	
-endKalloc2:
-	kernlock_unlock(&(seg->seg_lock));
-	return res;
-endKalloc:
-	kernlock_unlock(&(as->as_lock));
-	return res;
+	return vm_kalloc_generic(addr,size,CRITICAL);
 }
-
