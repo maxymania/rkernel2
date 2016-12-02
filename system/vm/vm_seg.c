@@ -26,6 +26,7 @@
 #include <vm/vm_top.h>
 #include <vm/vm_priv.h>
 #include <vm/pmap.h>
+#include <xcpu/vm.h>
 #include <sysarch/pages.h>
 #include <kern/zalloc.h>
 #include <string.h>
@@ -90,6 +91,8 @@ int  vm_seg_eager_map(vm_seg_t seg,struct vm_as* as, vm_prot_t prot) {
 	cursor = 0;
 	size   = (seg->seg_end - seg->seg_begin)+1;
 	
+	xcpu_cache_flush_range(as->as_pmap,seg->seg_begin,seg->seg_end);
+	
 	kernlock_lock(&(as->as_lock_pmap));
 	
 	for(;cursor<size; cursor += SYSARCH_PAGESIZE){
@@ -100,6 +103,8 @@ int  vm_seg_eager_map(vm_seg_t seg,struct vm_as* as, vm_prot_t prot) {
 	ret = 1;
 endEM:
 	kernlock_unlock(&(as->as_lock_pmap));
+	
+	xcpu_tlb_flush_range(as->as_pmap,seg->seg_begin,seg->seg_end);
 	return ret;
 }
 

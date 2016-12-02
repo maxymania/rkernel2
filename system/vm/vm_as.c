@@ -24,9 +24,8 @@
 #include <vm/vm_seg.h>
 #include <vm/vm_priv.h>
 #include <vm/pmap.h>
+#include <xcpu/vm.h>
 #include <kern/zalloc.h>
-
-#include <stdio.h>
 
 static zone_t vm_as_zone; /* Zone for vm_as structures. */
 
@@ -112,11 +111,15 @@ int vm_remove_entry(vm_as_t as, struct vm_seg * seg) {
 		return 0;
 	}
 	
+	xcpu_cache_flush_range(as->as_pmap,begin,end);
+	
 	kernlock_lock(&(as->as_lock_pmap));
 	
 	pmap_remove(as->as_pmap,begin,end);
 	
 	kernlock_unlock(&(as->as_lock_pmap));
+	
+	xcpu_tlb_flush_range(as->as_pmap,begin,end);
 	
 	return 1;
 }

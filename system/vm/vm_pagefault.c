@@ -53,7 +53,9 @@ int vm_as_pagefault(vm_as_t as,vaddr_t va, vm_prot_t fault_type) {
 	int ret;
 	kernlock_lock(&(as->as_lock));
 	
+	kernlock_lock(&(as->as_lock_segs));
 	bt = bt_floor(&(as->as_segs),va);
+	kernlock_unlock(&(as->as_lock_segs));
 	
 	/*
 	 * If no entry has been found, The pointer is not in an valid (mapped) address range.
@@ -144,9 +146,21 @@ static int vm_seg_pagefault(vm_as_t as,vm_seg_t seg, vaddr_t va, vm_prot_t fault
 	mem->mem_accessed = 1;
 	
 	/*
+	 * Flush the cache on the given Page address only for the current pmap_t.
+	 */
+	xcpu_cache_flush_page(as->as_pmap,va);
+	
+	/*
 	 * Map the memory. If it failes, give up.
 	 */
-	if( pmap_enter(as->as_pmap,va,pa,iprod,0) ) GIVE_UP;
+	kernlock_lock(&(as->as_lock_pmap));
+	
+	if( pmap_enter(as->as_pmap,va,pa,iprod,0) ) {
+		kernlock_unlock(&(as->as_lock_pmap));
+		GIVE_UP;
+	}
+	
+	kernlock_unlock(&(as->as_lock_pmap));
 	
 	/*
 	 * Flush the faulted page on the given Page address only for the current pmap_t.
