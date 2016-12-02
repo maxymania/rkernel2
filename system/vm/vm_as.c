@@ -85,32 +85,12 @@ int vm_insert_entry(vm_as_t as, vaddr_t size, struct vm_seg * seg){
 	return 1;
 }
 
+/* XXX: Do we still need it? */
 struct vm_seg *vm_create_entry(vm_as_t as, vaddr_t size) {
 	int kernel = as==&kernel_as;
 	vm_bintree_t entry;
 	
 	vm_seg_t seg = vm_seg_alloc(kernel);
-	if(!seg) return 0;
-	
-	if(!vm_find_free(as,seg,size-1)) {
-		zfree(seg);
-		return 0;
-	}
-	
-	vm_seg_initobj(seg);
-	entry = &(seg->_bt_node);
-	bt_insert(&(as->as_segs),&entry);
-	if(entry) { /* Insert failed. */
-		zfree(seg);
-		return 0;
-	}
-	return seg;
-}
-
-struct vm_seg *vm_create_entry_critical(vm_as_t as, vaddr_t size) {
-	vm_bintree_t entry;
-	
-	vm_seg_t seg = vm_seg_alloc_critical();
 	if(!seg) return 0;
 	
 	if(!vm_find_free(as,seg,size-1)) {

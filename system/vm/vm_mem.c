@@ -30,8 +30,6 @@ static zone_t vm_mem_zone;  /* Zone for user vm_mem structures. */
 static zone_t vm_kmem_zone; /* Zone for kernel vm_mem structures. */
 static zone_t vm_cmem_zone; /* Zone for critical kernel vm_mem structures. */
 
-/* With auto-refill activated, */
-
 /* This is the size of a cache line (in x86). */
 #define CACHE_LINE  128
 
@@ -74,12 +72,10 @@ int vm_mem_lookup(struct vm_mem* mem, vaddr_t rva, paddr_t *pag, vm_prot_t *prot
 
 struct vm_mem* vm_mem_alloc(int kernel){
 	struct vm_mem* mem = zalloc(kernel ? vm_kmem_zone : vm_mem_zone);
-	//struct vm_mem* mem = zalloc(vm_mem_zone);
 	if(!mem) return 0;
 	memset((void*)mem,0,sizeof(struct vm_mem));
 	return mem;
 }
-
 
 struct vm_mem* vm_mem_alloc_critical(){
 	struct vm_mem* mem = zalloc(vm_cmem_zone);
@@ -87,3 +83,4 @@ struct vm_mem* vm_mem_alloc_critical(){
 	memset((void*)mem,0,sizeof(struct vm_mem));
 	return mem;
 }
+

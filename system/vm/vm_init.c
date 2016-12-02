@@ -27,33 +27,7 @@
 #include <vm/vm_range.h>
 #include <kern/zalloc.h>
 
-#include <sys/cpu.h>
-#include <sys/kernslice.h>
 #include <vm/pmap.h>
-#include <sys/physmem_alloc.h>
-
-#include <stdio.h>
-
-static void testmapping(){
-	vaddr_t va = 0xC2000000;
-	paddr_t pa;
-	struct cpu *cpu = kernel_get_current_cpu();
-	int ok = vm_phys_alloc(cpu->cpu_kernel_slice->ks_memory_allocator, &pa);
-	printf("vm_phys_alloc = %d , %p\n",ok,(void*)pa);
-	if(ok){
-		ok = !pmap_enter(pmap_kernel(),va,pa,VM_PROT_READ|VM_PROT_WRITE,0);
-		printf("pmap_enter = %d\n",ok);
-		if(ok){
-			char* chr = (char*)va;
-			chr[0] = '1';
-			chr[1] = '2';
-			chr[2] = '3';
-			chr[3] = 0;
-			printf("chr = %s\n",chr);
-		}
-	}
-}
-
 
 /*
  * This function initializes the kernel virtual memory system.
@@ -66,19 +40,10 @@ void vm_init(){
 	vm_mem_init   ();
 	vm_range_init ();
 	
-	//testmapping();
-	
 	vm_seg_refill  ();
 	vm_mem_refill  ();
 	vm_range_refill();
 	vm_as_refill   ();
-	/*
-	vaddr_t begin,end = 4096*2;
-	printf("vm_alloc_critical = %d\n",(int)vm_alloc_critical(&begin,&end));
-	printf("begin = %p\n",(void*)begin);
-	printf("vm_kalloc_ll = %d\n",(int)vm_kalloc_ll(&begin,&end));
-	printf("begin = %p\n",(void*)begin);
-	*/
 }
 
 void vm_refill(){

@@ -31,8 +31,6 @@ struct kernslice;
 
 struct vm_seg *vm_seg_alloc_critical();
 
-struct vm_seg *vm_create_entry_critical(struct vm_as* as, vaddr_t size);
-
 struct vm_mem *vm_mem_alloc_critical();
 
 struct vm_range *vm_range_alloc_critical(struct kernslice* slice);
