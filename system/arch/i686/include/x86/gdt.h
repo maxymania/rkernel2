@@ -26,7 +26,6 @@
 #include <machine/types.h>
 #include <sysstd/uint.h>
 
-
 // various segment selectors.
 #define SEG_KCODE 1  // kernel code
 #define SEG_KDATA 2  // kernel data+stack
@@ -34,6 +33,7 @@
 #define SEG_UCODE 4  // user code
 #define SEG_UDATA 5  // user data+stack
 #define SEG_TSS   6  // this process's task state
+
 
 // cpu->gdt[NSEGS] holds the above segments.
 #define NSEGS 7
@@ -153,16 +153,16 @@ struct gatedesc {
 // - dpl: Descriptor Privilege Level -
 //        the privilege level required for software to invoke
 //        this interrupt/trap gate explicitly using an int instruction.
-#define SETGATE(gate, istrap, sel, off, d)                \
-{                                                         \
-  (gate).off_15_0 = (uint)(off) & 0xffff;                \
-  (gate).cs = (sel);                                      \
-  (gate).args = 0;                                        \
-  (gate).rsv1 = 0;                                        \
-  (gate).type = (istrap) ? STS_TG32 : STS_IG32;           \
-  (gate).s = 0;                                           \
-  (gate).dpl = (d);                                       \
-  (gate).p = 1;                                           \
-  (gate).off_31_16 = (uint)(off) >> 16;                  \
+#define SETGATE(gate, istrap, sel, off, d)                  \
+{                                                           \
+  (gate).off_15_0 = (u_int16_t)((u_int32_t)(off) & 0xffff); \
+  (gate).cs = (sel);                                        \
+  (gate).args = 0;                                          \
+  (gate).rsv1 = 0;                                          \
+  (gate).type = (istrap) ? STS_TG32 : STS_IG32;             \
+  (gate).s = 0;                                             \
+  (gate).dpl = (d);                                         \
+  (gate).p = 1;                                             \
+  (gate).off_31_16 = (u_int16_t)((u_int32_t)(off) >> 16);   \
 }
 

@@ -1,6 +1,8 @@
 /*
+ * 
+ * Copyright (c) 2006-2016 Frans Kaashoek, Robert Morris, Russ Cox,
+ *                         Massachusetts Institute of Technology
  * Copyright (c) 2016 Simon Schmidt
- * Based on the work from: http://wiki.osdev.org/Meaty_Skeleton
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -20,19 +22,45 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
+#pragma once
+#include <machine/types.h>
 
-.section .init
-.global _init
-.type _init, @function
-_init:
-	push %ebp
-	movl %esp, %ebp
-	/* gcc will nicely put the contents of crtbegin.o's .init section here. */
+/*
+ * Layout of the trap frame built on the stack by the hardware and by intvec.s
+ * interrupt.s, and passed to __i686_interrupt().
+ */
+struct trapframe {
+  // registers as pushed by pusha
+  u_int32_t edi;
+  u_int32_t esi;
+  u_int32_t ebp;
+  u_int32_t oesp;      // useless & ignored
+  u_int32_t ebx;
+  u_int32_t edx;
+  u_int32_t ecx;
+  u_int32_t eax;
 
-.section .fini
-.global _fini
-.type _fini, @function
-_fini:
-	push %ebp
-	movl %esp, %ebp
-	/* gcc will nicely put the contents of crtbegin.o's .fini section here. */
+  // rest of trap frame
+  u_int16_t gs;
+  u_int16_t padding1;
+  u_int16_t fs;
+  u_int16_t padding2;
+  u_int16_t es;
+  u_int16_t padding3;
+  u_int16_t ds;
+  u_int16_t padding4;
+  u_int32_t trapno;
+
+  // below here defined by x86 hardware
+  u_int32_t err;
+  u_int32_t eip;
+  u_int16_t cs;
+  u_int16_t padding5;
+  u_int32_t eflags;
+
+  // below here only when crossing rings, such as from user to kernel
+  u_int32_t esp;
+  u_int16_t ss;
+  u_int16_t padding6;
+};
+

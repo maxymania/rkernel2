@@ -12,7 +12,9 @@ Compiler.incls "./system/arch/i686/include"
 MKList.add "archdep", [
 	"system/arch/i686/boot.s",
 	"system/arch/i686/crti.s",
-	"system/arch/i686/crtn.s"
+	"system/arch/i686/crtn.s",
+	"system/arch/i686/interrupt.s",
+	"system/arch/i686/intvec.s"
 ]
 
 MKList.add "archdep", Makefile.glob("system/arch/i686/*.c")

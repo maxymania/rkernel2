@@ -24,7 +24,12 @@
 #include <sysarch/hal.h>
 #include <sys/cpu.h>
 #include <x86/cpu_arch.h>
+#include <x86/trapframe.h>
 #include <x86/x86.h>
+
+extern const u_int32_t __i686_vectors[256];
+
+static struct gatedesc idt[256];
 
 /*
  * The local CPU structure pointer.
@@ -71,7 +76,25 @@ void hal_after_thread_switch(){
 	 * setting IOPL=0 in eflags *and* iomb beyond the tss segment limit
 	 * forbids I/O instructions (e.g., inb and outb) from user space
 	 */
-	cpu_arch->tss.iomb = (ushort) 0xFFFF;
+	cpu_arch->tss.iomb = (u_int16_t) 0xFFFF;
 	ltr(SEG_TSS << 3);
+}
+
+void __i686_setup_idt(){
+	int i;
+	
+	for(i = 0; i < 256; i++)
+		SETGATE(idt[i], 0, SEG_KCODE<<3, __i686_vectors[i], 0);
+	
+	/*
+	 * XXX
+	 * SETGATE(idt[T_SYSCALL], 1, SEG_KCODE<<3, vectors[T_SYSCALL], DPL_USER);
+	 */
+	
+	lidt((u_intptr_t)(void*)idt, sizeof(idt));
+}
+
+void __i686_interrupt(struct trapframe* tf){
+	(void)tf;
 }
 

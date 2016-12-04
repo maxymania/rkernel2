@@ -1,6 +1,8 @@
 /*
+ * 
+ * Copyright (c) 2006-2016 Frans Kaashoek, Robert Morris, Russ Cox,
+ *                         Massachusetts Institute of Technology
  * Copyright (c) 2016 Simon Schmidt
- * Based on the work from: http://wiki.osdev.org/Meaty_Skeleton
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -20,19 +22,41 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
+# various segment selectors.
+# SEG_KCODE 1  // kernel code
+# SEG_KDATA 2  // kernel data+stack
+# SEG_KCPU  3  // kernel per-cpu data
+# SEG_UCODE 4  // user code
+# SEG_UDATA 5  // user data+stack
+# SEG_TSS   6  // this process's task state
 
-.section .init
-.global _init
-.type _init, @function
-_init:
-	push %ebp
-	movl %esp, %ebp
-	/* gcc will nicely put the contents of crtbegin.o's .init section here. */
+.text
+.global __i686_interrupt
+.global __i686_isr
+__i686_isr:
+	pushl %ds
+	pushl %es
+	pushl %fs
+	pushl %gs
+	pushal
+	# SEG_KDATA
+	movw $(2 * 8), %ax
+	movw %ax, %ds
+	movw %ax, %es
+	# SEG_KCPU
+	movw $(3 * 8), %ax
+	movw %ax, %fs
+	movw %ax, %gs
+	
+	pushl %esp
+	call __i686_interrupt
+	addl $4, %esp
+	
+	popal
+	popl %gs
+	popl %fs
+	popl %es
+	popl %ds
+	addl $8, %esp  # trapno and errcode
+	iret
 
-.section .fini
-.global _fini
-.type _fini, @function
-_fini:
-	push %ebp
-	movl %esp, %ebp
-	/* gcc will nicely put the contents of crtbegin.o's .fini section here. */

@@ -37,6 +37,8 @@ static struct cpu cpu;
 static struct physmem_range memrange[2];
 static struct cpu_arch cpu_arch;
 
+void __i686_setup_idt();
+
 void kernel_main(void);
 
 static void _i686_init(){
@@ -91,6 +93,7 @@ static void _i686_init(){
 	}
 	
 	hal_initcpu(&cpu);
+	__i686_setup_idt();
 }
 
 
