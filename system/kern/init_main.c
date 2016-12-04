@@ -58,8 +58,6 @@ static void kern_initmem(){
 			printf("bmas->pmb_maps[%d] = %d\n",i,(unsigned int)(bmas->pmb_maps[i]->pmb_length));
 		}
 	}
-	//zone_bootstrap();
-	//pmap_init();
 	vm_init();
 }
 
