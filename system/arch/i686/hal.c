@@ -26,7 +26,6 @@
 #include <x86/cpu_arch.h>
 #include <x86/trapframe.h>
 #include <x86/x86.h>
-#include <stdio.h>
 
 extern const u_int32_t __i686_vectors[256];
 
@@ -96,7 +95,6 @@ void __i686_setup_idt(){
 }
 
 void __i686_interrupt(struct trapframe* tf){
-	//(void)tf;
-	printf("Interrupt: %p\n",tf->trapno);
+	(void)tf;
 }
 

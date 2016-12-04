@@ -61,12 +61,6 @@ static void kern_initmem(){
 	//zone_bootstrap();
 	//pmap_init();
 	vm_init();
-	
-	//printf("sti\n");
-	//asm volatile("sti");
-	
-	//printf("int $80\n");
-	//asm volatile("int $80");
 }
 
 void kernel_main(void) {

@@ -53,6 +53,7 @@ puts("#
 # handlers
 ")
 
+# Has error code?
 has = {}
 has[8]  = true
 has[17] = true
