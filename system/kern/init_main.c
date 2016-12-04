@@ -54,7 +54,7 @@ static void kern_initmem(){
 	if(bmas){
 		printf("bmas->pmb_maps = %p\n",bmas->pmb_maps);
 		printf("bmas->pmb_n_maps = %u\n",(unsigned int)bmas->pmb_n_maps);
-		for(i=0;i<bmas->pmb_n_maps;++i){
+		for(i=0;((unsigned int)i)<bmas->pmb_n_maps;++i){
 			printf("bmas->pmb_maps[%d] = %d\n",i,(unsigned int)(bmas->pmb_maps[i]->pmb_length));
 		}
 	}
