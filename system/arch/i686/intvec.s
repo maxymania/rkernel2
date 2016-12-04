@@ -29,128 +29,144 @@
 .global __i686_isr
 __i686_vector_0:
   pushl $0
+  pushl $0
   jmp __i686_isr
 
 __i686_vector_1:
+  pushl $0
   pushl $1
   jmp __i686_isr
 
 __i686_vector_2:
+  pushl $0
   pushl $2
   jmp __i686_isr
 
 __i686_vector_3:
+  pushl $0
   pushl $3
   jmp __i686_isr
 
 __i686_vector_4:
+  pushl $0
   pushl $4
   jmp __i686_isr
 
 __i686_vector_5:
+  pushl $0
   pushl $5
   jmp __i686_isr
 
 __i686_vector_6:
+  pushl $0
   pushl $6
   jmp __i686_isr
 
 __i686_vector_7:
+  pushl $0
   pushl $7
   jmp __i686_isr
 
 __i686_vector_8:
-  pushl $0
   pushl $8
   jmp __i686_isr
 
 __i686_vector_9:
+  pushl $0
   pushl $9
   jmp __i686_isr
 
 __i686_vector_10:
-  pushl $0
   pushl $10
   jmp __i686_isr
 
 __i686_vector_11:
-  pushl $0
   pushl $11
   jmp __i686_isr
 
 __i686_vector_12:
-  pushl $0
   pushl $12
   jmp __i686_isr
 
 __i686_vector_13:
-  pushl $0
   pushl $13
   jmp __i686_isr
 
 __i686_vector_14:
-  pushl $0
   pushl $14
   jmp __i686_isr
 
 __i686_vector_15:
+  pushl $0
   pushl $15
   jmp __i686_isr
 
 __i686_vector_16:
+  pushl $0
   pushl $16
   jmp __i686_isr
 
 __i686_vector_17:
-  pushl $0
   pushl $17
   jmp __i686_isr
 
 __i686_vector_18:
+  pushl $0
   pushl $18
   jmp __i686_isr
 
 __i686_vector_19:
+  pushl $0
   pushl $19
   jmp __i686_isr
 
 __i686_vector_20:
+  pushl $0
   pushl $20
   jmp __i686_isr
 
 __i686_vector_21:
+  pushl $0
   pushl $21
   jmp __i686_isr
 
 __i686_vector_22:
+  pushl $0
   pushl $22
   jmp __i686_isr
 
 __i686_vector_23:
+  pushl $0
   pushl $23
   jmp __i686_isr
 
 __i686_vector_24:
+  pushl $0
   pushl $24
   jmp __i686_isr
 
 __i686_vector_25:
+  pushl $0
   pushl $25
   jmp __i686_isr
 
 __i686_vector_26:
+  pushl $0
   pushl $26
   jmp __i686_isr
 
 __i686_vector_27:
+  pushl $0
   pushl $27
   jmp __i686_isr
 
 __i686_vector_28:
+  pushl $0
   pushl $28
   jmp __i686_isr
 
 __i686_vector_29:
+  pushl $0
   pushl $29
   jmp __i686_isr
 
@@ -159,902 +175,1127 @@ __i686_vector_30:
   jmp __i686_isr
 
 __i686_vector_31:
+  pushl $0
   pushl $31
   jmp __i686_isr
 
 __i686_vector_32:
+  pushl $0
   pushl $32
   jmp __i686_isr
 
 __i686_vector_33:
+  pushl $0
   pushl $33
   jmp __i686_isr
 
 __i686_vector_34:
+  pushl $0
   pushl $34
   jmp __i686_isr
 
 __i686_vector_35:
+  pushl $0
   pushl $35
   jmp __i686_isr
 
 __i686_vector_36:
+  pushl $0
   pushl $36
   jmp __i686_isr
 
 __i686_vector_37:
+  pushl $0
   pushl $37
   jmp __i686_isr
 
 __i686_vector_38:
+  pushl $0
   pushl $38
   jmp __i686_isr
 
 __i686_vector_39:
+  pushl $0
   pushl $39
   jmp __i686_isr
 
 __i686_vector_40:
+  pushl $0
   pushl $40
   jmp __i686_isr
 
 __i686_vector_41:
+  pushl $0
   pushl $41
   jmp __i686_isr
 
 __i686_vector_42:
+  pushl $0
   pushl $42
   jmp __i686_isr
 
 __i686_vector_43:
+  pushl $0
   pushl $43
   jmp __i686_isr
 
 __i686_vector_44:
+  pushl $0
   pushl $44
   jmp __i686_isr
 
 __i686_vector_45:
+  pushl $0
   pushl $45
   jmp __i686_isr
 
 __i686_vector_46:
+  pushl $0
   pushl $46
   jmp __i686_isr
 
 __i686_vector_47:
+  pushl $0
   pushl $47
   jmp __i686_isr
 
 __i686_vector_48:
+  pushl $0
   pushl $48
   jmp __i686_isr
 
 __i686_vector_49:
+  pushl $0
   pushl $49
   jmp __i686_isr
 
 __i686_vector_50:
+  pushl $0
   pushl $50
   jmp __i686_isr
 
 __i686_vector_51:
+  pushl $0
   pushl $51
   jmp __i686_isr
 
 __i686_vector_52:
+  pushl $0
   pushl $52
   jmp __i686_isr
 
 __i686_vector_53:
+  pushl $0
   pushl $53
   jmp __i686_isr
 
 __i686_vector_54:
+  pushl $0
   pushl $54
   jmp __i686_isr
 
 __i686_vector_55:
+  pushl $0
   pushl $55
   jmp __i686_isr
 
 __i686_vector_56:
+  pushl $0
   pushl $56
   jmp __i686_isr
 
 __i686_vector_57:
+  pushl $0
   pushl $57
   jmp __i686_isr
 
 __i686_vector_58:
+  pushl $0
   pushl $58
   jmp __i686_isr
 
 __i686_vector_59:
+  pushl $0
   pushl $59
   jmp __i686_isr
 
 __i686_vector_60:
+  pushl $0
   pushl $60
   jmp __i686_isr
 
 __i686_vector_61:
+  pushl $0
   pushl $61
   jmp __i686_isr
 
 __i686_vector_62:
+  pushl $0
   pushl $62
   jmp __i686_isr
 
 __i686_vector_63:
+  pushl $0
   pushl $63
   jmp __i686_isr
 
 __i686_vector_64:
+  pushl $0
   pushl $64
   jmp __i686_isr
 
 __i686_vector_65:
+  pushl $0
   pushl $65
   jmp __i686_isr
 
 __i686_vector_66:
+  pushl $0
   pushl $66
   jmp __i686_isr
 
 __i686_vector_67:
+  pushl $0
   pushl $67
   jmp __i686_isr
 
 __i686_vector_68:
+  pushl $0
   pushl $68
   jmp __i686_isr
 
 __i686_vector_69:
+  pushl $0
   pushl $69
   jmp __i686_isr
 
 __i686_vector_70:
+  pushl $0
   pushl $70
   jmp __i686_isr
 
 __i686_vector_71:
+  pushl $0
   pushl $71
   jmp __i686_isr
 
 __i686_vector_72:
+  pushl $0
   pushl $72
   jmp __i686_isr
 
 __i686_vector_73:
+  pushl $0
   pushl $73
   jmp __i686_isr
 
 __i686_vector_74:
+  pushl $0
   pushl $74
   jmp __i686_isr
 
 __i686_vector_75:
+  pushl $0
   pushl $75
   jmp __i686_isr
 
 __i686_vector_76:
+  pushl $0
   pushl $76
   jmp __i686_isr
 
 __i686_vector_77:
+  pushl $0
   pushl $77
   jmp __i686_isr
 
 __i686_vector_78:
+  pushl $0
   pushl $78
   jmp __i686_isr
 
 __i686_vector_79:
+  pushl $0
   pushl $79
   jmp __i686_isr
 
 __i686_vector_80:
+  pushl $0
   pushl $80
   jmp __i686_isr
 
 __i686_vector_81:
+  pushl $0
   pushl $81
   jmp __i686_isr
 
 __i686_vector_82:
+  pushl $0
   pushl $82
   jmp __i686_isr
 
 __i686_vector_83:
+  pushl $0
   pushl $83
   jmp __i686_isr
 
 __i686_vector_84:
+  pushl $0
   pushl $84
   jmp __i686_isr
 
 __i686_vector_85:
+  pushl $0
   pushl $85
   jmp __i686_isr
 
 __i686_vector_86:
+  pushl $0
   pushl $86
   jmp __i686_isr
 
 __i686_vector_87:
+  pushl $0
   pushl $87
   jmp __i686_isr
 
 __i686_vector_88:
+  pushl $0
   pushl $88
   jmp __i686_isr
 
 __i686_vector_89:
+  pushl $0
   pushl $89
   jmp __i686_isr
 
 __i686_vector_90:
+  pushl $0
   pushl $90
   jmp __i686_isr
 
 __i686_vector_91:
+  pushl $0
   pushl $91
   jmp __i686_isr
 
 __i686_vector_92:
+  pushl $0
   pushl $92
   jmp __i686_isr
 
 __i686_vector_93:
+  pushl $0
   pushl $93
   jmp __i686_isr
 
 __i686_vector_94:
+  pushl $0
   pushl $94
   jmp __i686_isr
 
 __i686_vector_95:
+  pushl $0
   pushl $95
   jmp __i686_isr
 
 __i686_vector_96:
+  pushl $0
   pushl $96
   jmp __i686_isr
 
 __i686_vector_97:
+  pushl $0
   pushl $97
   jmp __i686_isr
 
 __i686_vector_98:
+  pushl $0
   pushl $98
   jmp __i686_isr
 
 __i686_vector_99:
+  pushl $0
   pushl $99
   jmp __i686_isr
 
 __i686_vector_100:
+  pushl $0
   pushl $100
   jmp __i686_isr
 
 __i686_vector_101:
+  pushl $0
   pushl $101
   jmp __i686_isr
 
 __i686_vector_102:
+  pushl $0
   pushl $102
   jmp __i686_isr
 
 __i686_vector_103:
+  pushl $0
   pushl $103
   jmp __i686_isr
 
 __i686_vector_104:
+  pushl $0
   pushl $104
   jmp __i686_isr
 
 __i686_vector_105:
+  pushl $0
   pushl $105
   jmp __i686_isr
 
 __i686_vector_106:
+  pushl $0
   pushl $106
   jmp __i686_isr
 
 __i686_vector_107:
+  pushl $0
   pushl $107
   jmp __i686_isr
 
 __i686_vector_108:
+  pushl $0
   pushl $108
   jmp __i686_isr
 
 __i686_vector_109:
+  pushl $0
   pushl $109
   jmp __i686_isr
 
 __i686_vector_110:
+  pushl $0
   pushl $110
   jmp __i686_isr
 
 __i686_vector_111:
+  pushl $0
   pushl $111
   jmp __i686_isr
 
 __i686_vector_112:
+  pushl $0
   pushl $112
   jmp __i686_isr
 
 __i686_vector_113:
+  pushl $0
   pushl $113
   jmp __i686_isr
 
 __i686_vector_114:
+  pushl $0
   pushl $114
   jmp __i686_isr
 
 __i686_vector_115:
+  pushl $0
   pushl $115
   jmp __i686_isr
 
 __i686_vector_116:
+  pushl $0
   pushl $116
   jmp __i686_isr
 
 __i686_vector_117:
+  pushl $0
   pushl $117
   jmp __i686_isr
 
 __i686_vector_118:
+  pushl $0
   pushl $118
   jmp __i686_isr
 
 __i686_vector_119:
+  pushl $0
   pushl $119
   jmp __i686_isr
 
 __i686_vector_120:
+  pushl $0
   pushl $120
   jmp __i686_isr
 
 __i686_vector_121:
+  pushl $0
   pushl $121
   jmp __i686_isr
 
 __i686_vector_122:
+  pushl $0
   pushl $122
   jmp __i686_isr
 
 __i686_vector_123:
+  pushl $0
   pushl $123
   jmp __i686_isr
 
 __i686_vector_124:
+  pushl $0
   pushl $124
   jmp __i686_isr
 
 __i686_vector_125:
+  pushl $0
   pushl $125
   jmp __i686_isr
 
 __i686_vector_126:
+  pushl $0
   pushl $126
   jmp __i686_isr
 
 __i686_vector_127:
+  pushl $0
   pushl $127
   jmp __i686_isr
 
 __i686_vector_128:
+  pushl $0
   pushl $128
   jmp __i686_isr
 
 __i686_vector_129:
+  pushl $0
   pushl $129
   jmp __i686_isr
 
 __i686_vector_130:
+  pushl $0
   pushl $130
   jmp __i686_isr
 
 __i686_vector_131:
+  pushl $0
   pushl $131
   jmp __i686_isr
 
 __i686_vector_132:
+  pushl $0
   pushl $132
   jmp __i686_isr
 
 __i686_vector_133:
+  pushl $0
   pushl $133
   jmp __i686_isr
 
 __i686_vector_134:
+  pushl $0
   pushl $134
   jmp __i686_isr
 
 __i686_vector_135:
+  pushl $0
   pushl $135
   jmp __i686_isr
 
 __i686_vector_136:
+  pushl $0
   pushl $136
   jmp __i686_isr
 
 __i686_vector_137:
+  pushl $0
   pushl $137
   jmp __i686_isr
 
 __i686_vector_138:
+  pushl $0
   pushl $138
   jmp __i686_isr
 
 __i686_vector_139:
+  pushl $0
   pushl $139
   jmp __i686_isr
 
 __i686_vector_140:
+  pushl $0
   pushl $140
   jmp __i686_isr
 
 __i686_vector_141:
+  pushl $0
   pushl $141
   jmp __i686_isr
 
 __i686_vector_142:
+  pushl $0
   pushl $142
   jmp __i686_isr
 
 __i686_vector_143:
+  pushl $0
   pushl $143
   jmp __i686_isr
 
 __i686_vector_144:
+  pushl $0
   pushl $144
   jmp __i686_isr
 
 __i686_vector_145:
+  pushl $0
   pushl $145
   jmp __i686_isr
 
 __i686_vector_146:
+  pushl $0
   pushl $146
   jmp __i686_isr
 
 __i686_vector_147:
+  pushl $0
   pushl $147
   jmp __i686_isr
 
 __i686_vector_148:
+  pushl $0
   pushl $148
   jmp __i686_isr
 
 __i686_vector_149:
+  pushl $0
   pushl $149
   jmp __i686_isr
 
 __i686_vector_150:
+  pushl $0
   pushl $150
   jmp __i686_isr
 
 __i686_vector_151:
+  pushl $0
   pushl $151
   jmp __i686_isr
 
 __i686_vector_152:
+  pushl $0
   pushl $152
   jmp __i686_isr
 
 __i686_vector_153:
+  pushl $0
   pushl $153
   jmp __i686_isr
 
 __i686_vector_154:
+  pushl $0
   pushl $154
   jmp __i686_isr
 
 __i686_vector_155:
+  pushl $0
   pushl $155
   jmp __i686_isr
 
 __i686_vector_156:
+  pushl $0
   pushl $156
   jmp __i686_isr
 
 __i686_vector_157:
+  pushl $0
   pushl $157
   jmp __i686_isr
 
 __i686_vector_158:
+  pushl $0
   pushl $158
   jmp __i686_isr
 
 __i686_vector_159:
+  pushl $0
   pushl $159
   jmp __i686_isr
 
 __i686_vector_160:
+  pushl $0
   pushl $160
   jmp __i686_isr
 
 __i686_vector_161:
+  pushl $0
   pushl $161
   jmp __i686_isr
 
 __i686_vector_162:
+  pushl $0
   pushl $162
   jmp __i686_isr
 
 __i686_vector_163:
+  pushl $0
   pushl $163
   jmp __i686_isr
 
 __i686_vector_164:
+  pushl $0
   pushl $164
   jmp __i686_isr
 
 __i686_vector_165:
+  pushl $0
   pushl $165
   jmp __i686_isr
 
 __i686_vector_166:
+  pushl $0
   pushl $166
   jmp __i686_isr
 
 __i686_vector_167:
+  pushl $0
   pushl $167
   jmp __i686_isr
 
 __i686_vector_168:
+  pushl $0
   pushl $168
   jmp __i686_isr
 
 __i686_vector_169:
+  pushl $0
   pushl $169
   jmp __i686_isr
 
 __i686_vector_170:
+  pushl $0
   pushl $170
   jmp __i686_isr
 
 __i686_vector_171:
+  pushl $0
   pushl $171
   jmp __i686_isr
 
 __i686_vector_172:
+  pushl $0
   pushl $172
   jmp __i686_isr
 
 __i686_vector_173:
+  pushl $0
   pushl $173
   jmp __i686_isr
 
 __i686_vector_174:
+  pushl $0
   pushl $174
   jmp __i686_isr
 
 __i686_vector_175:
+  pushl $0
   pushl $175
   jmp __i686_isr
 
 __i686_vector_176:
+  pushl $0
   pushl $176
   jmp __i686_isr
 
 __i686_vector_177:
+  pushl $0
   pushl $177
   jmp __i686_isr
 
 __i686_vector_178:
+  pushl $0
   pushl $178
   jmp __i686_isr
 
 __i686_vector_179:
+  pushl $0
   pushl $179
   jmp __i686_isr
 
 __i686_vector_180:
+  pushl $0
   pushl $180
   jmp __i686_isr
 
 __i686_vector_181:
+  pushl $0
   pushl $181
   jmp __i686_isr
 
 __i686_vector_182:
+  pushl $0
   pushl $182
   jmp __i686_isr
 
 __i686_vector_183:
+  pushl $0
   pushl $183
   jmp __i686_isr
 
 __i686_vector_184:
+  pushl $0
   pushl $184
   jmp __i686_isr
 
 __i686_vector_185:
+  pushl $0
   pushl $185
   jmp __i686_isr
 
 __i686_vector_186:
+  pushl $0
   pushl $186
   jmp __i686_isr
 
 __i686_vector_187:
+  pushl $0
   pushl $187
   jmp __i686_isr
 
 __i686_vector_188:
+  pushl $0
   pushl $188
   jmp __i686_isr
 
 __i686_vector_189:
+  pushl $0
   pushl $189
   jmp __i686_isr
 
 __i686_vector_190:
+  pushl $0
   pushl $190
   jmp __i686_isr
 
 __i686_vector_191:
+  pushl $0
   pushl $191
   jmp __i686_isr
 
 __i686_vector_192:
+  pushl $0
   pushl $192
   jmp __i686_isr
 
 __i686_vector_193:
+  pushl $0
   pushl $193
   jmp __i686_isr
 
 __i686_vector_194:
+  pushl $0
   pushl $194
   jmp __i686_isr
 
 __i686_vector_195:
+  pushl $0
   pushl $195
   jmp __i686_isr
 
 __i686_vector_196:
+  pushl $0
   pushl $196
   jmp __i686_isr
 
 __i686_vector_197:
+  pushl $0
   pushl $197
   jmp __i686_isr
 
 __i686_vector_198:
+  pushl $0
   pushl $198
   jmp __i686_isr
 
 __i686_vector_199:
+  pushl $0
   pushl $199
   jmp __i686_isr
 
 __i686_vector_200:
+  pushl $0
   pushl $200
   jmp __i686_isr
 
 __i686_vector_201:
+  pushl $0
   pushl $201
   jmp __i686_isr
 
 __i686_vector_202:
+  pushl $0
   pushl $202
   jmp __i686_isr
 
 __i686_vector_203:
+  pushl $0
   pushl $203
   jmp __i686_isr
 
 __i686_vector_204:
+  pushl $0
   pushl $204
   jmp __i686_isr
 
 __i686_vector_205:
+  pushl $0
   pushl $205
   jmp __i686_isr
 
 __i686_vector_206:
+  pushl $0
   pushl $206
   jmp __i686_isr
 
 __i686_vector_207:
+  pushl $0
   pushl $207
   jmp __i686_isr
 
 __i686_vector_208:
+  pushl $0
   pushl $208
   jmp __i686_isr
 
 __i686_vector_209:
+  pushl $0
   pushl $209
   jmp __i686_isr
 
 __i686_vector_210:
+  pushl $0
   pushl $210
   jmp __i686_isr
 
 __i686_vector_211:
+  pushl $0
   pushl $211
   jmp __i686_isr
 
 __i686_vector_212:
+  pushl $0
   pushl $212
   jmp __i686_isr
 
 __i686_vector_213:
+  pushl $0
   pushl $213
   jmp __i686_isr
 
 __i686_vector_214:
+  pushl $0
   pushl $214
   jmp __i686_isr
 
 __i686_vector_215:
+  pushl $0
   pushl $215
   jmp __i686_isr
 
 __i686_vector_216:
+  pushl $0
   pushl $216
   jmp __i686_isr
 
 __i686_vector_217:
+  pushl $0
   pushl $217
   jmp __i686_isr
 
 __i686_vector_218:
+  pushl $0
   pushl $218
   jmp __i686_isr
 
 __i686_vector_219:
+  pushl $0
   pushl $219
   jmp __i686_isr
 
 __i686_vector_220:
+  pushl $0
   pushl $220
   jmp __i686_isr
 
 __i686_vector_221:
+  pushl $0
   pushl $221
   jmp __i686_isr
 
 __i686_vector_222:
+  pushl $0
   pushl $222
   jmp __i686_isr
 
 __i686_vector_223:
+  pushl $0
   pushl $223
   jmp __i686_isr
 
 __i686_vector_224:
+  pushl $0
   pushl $224
   jmp __i686_isr
 
 __i686_vector_225:
+  pushl $0
   pushl $225
   jmp __i686_isr
 
 __i686_vector_226:
+  pushl $0
   pushl $226
   jmp __i686_isr
 
 __i686_vector_227:
+  pushl $0
   pushl $227
   jmp __i686_isr
 
 __i686_vector_228:
+  pushl $0
   pushl $228
   jmp __i686_isr
 
 __i686_vector_229:
+  pushl $0
   pushl $229
   jmp __i686_isr
 
 __i686_vector_230:
+  pushl $0
   pushl $230
   jmp __i686_isr
 
 __i686_vector_231:
+  pushl $0
   pushl $231
   jmp __i686_isr
 
 __i686_vector_232:
+  pushl $0
   pushl $232
   jmp __i686_isr
 
 __i686_vector_233:
+  pushl $0
   pushl $233
   jmp __i686_isr
 
 __i686_vector_234:
+  pushl $0
   pushl $234
   jmp __i686_isr
 
 __i686_vector_235:
+  pushl $0
   pushl $235
   jmp __i686_isr
 
 __i686_vector_236:
+  pushl $0
   pushl $236
   jmp __i686_isr
 
 __i686_vector_237:
+  pushl $0
   pushl $237
   jmp __i686_isr
 
 __i686_vector_238:
+  pushl $0
   pushl $238
   jmp __i686_isr
 
 __i686_vector_239:
+  pushl $0
   pushl $239
   jmp __i686_isr
 
 __i686_vector_240:
+  pushl $0
   pushl $240
   jmp __i686_isr
 
 __i686_vector_241:
+  pushl $0
   pushl $241
   jmp __i686_isr
 
 __i686_vector_242:
+  pushl $0
   pushl $242
   jmp __i686_isr
 
 __i686_vector_243:
+  pushl $0
   pushl $243
   jmp __i686_isr
 
 __i686_vector_244:
+  pushl $0
   pushl $244
   jmp __i686_isr
 
 __i686_vector_245:
+  pushl $0
   pushl $245
   jmp __i686_isr
 
 __i686_vector_246:
+  pushl $0
   pushl $246
   jmp __i686_isr
 
 __i686_vector_247:
+  pushl $0
   pushl $247
   jmp __i686_isr
 
 __i686_vector_248:
+  pushl $0
   pushl $248
   jmp __i686_isr
 
 __i686_vector_249:
+  pushl $0
   pushl $249
   jmp __i686_isr
 
 __i686_vector_250:
+  pushl $0
   pushl $250
   jmp __i686_isr
 
 __i686_vector_251:
+  pushl $0
   pushl $251
   jmp __i686_isr
 
 __i686_vector_252:
+  pushl $0
   pushl $252
   jmp __i686_isr
 
 __i686_vector_253:
+  pushl $0
   pushl $253
   jmp __i686_isr
 
 __i686_vector_254:
+  pushl $0
   pushl $254
   jmp __i686_isr
 
 __i686_vector_255:
+  pushl $0
   pushl $255
   jmp __i686_isr
 

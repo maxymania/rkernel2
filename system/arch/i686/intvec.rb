@@ -53,11 +53,17 @@ puts("#
 # handlers
 ")
 
+has = {}
+has[8]  = true
+has[17] = true
+has[30] = true
+(10..14).each{|x| has[x]=true}
+
 puts(".text")
 puts(".global __i686_isr")
 (0..255).each{ |i|
 	puts("__i686_vector_#{i}:")
-	if ( (i==8) or (i>= 10 and i <= 14) or (i==17)) then
+	if not has[i] then
 		puts("  pushl $0")
 	end
 	puts("  pushl $#{i}")
