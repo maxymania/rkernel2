@@ -25,13 +25,16 @@
 #include <machine/types.h>
 
 struct cpu;
+struct kernel_stack;
 
 struct thread{
 	struct thread* t_next_queue;  /* Next thread in queue. */
 	struct thread* t_prev_queue;  /* Previous thread in queue. */
 	struct cpu*    t_current_cpu; /* The CPU this thread is currently running on. */
 	u_intptr_t     t_storage[4];  /* The thread's TLS (ASM). */
-	u_intptr_t     t_istacks[2];  /* Interupt stacks. Default is t_istacks[0] */
+	u_intptr_t     t_istacks[2];  /* Interrupt stacks. Default is t_istacks[0] */
+	struct kernel_stack*
+	               t_istobjs[2]; /* The corresponding Stack Objects to 't_istacks' */
 	u_intptr_t     t_stateflags;  /* Flags, indicating the Thread's state. */
 };
 

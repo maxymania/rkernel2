@@ -23,5 +23,5 @@
 #include <sysplatform/caps.h>
 
 int platform_get_cap_stage(){
-	return platform_CPU_PTR;
+	return platform_INTERRUPTS;
 }

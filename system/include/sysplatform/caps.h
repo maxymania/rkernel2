@@ -36,6 +36,14 @@ enum {
 	 * including 'struct kernslice'-instance and other accessoires.
 	 */
 	platform_CPU_PTR = 2,
+	/*
+	 * Indicates, that this port has working MMU suport.
+	 */
+	platform_MMU = 3,
+	/*
+	 * Indicates, that this port supports Interrupts.
+	 */
+	platform_INTERRUPTS = 4,
 };
 
 /*

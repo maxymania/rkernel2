@@ -80,6 +80,10 @@ void hal_after_thread_switch(){
 	ltr(SEG_TSS << 3);
 }
 
+int hal_stack_grows_downward(){
+	return -1; /* On x86, the stack grows down. */
+}
+
 void __i686_setup_idt(){
 	int i;
 	

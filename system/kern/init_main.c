@@ -20,16 +20,14 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-#include <sysmaster/syscalls.h>
 #include <sys/cpu.h>
 #include <sys/kernslice.h>
 #include <sys/kterm.h>
 #include <sysplatform/caps.h>
 #include <sysarch/halt.h>
 #include <sys/physmem_alloc.h>
-#include <vm/pmap.h>
 #include <stdio.h>
-#include <kern/zalloc.h>
+#include <kern/stacks.h>
 #include <vm/vm_top.h>
 
 void kern_prove_alive();
@@ -39,9 +37,8 @@ static void kern_initmem(){
 	paddr_t                Pt;
 	struct kernslice*      kern;
 	struct physmem_bmaset* bmas;
-	int i;
 	kern = kernel_get_current_cpu()->cpu_kernel_slice;
-	i = vm_phys_bm_bootinit(
+	vm_phys_bm_bootinit(
 		kern->ks_memory_ranges,
 		kern->ks_num_memory_ranges,
 		&Pi,
@@ -49,7 +46,15 @@ static void kern_initmem(){
 		&bmas
 	);
 	kern->ks_memory_allocator = bmas;
-	printf("vm_phys_bm_bootinit() = %d\n",i);
+}
+
+static void kern_printmem(){
+	int i;
+	struct kernslice*      kern;
+	struct physmem_bmaset* bmas;
+	kern = kernel_get_current_cpu()->cpu_kernel_slice;
+	bmas = kern->ks_memory_allocator;
+	/* printf("vm_phys_bm_bootinit() = %d\n",i); */
 	printf("bmas = %p\n",bmas);
 	if(bmas){
 		printf("bmas->pmb_maps = %p\n",bmas->pmb_maps);
@@ -58,15 +63,26 @@ static void kern_initmem(){
 			printf("bmas->pmb_maps[%d] = %d\n",i,(unsigned int)(bmas->pmb_maps[i]->pmb_length));
 		}
 	}
-	vm_init();
 }
 
 void kernel_main(void) {
 	int caps = platform_get_cap_stage();
 	switch(caps){
-	case platform_CPU_PTR:
+	case platform_INTERRUPTS:
+	case platform_MMU:
+		kernel_stacks_init();
 		kterm_init();
 		kern_initmem();
+		kern_printmem();
+		vm_init();
+		kernel_cpu_init_stack(kernel_get_current_cpu());
+		kern_prove_alive();
+		break;
+	case platform_CPU_PTR:
+		kernel_stacks_init();
+		kterm_init();
+		kern_initmem();
+		kern_printmem();
 		kern_prove_alive();
 		break;
 	case platform_ALIVE:

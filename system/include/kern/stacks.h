@@ -21,17 +21,15 @@
  * SOFTWARE.
  */
 #pragma once
+#include <machine/types.h>
 
-struct cpu;
+struct kernel_stack {
+	struct kernel_stack* st_tail; /* Linked-List. */
+	u_intptr_t           st_sp;   /* Stack pointer. */
+};
 
-void hal_initcpu(struct cpu* cpu);
-
-/* This function is called after a thread switch. */
-void hal_after_thread_switch();
-
-/*
- * This function 'detects' wether the stack grows downward or upward.
- * If the function returns 0, the stack grows upwards, otherwise, it grows downwards.
- */
-int hal_stack_grows_downward();
+void kernel_stacks_init();
+void kernel_cpu_init_stack(struct cpu* cpu);
+struct kernel_stack* kernel_stack_allocate();
+void kernel_stack_release(struct kernel_stack* kstack);
 
