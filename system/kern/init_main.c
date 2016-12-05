@@ -48,27 +48,16 @@ static void kern_initmem(){
 	kern->ks_memory_allocator = bmas;
 }
 
-static void kern_printmem(){
-	int i;
-	struct kernslice*      kern;
-	struct physmem_bmaset* bmas;
-	kern = kernel_get_current_cpu()->cpu_kernel_slice;
-	bmas = kern->ks_memory_allocator;
-	/* printf("vm_phys_bm_bootinit() = %d\n",i); */
-	printf("bmas = %p\n",bmas);
-	if(bmas){
-		printf("bmas->pmb_maps = %p\n",bmas->pmb_maps);
-		printf("bmas->pmb_n_maps = %u\n",(unsigned int)bmas->pmb_n_maps);
-		for(i=0;((unsigned int)i)<bmas->pmb_n_maps;++i){
-			printf("bmas->pmb_maps[%d] = %d\n",i,(unsigned int)(bmas->pmb_maps[i]->pmb_length));
-		}
-	}
-}
+void kern_printmem();
+
+static void main();
 
 void kernel_main(void) {
 	int caps = platform_get_cap_stage();
 	switch(caps){
 	case platform_INTERRUPTS:
+		main();
+		break;
 	case platform_MMU:
 		kernel_stacks_init();
 		kterm_init();
@@ -87,7 +76,6 @@ void kernel_main(void) {
 		break;
 	case platform_ALIVE:
 	case platform_HIGHER_HALF:
-		//console_init();
 		kterm_init();
 		kern_prove_alive();
 		break;
@@ -96,3 +84,26 @@ void kernel_main(void) {
 	arch_halt();
 }
 
+static void main(){
+	
+	/* Initialize the kernel-stack allocator. */
+	kernel_stacks_init();
+	
+	/* Initilalize the terminal. */
+	kterm_init();
+	
+	/* Initialize the bitmap physical memory allocator.  */
+	kern_initmem();
+	
+	/* Initialize the VM system. */
+	vm_init();
+	
+	/* Allocate the 'cpu->CPU_LOCAL_STACK' stack. */
+	kernel_cpu_init_stack(kernel_get_current_cpu());
+	
+	printf("Hey, we need to do more!\n");
+	/* TODO: do more initilalization. */
+	
+	/* Idle-process. */
+	arch_halt();
+}

@@ -24,6 +24,6 @@
 
 /* i686 HALT implementation. */
 inline static void arch_halt() {
-	for(;;) asm("hlt");
+	for(;;) asm volatile("hlt");
 }
 

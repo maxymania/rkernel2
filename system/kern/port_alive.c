@@ -26,6 +26,7 @@
 #include <sys/kterm.h>
 #include <sys/cpu.h>
 #include <sys/kernslice.h>
+#include <sys/physmem_alloc.h>
 #include <sysarch/halt.h>
 #include <stdio.h>
 #include <libkern/printinfo.h>
@@ -59,4 +60,20 @@ void kern_prove_alive() {
 	arch_halt();
 }
 
+void kern_printmem(){
+	int i;
+	struct kernslice*      kern;
+	struct physmem_bmaset* bmas;
+	kern = kernel_get_current_cpu()->cpu_kernel_slice;
+	bmas = kern->ks_memory_allocator;
+	/* printf("vm_phys_bm_bootinit() = %d\n",i); */
+	printf("bmas = %p\n",bmas);
+	if(bmas){
+		printf("bmas->pmb_maps = %p\n",bmas->pmb_maps);
+		printf("bmas->pmb_n_maps = %u\n",(unsigned int)bmas->pmb_n_maps);
+		for(i=0;((unsigned int)i)<bmas->pmb_n_maps;++i){
+			printf("bmas->pmb_maps[%d] = %d\n",i,(unsigned int)(bmas->pmb_maps[i]->pmb_length));
+		}
+	}
+}
 
