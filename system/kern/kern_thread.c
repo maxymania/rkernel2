@@ -22,7 +22,49 @@
 #include <sysarch/hal.h>
 #include <sys/thread.h>
 #include <sys/cpu.h>
+#include <kern/zalloc.h>
+#include <kern/stacks.h>
 
+#define loop(i,n) for(i=0;i<n;++i)
+
+static zone_t thread_zone; /* Thread zone */
+
+struct thread thread_template;
+
+void thread_init(){
+	thread_zone = zinit(sizeof(struct thread),ZONE_AUTO_REFILL,"threads");
+	
+	thread_template.t_next_queue  = 0;
+	thread_template.t_prev_queue  = 0;
+	thread_template.t_current_cpu = 0;
+	/* thread_template.t_storage[] (later) */
+	/* thread_template.t_istacks[] (later) */
+	/* thread_template.t_istobjs[] (later) */
+	thread_template.t_stateflags  = 0;
+}
+
+struct thread* thread_allocate(){
+	int i;
+	struct thread* thr = zalloc(thread_zone);
+	if(thr==0) return 0;
+	*thr = thread_template;
+	
+	/* thr->t_istobjs[] */
+	loop(i,2) thr->t_istobjs[i] = kernel_stack_allocate();
+	loop(i,2) if(!(thr->t_istobjs[i])) goto failure;
+	
+	/* thr->t_istacks[] */
+	loop(i,2) thr->t_istacks[i] = thr->t_istobjs[i]->st_sp;
+	
+	/* thr->t_storage[] */
+	thr->THREAD_LOCAL_INT_STACK = thr->t_istacks[0];
+	
+	return thr;
+failure:
+	loop(i,2) if(thr->t_istobjs[i]) kernel_stack_release(thr->t_istobjs[i]);
+	zfree(thr);
+	return 0;
+}
 
 struct thread* kernel_get_current_thread(){
 	return kernel_get_current_cpu()->cpu_current_thread;

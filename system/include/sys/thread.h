@@ -28,13 +28,16 @@ struct cpu;
 struct kernel_stack;
 
 struct thread{
+	/* Scheduler */
 	struct thread* t_next_queue;  /* Next thread in queue. */
 	struct thread* t_prev_queue;  /* Previous thread in queue. */
 	struct cpu*    t_current_cpu; /* The CPU this thread is currently running on. */
+	
+	/* Context */
 	u_intptr_t     t_storage[4];  /* The thread's TLS (ASM). */
 	u_intptr_t     t_istacks[2];  /* Interrupt stacks. Default is t_istacks[0] */
 	struct kernel_stack*
-	               t_istobjs[2]; /* The corresponding Stack Objects to 't_istacks' */
+	               t_istobjs[2];  /* The corresponding Stack Objects to 't_istacks' */
 	u_intptr_t     t_stateflags;  /* Flags, indicating the Thread's state. */
 };
 
@@ -43,6 +46,10 @@ struct thread{
 
 #define THREAD_SF_INTSTACK_2      0x0001   /* If set, interrupt stack is t_istacks[1] */
 #define THREAD_SF_PREEMPT         0x0002   /* If set, thread is preempted. */
+
+void thread_init();
+
+struct thread* thread_allocate();
 
 struct thread* kernel_get_current_thread();
 

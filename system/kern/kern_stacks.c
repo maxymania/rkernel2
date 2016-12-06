@@ -61,6 +61,7 @@ static struct kernel_stack* kernel_stack_new(){
 	vaddr_t begin,size;
 	struct kernel_stack* kstack = 0;
 	size_t base = calc_size( sizeof(struct kernel_stack) );
+	size = 1<<14; /* 16K */
 	if(!vm_kalloc_ll(&begin,&size)) return 0;
 	
 	size -= base;
@@ -72,6 +73,7 @@ static struct kernel_stack* kernel_stack_new(){
 		kstack = (struct kernel_stack*)begin;
 		kstack->st_sp = begin+base;
 	}
+	return kstack;
 }
 
 struct kernel_stack* kernel_stack_allocate(){

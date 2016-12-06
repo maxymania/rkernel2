@@ -26,9 +26,12 @@
 #include <sysplatform/caps.h>
 #include <sysarch/halt.h>
 #include <sys/physmem_alloc.h>
+#include <sys/thread.h>
 #include <stdio.h>
 #include <kern/stacks.h>
 #include <vm/vm_top.h>
+
+#include <libkern/panic.h>
 
 void kern_prove_alive();
 
@@ -85,6 +88,7 @@ void kernel_main(void) {
 }
 
 static void main(){
+	struct thread* thread;
 	
 	/* Initialize the kernel-stack allocator. */
 	kernel_stacks_init();
@@ -100,6 +104,14 @@ static void main(){
 	
 	/* Allocate the 'cpu->CPU_LOCAL_STACK' stack. */
 	kernel_cpu_init_stack(kernel_get_current_cpu());
+	
+	/* Initialize the Thread-System. */
+	thread_init();
+	
+	/* Allocate and set the first thread. */
+	thread = thread_allocate();
+	if(!thread) panic("Couldn't allocate the Idle thread!");
+	kernel_set_current_thread(thread);
 	
 	printf("Hey, we need to do more!\n");
 	/* TODO: do more initilalization. */
