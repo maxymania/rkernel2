@@ -39,12 +39,12 @@ __i686_isr:
 	pushl %fs
 	pushl %gs
 	pushal
-	# SEG_KDATA
-	movw $(2 * 8), %ax
+	# SEG_KDATA<<3
+	movw $16, %ax
 	movw %ax, %ds
 	movw %ax, %es
-	# SEG_KCPU
-	movw $(3 * 8), %ax
+	# SEG_KCPU<<3
+	movw $24, %ax
 	movw %ax, %fs
 	movw %ax, %gs
 	
