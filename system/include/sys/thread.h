@@ -49,6 +49,7 @@ struct thread{
 
 #define THREAD_SF_INTSTACK_2      0x0001   /* If set, interrupt stack is t_istacks[1] */
 #define THREAD_SF_PREEMPT         0x0002   /* If set, thread is preempted. */
+#define THREAD_SF_LOCK_SCHED      0x0004   /* If set, this thread is modifying the run-queue. */
 
 void thread_init();
 

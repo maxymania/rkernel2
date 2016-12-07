@@ -43,5 +43,16 @@ void sched_init();
 
 void sched_instanciate(struct cpu* cpu);
 
+/*
+ * Inserts a new thread into the scheduler of a given CPU.
+ */
+void sched_insert(struct cpu* cpu, struct thread* thread);
+
+/*
+ * Performs a Thread-preemption. This function must only be called from within
+ * a 'preemption-event'. Usually, this is performed from within an interrupt request
+ * through the system timer, however it can also be induced.
+ * Interrupts are usually turned off, during such an event (on most platforms).
+ */
 void sched_preempt();
 

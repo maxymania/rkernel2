@@ -111,6 +111,36 @@ void sched_instanciate(struct cpu* cpu){
 	cpu->cpu_scheduler = scheduler;
 }
 
+/*
+ * Inserts a new thread into the scheduler of a given CPU.
+ */
+void sched_insert(struct cpu* cpu, struct thread* thread){
+	threadp_t myself;
+	struct scheduler* scheduler;
+	myself = kernel_get_current_thread();
+	scheduler = cpu->cpu_scheduler;
+	
+	/*
+	 * Set the THREAD_SF_LOCK_SCHED-flag and lock the scheduler.
+	 */
+	myself->t_stateflags |= THREAD_SF_LOCK_SCHED;
+	kernlock_lock(&(scheduler->sched_lock));
+	
+	sched_reenqueue(scheduler,thread);
+	
+	/*
+	 * Unlock the scheduler, and get rid of the THREAD_SF_LOCK_SCHED-flag.
+	 */
+	kernlock_unlock(&(scheduler->sched_lock));
+	myself->t_stateflags &= ~THREAD_SF_LOCK_SCHED;
+}
+
+/*
+ * Performs a Thread-preemption. This function must only be called from within
+ * a 'preemption-event'. Usually, this is performed from within an interrupt request
+ * through the system timer, however it can also be induced.
+ * Interrupts are usually turned off, during such an event (on most platforms).
+ */
 void sched_preempt(){
 	threadp_t othr,nthr;
 	struct scheduler* scheduler;
@@ -120,6 +150,13 @@ void sched_preempt(){
 	
 	/* Current thread. */
 	othr = kernel_get_current_thread();
+	
+	if((othr->t_stateflags) & THREAD_SF_LOCK_SCHED)
+		/*
+		 * Ooops. This thread is currently modifying this (or another)
+		 * scheduler. So, don't even touch the scheduler.
+		 */
+		return;
 	
 	/* Synchronized{ */
 	kernlock_lock(&(scheduler->sched_lock));
