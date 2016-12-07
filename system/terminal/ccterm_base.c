@@ -53,8 +53,11 @@ static ssize_t ccterm_writeraw (struct iopipe* iopipe, const void* buf, size_t s
 }
 
 static ssize_t ccterm_read (struct iopipe* iopipe, struct kern_uio* kbu){
+	(void)iopipe;
+	(void)kbu;
 	return 0;
 }
+
 static ssize_t ccterm_write (struct iopipe* iopipe, struct kern_uio* kbu){
 	if((kbu->kbu_origin==KBU_AS_SYS)&&(kbu->kbu_iovec_n==1)){
 		return ccterm_writeraw(iopipe, kbu->kbu_iovec->iov_base,kbu->kbu_iovec->iov_len);
