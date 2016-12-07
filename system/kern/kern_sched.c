@@ -95,7 +95,7 @@ static struct thread* sched_schedule_next(struct scheduler* scheduler){
 		/*
 		 * If we get here, the priority has a non-empty run-queue.
 		 *
-		 * We decrease the 'decaying value'-
+		 * We decrease the 'decaying value'.
 		 */
 		scheduler->sched_run_decay[i] --;
 		
@@ -198,6 +198,11 @@ void sched_insert(struct cpu* cpu, struct thread* thread){
 	sched_reenqueue(scheduler,thread);
 	
 	/*
+	 * Increment the thread count.
+	 */
+	scheduler->sched_thread_count ++;
+	
+	/*
 	 * Unlock the scheduler, and get rid of the THREAD_SF_LOCK_SCHED-flag.
 	 */
 	kernlock_unlock(&(scheduler->sched_lock));
@@ -223,6 +228,11 @@ struct thread* sched_remove(struct cpu* cpu){
 	 * Removes the next thread.
 	 */
 	thread = sched_schedule_next(scheduler);
+	
+	/*
+	 * Decrement the thread count.
+	 */
+	scheduler->sched_thread_count --;
 	
 	/*
 	 * Unlock the scheduler, and get rid of the THREAD_SF_LOCK_SCHED-flag.

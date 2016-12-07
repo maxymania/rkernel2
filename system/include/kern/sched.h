@@ -34,7 +34,9 @@ struct cpu;
 struct scheduler{
 	linked_ring_s       sched_run_ring[SCHED_NRQS];   /* one queue for each priority */
 	signed int          sched_run_decay[SCHED_NRQS];  /* one decay value for each priority */
-	struct thread*      sched_idle;                   /* idle thread */ 
+	struct thread*      sched_idle;                   /* idle thread */
+	
+	u_intptr_t          sched_thread_count;           /* Number of threads on this core. */
 	
 	kspinlock_t         sched_lock;                   /* lock for all the fields */
 };
