@@ -34,8 +34,7 @@ struct thread thread_template;
 void thread_init(){
 	thread_zone = zinit(sizeof(struct thread),ZONE_AUTO_REFILL,"threads");
 	
-	thread_template.t_next_queue  = 0;
-	thread_template.t_prev_queue  = 0;
+	/* thread_template.t_queue_entry (later) */
 	thread_template.t_current_cpu = 0;
 	/* thread_template.t_storage[] (later) */
 	/* thread_template.t_istacks[] (later) */
@@ -58,6 +57,8 @@ struct thread* thread_allocate(){
 	
 	/* thr->t_storage[] */
 	thr->THREAD_LOCAL_INT_STACK = thr->t_istacks[0];
+	
+	linked_ring_init(&(thr->t_queue_entry));
 	
 	return thr;
 failure:

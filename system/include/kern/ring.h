@@ -22,32 +22,19 @@
  */
 #pragma once
 
-#include <machine/types.h>
-struct kernslice;
+struct linked_ring;
+typedef struct linked_ring linked_ring_s, *linked_ring_t;
 
-/* Architecture specific part of 'struct cpu'. */
-struct cpu_arch;
-
-/* Scheduler's run_queue. */
-struct scheduler;
-
-struct cpu{
-	u_intptr_t        cpu_cpu_id;         /* The ID of this CPU. */
-	struct kernslice* cpu_kernel_slice;   /* The kernel slice, this CPU belongs to. */
-	struct cpu*       cpu_ks_next;        /* Next CPU within this kernel slice. */
-	
-	struct thread*    cpu_current_thread; /* The thread currently running on this CPU. */
-	u_intptr_t        cpu_stack;          /* Stack pointer of the Per-CPU stack. */
-	u_intptr_t        cpu_local[3];       /* CPU-private segment. */
-	struct cpu_arch*  cpu_arch;           /* Architecture specific part */
-	
-	struct scheduler* cpu_scheduler;      /* CPU scheduler. */
+struct linked_ring{
+	linked_ring_t next,prev;
+	void* data;
 };
 
-#define CPU_LOCAL_SELF   cpu_local[0]   /* struct cpu-instance. */
-#define CPU_LOCAL_TLS    cpu_local[1]   /* The current thread's TLS. */
-#define CPU_LOCAL_STACK  cpu_local[2]   /* CPU local stack. */
+void linked_ring_insert(linked_ring_t list,linked_ring_t elem,int after);
 
+void linked_ring_remove(linked_ring_t elem);
 
-struct cpu* kernel_get_current_cpu();
+int  linked_ring_empty(linked_ring_t list);
+
+void linked_ring_init(linked_ring_t list);
 

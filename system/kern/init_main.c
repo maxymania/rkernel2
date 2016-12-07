@@ -29,6 +29,7 @@
 #include <sys/thread.h>
 #include <stdio.h>
 #include <kern/stacks.h>
+#include <kern/sched.h>
 #include <vm/vm_top.h>
 
 #include <libkern/panic.h>
@@ -112,6 +113,12 @@ static void main(){
 	thread = thread_allocate();
 	if(!thread) panic("Couldn't allocate the Idle thread!");
 	kernel_set_current_thread(thread);
+	
+	/* Initialize scheduler. */
+	sched_init();
+	
+	/* Instanciate the current cpu's scheduler. */
+	sched_instanciate(kernel_get_current_cpu());
 	
 	printf("Hey, we need to do more!\n");
 	/* TODO: do more initilalization. */

@@ -23,42 +23,25 @@
 #pragma once
 
 #include <machine/types.h>
+#include <sys/kspinlock.h>
 #include <kern/ring.h>
 
+#define SCHED_NRQS 32
 
+struct thread;
 struct cpu;
-struct kernel_stack;
 
-struct thread{
-	/* Scheduler */
-	linked_ring_s  t_queue_entry; /* Queue Entry. */
-	struct cpu*    t_current_cpu; /* The CPU this thread is currently running on. */
+struct scheduler{
+	linked_ring_s       sched_run_ring[SCHED_NRQS];   /* one queue for each priority */
+	signed int          sched_run_decay[SCHED_NRQS];  /* one decay value for each priority */
+	struct thread*      sched_idle;                   /* idle thread */ 
 	
-	/* Context */
-	u_intptr_t     t_storage[4];  /* The thread's TLS (ASM). */
-	u_intptr_t     t_istacks[2];  /* Interrupt stacks. Default is t_istacks[0] */
-	struct kernel_stack*
-	               t_istobjs[2];  /* The corresponding Stack Objects to 't_istacks' */
-	u_intptr_t     t_stateflags;  /* Flags, indicating the Thread's state. */
-	
-	int            t_priority;    /* The thread#s priority. */
+	kspinlock_t         sched_lock;                   /* lock for all the fields */
 };
 
-#define THREAD_LOCAL_INT_STACK    t_storage[0] /* (current)Interupt stack. */
-#define THREAD_LOCAL_CONTEXT      t_storage[1] /* Pointer to saved context. */
+void sched_init();
 
-#define THREAD_SF_INTSTACK_2      0x0001   /* If set, interrupt stack is t_istacks[1] */
-#define THREAD_SF_PREEMPT         0x0002   /* If set, thread is preempted. */
+void sched_instanciate(struct cpu* cpu);
 
-void thread_init();
-
-struct thread* thread_allocate();
-
-struct thread* kernel_get_current_thread();
-
-void kernel_set_current_thread(struct thread* thread);
-
-void thread_enter_syscall();
-
-void thread_exit_syscall();
+void sched_preempt();
 
