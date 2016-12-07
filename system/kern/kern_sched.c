@@ -230,9 +230,9 @@ struct thread* sched_remove(struct cpu* cpu){
 	thread = sched_schedule_next(scheduler);
 	
 	/*
-	 * Decrement the thread count.
+	 * Decrement the thread count. (If thread is a valid pointer.)
 	 */
-	scheduler->sched_thread_count --;
+	if(thread) scheduler->sched_thread_count --;
 	
 	/*
 	 * Unlock the scheduler, and get rid of the THREAD_SF_LOCK_SCHED-flag.
@@ -241,9 +241,9 @@ struct thread* sched_remove(struct cpu* cpu){
 	myself->t_stateflags &= ~THREAD_SF_LOCK_SCHED;
 	
 	/*
-	 * Clear the thread's current cpu.
+	 * Clear the thread's current cpu. (If thread is a valid pointer.)
 	 */
-	thread->t_current_cpu = 0;
+	if(thread) thread->t_current_cpu = 0;
 	return thread;
 }
 
