@@ -49,6 +49,11 @@ void sched_instanciate(struct cpu* cpu);
 void sched_insert(struct cpu* cpu, struct thread* thread);
 
 /*
+ * Remove a thread out of the scheduler of a given CPU.
+ */
+struct thread* sched_remove(struct cpu* cpu);
+
+/*
  * Performs a Thread-preemption. This function must only be called from within
  * a 'preemption-event'. Usually, this is performed from within an interrupt request
  * through the system timer, however it can also be induced.

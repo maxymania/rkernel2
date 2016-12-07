@@ -182,11 +182,19 @@ void sched_insert(struct cpu* cpu, struct thread* thread){
 	scheduler = cpu->cpu_scheduler;
 	
 	/*
+	 * Set the thread's current cpu.
+	 */
+	thread->t_current_cpu = cpu;
+	
+	/*
 	 * Set the THREAD_SF_LOCK_SCHED-flag and lock the scheduler.
 	 */
 	myself->t_stateflags |= THREAD_SF_LOCK_SCHED;
 	kernlock_lock(&(scheduler->sched_lock));
 	
+	/*
+	 * Insert the thread into the run-queue.
+	 */
 	sched_reenqueue(scheduler,thread);
 	
 	/*
@@ -194,6 +202,39 @@ void sched_insert(struct cpu* cpu, struct thread* thread){
 	 */
 	kernlock_unlock(&(scheduler->sched_lock));
 	myself->t_stateflags &= ~THREAD_SF_LOCK_SCHED;
+}
+
+/*
+ * Remove a thread out of the scheduler of a given CPU.
+ */
+struct thread* sched_remove(struct cpu* cpu){
+	threadp_t myself,thread;
+	struct scheduler* scheduler;
+	myself = kernel_get_current_thread();
+	scheduler = cpu->cpu_scheduler;
+	
+	/*
+	 * Set the THREAD_SF_LOCK_SCHED-flag and lock the scheduler.
+	 */
+	myself->t_stateflags |= THREAD_SF_LOCK_SCHED;
+	kernlock_lock(&(scheduler->sched_lock));
+	
+	/*
+	 * Removes the next thread.
+	 */
+	thread = sched_schedule_next(scheduler);
+	
+	/*
+	 * Unlock the scheduler, and get rid of the THREAD_SF_LOCK_SCHED-flag.
+	 */
+	kernlock_unlock(&(scheduler->sched_lock));
+	myself->t_stateflags &= ~THREAD_SF_LOCK_SCHED;
+	
+	/*
+	 * Clear the thread's current cpu.
+	 */
+	thread->t_current_cpu = 0;
+	return thread;
 }
 
 /*
