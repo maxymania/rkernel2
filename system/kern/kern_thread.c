@@ -40,6 +40,8 @@ void thread_init(){
 	/* thread_template.t_istacks[] (later) */
 	/* thread_template.t_istobjs[] (later) */
 	thread_template.t_stateflags  = 0;
+	thread_template.t_priority    = 16;
+	thread_template.t_nonpreempt  = 0;
 }
 
 struct thread* thread_allocate(){

@@ -270,6 +270,12 @@ void sched_preempt(){
 		 */
 		return;
 	
+	if(othr->t_nonpreempt)
+		/*
+		 * This thread is non-preemptible at this point.
+		 */
+		return;
+	
 	/* Synchronized{ */
 	kernlock_lock(&(scheduler->sched_lock));
 	

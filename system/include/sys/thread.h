@@ -41,7 +41,8 @@ struct thread{
 	               t_istobjs[2];  /* The corresponding Stack Objects to 't_istacks' */
 	u_intptr_t     t_stateflags;  /* Flags, indicating the Thread's state. */
 	
-	int            t_priority;    /* The thread#s priority. */
+	unsigned int   t_priority;    /* The thread's priority. */
+	unsigned int   t_nonpreempt;  /* Non-Premption-counter. */
 };
 
 #define THREAD_LOCAL_INT_STACK    t_storage[0] /* (current)Interupt stack. */
