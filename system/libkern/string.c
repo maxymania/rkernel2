@@ -47,7 +47,7 @@ char *strcat( char* __restrict__ dest, const char* src ) {
 	char* __restrict__ o = dest;
 	const char* __restrict__ i = src;
 	for(; *o; ++o);
-	for(; *o = (*i); ++o,++i);
+	for(; (*o = (*i)); ++o,++i);
 	return dest;
 }
 
@@ -60,8 +60,8 @@ char *strncat( char* dest, const char* src ,size_t n) {
 }
 
 int strcmp(const char* string1, const char* string2) {
-	const unsigned char* __restrict__ a = string1;
-	const unsigned char* __restrict__ b = string2;
+	const unsigned char* __restrict__ a = (const unsigned char*)string1;
+	const unsigned char* __restrict__ b = (const unsigned char*)string2;
 	for(;*a==*b && *a; ++a,++b);
 	return *a-*b;
 }
@@ -103,7 +103,7 @@ void* memmove( void* dest, const void* src, size_t n ){
 void* memchr( const void* ptr, int ch, size_t n ){
 	const u_int8_t* __restrict__ i = ptr;
 	const u_int8_t c = ch;
-	for(;n;++i,--n) if(*i == c) return i;
+	for(;n;++i,--n) if(*i == c) return (void*)i;
 	return 0;
 }
 
