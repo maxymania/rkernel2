@@ -42,39 +42,100 @@ static inline linked_ring_t sched_elem(struct thread* thread){
 	return ring;
 }
 
+/*
+ * The scheduler-queue consists of 32 priority queues (or SCHED_NRQS). Unlike
+ * other priority queues, the queues themself have priorities themself, expressed
+ * as decaying values.
+ *
+ * The scheduler-function essentially performs two steps:
+ *
+ * The first step is to 'reset' the 'decaying values' of all priorities with their
+ * run-queues empty; and to decrease ('decay') the 'decaying values' of all other
+ * priority.
+ *
+ * for(i=0; i<SCHED_NRQS; ++i)
+ *     if( ! sched_runnable(scheduler,i) )
+ *        scheduler->sched_run_decay[i] = sched_prios[i];
+ *     else
+ *        scheduler->sched_run_decay[i] --;
+ *
+ * The second step is to find, among the priorities with non-empty run-queues,
+ * the priority with the lowest 'decaying value'.
+ *
+ * for(i=0; i<SCHED_NRQS; ++i)
+ *     if( sched_runnable(scheduler,i) )
+ *        find_the_lowest( scheduler->sched_run_decay[i] );
+ *
+ * Finally, if any value as been found, reset it's 'decaying value':
+ *
+ *   scheduler->sched_run_decay[i] = sched_prios[i];
+ */
 
 #define sched_runnable(scheduler,i) linked_ring_empty(&(scheduler->sched_run_ring[i]))
 static struct thread* sched_schedule_next(struct scheduler* scheduler){
 	int i;
 	int mi = -1;
-	signed int mdecay = 1000;
+	signed int mdecay = 0; /* Initialized becaus of warnings. */
 	linked_ring_t elem;
+	
+	/*
+	 * The algorithm is implemented as one single loop.
+	 * For every priority (i) do:
+	 */
 	for(i=0; i<SCHED_NRQS; ++i){
+		/*
+		 * If run-queue of the priority (i) is empty, then reset the
+		 * 'decaying value', and skip to the rest of the loop-body!
+		 */
 		if(!sched_runnable(scheduler,i)){
 			scheduler->sched_run_decay[i] = sched_prios[i];
 			continue;
 		}
+		
+		/*
+		 * If we get here, the priority has a non-empty run-queue.
+		 *
+		 * We decrease the 'decaying value'-
+		 */
 		scheduler->sched_run_decay[i] --;
+		
+		/*
+		 * If we didn't find the any priority yet (mi<0), or if the
+		 * priority has a lower 'decaying value' than the last one, we
+		 * found; Then choose that one over the previous one.
+		 */
 		if( (mi<0) || (scheduler->sched_run_decay[i] < mdecay)) {
 			mdecay = scheduler->sched_run_decay[i];
 			mi = i;
 		}
 	}
+	
+	/* If we din't find any one, return. */
 	if(mi<0) return 0;
+	
+	/* Reset the 'decaying value' of the found priority. */
+	scheduler->sched_run_decay[mi] = sched_prios[mi];
+	
+	/* Remove an Element from the end of the queue. */
 	elem = scheduler->sched_run_ring[mi].prev;
 	linked_ring_remove(elem);
 	return (struct thread*)(elem->data);
 }
 
-static struct thread* sched_schedule_idle(struct scheduler* scheduler){
+static inline struct thread* sched_schedule_idle(struct scheduler* scheduler){
 	return scheduler->sched_idle;
 }
 
 static void sched_reenqueue(struct scheduler* scheduler, struct thread* thread){
-	if(thread == scheduler->sched_idle) return; /* Do not enqueue. */
+	/* Do not enqueue the idle-process. */
+	if(thread == scheduler->sched_idle) return;
 	
 	int i = (thread->t_priority) % SCHED_NRQS;
+	
+	/* Empty run-queues get reseted. */
 	if(!sched_runnable(scheduler,i)) scheduler->sched_run_decay[i] = sched_prios[i];
+	
+	/* Insert at the begin of the list. */
 	linked_ring_insert( &(scheduler->sched_run_ring[i]), sched_elem(thread), /*after=*/ 1 );
 }
 
