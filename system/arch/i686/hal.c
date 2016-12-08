@@ -41,6 +41,10 @@ extern struct cpu *cpu_ptr asm("%gs:0");
  */
 extern u_intptr_t *cpu_tls asm("%gs:4");
 
+/* switch.s */
+void __i686_switch();
+void __i686_initthread(u_intptr_t sp, u_intptr_t func, u_intptr_t arg,u_intptr_t* ctx);
+
 struct cpu *kernel_get_current_cpu() {
 	return cpu_ptr;
 }
@@ -100,5 +104,11 @@ void __i686_setup_idt(){
 
 void __i686_interrupt(struct trapframe* tf){
 	(void)tf;
+}
+
+void hal_induce_preemption(){
+	asm volatile("cli");
+	__i686_switch();
+	asm volatile("sti");
 }
 

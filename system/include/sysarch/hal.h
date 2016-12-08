@@ -35,3 +35,5 @@ void hal_after_thread_switch();
  */
 int hal_stack_grows_downward();
 
+void hal_induce_preemption();
+

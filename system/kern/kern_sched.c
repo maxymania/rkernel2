@@ -180,6 +180,9 @@ void sched_instanciate(struct cpu* cpu){
 	memset((void*)scheduler,0,sizeof(struct scheduler));
 	kernlock_init(&(scheduler->sched_lock));
 	
+	/* For the first thread, that initializes this scheduler. */
+	scheduler->sched_thread_count = 1;
+	
 	/* Initialize sched_run_decay-variables. */
 	for(i=0; i<SCHED_NRQS; ++i){
 		scheduler->sched_run_decay[i] = sched_prios[i];
