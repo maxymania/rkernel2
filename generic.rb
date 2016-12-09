@@ -8,6 +8,7 @@
 #
 
 MKList.add "kernel", Makefile.glob("system/kern/*.c")
+MKList.add "kernel", Makefile.glob("system/physmem/*.c")
 MKList.add "kernel", Makefile.glob("system/vm/*.c")
 MKList.add "kernel", Makefile.glob("system/xcpu/*.c")
 MKList.add "kernel", Makefile.glob("system/libkern/*.c")
