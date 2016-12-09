@@ -107,8 +107,8 @@ void __i686_interrupt(struct trapframe* tf){
 }
 
 void hal_induce_preemption(){
-	asm volatile("cli");
+	cli();
 	__i686_switch();
-	asm volatile("sti");
+	sti();
 }
 

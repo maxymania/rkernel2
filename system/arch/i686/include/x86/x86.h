@@ -95,3 +95,20 @@ invlpg(void *addr) {
 	asm volatile ("invlpg (%0)"::"r"(addr));
 }
 
+static inline u_int8_t
+inb(u_int16_t port)
+{
+  u_int8_t data;
+
+  asm volatile("in %1,%0" : "=a" (data) : "d" (port));
+  return data;
+}
+
+
+static inline void
+outb(u_int16_t port, u_int8_t data)
+{
+  asm volatile("out %0,%1" : : "a" (data), "d" (port));
+}
+
+

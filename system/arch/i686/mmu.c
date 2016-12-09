@@ -53,7 +53,9 @@ void pmap_init(){
 	bmas = p_inst_kernel.slice->ks_memory_allocator;
 	p_inst_kernel.pdir = ((u_intptr_t)_i686_kernel_page_dir)-0xC0000000;
 	p_inst_kernel.vab  = (u_intptr_t)0xC1000000;
-	p_inst_kernel.vae  = (u_intptr_t)0xFFFFFFFF;
+	/*p_inst_kernel.vae  = (u_intptr_t)0xFFFFFFFF;*/
+	p_inst_kernel.vae  = (u_intptr_t)0xFE000000-1;
+	
 	/* We have already initialized the following page tables in boot.s: 768 .. 768+3 */
 	for(i = 768+4; i<1024; ++i){
 		if(vm_phys_alloc(bmas, &phys)){

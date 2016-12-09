@@ -208,7 +208,7 @@ static int mpinit(){
 				ioapic = (struct mpioapic*)p;
 				__i686_ioapic_has = 0;
 				__i686_ioapic_id  = ioapic->apicno;
-				__i686_ioapic     = (struct ioapic*)ioapic->addr;
+				__i686_ioapic     = (struct ioapic*)(ioapic->addr);
 				p += sizeof(struct mpioapic);
 				continue;
 			case MPBUS:
@@ -225,6 +225,7 @@ static int mpinit(){
 	return ismp;
 }
 
+#define P2I(x) ((u_intptr_t)(x))
 
 void _i686_initmp(){
 	int ismp;
@@ -236,16 +237,23 @@ void _i686_initmp(){
 	conf = mpconfig(&mp);
 	
 	__i686_ioapic_has = 0;
+	__i686_ioapic = 0;
 	__i686_boot_cpu = 256;
 	if(conf){
 		ismp = mpinit();
 		__i686_local_apic = conf->lapicaddr;
+		if(!__i686_ioapic    ) ismp = 0;
+		if(!__i686_local_apic) ismp = 0;
+		if(P2I(__i686_ioapic    )<0xfe000000) ismp = 0;
+		if(P2I(__i686_local_apic)<0xfe000000) ismp = 0;
 	}else ismp = 0;
 	
 	if(!ismp){
 		__i686_local_apic = 0;
 		__i686_boot_cpu = 0;
 		__i686_ncpu = 1;
+		__i686_ioapic_has = 0;
+		__i686_ioapic = 0;
 	}
 }
 
