@@ -50,12 +50,74 @@ static u_intptr_t map_page(paddr_t pa){
 	kernlock_unlock(&map_sl);
 	return res;
 }
+
+static u_intptr_t map_page_range(paddr_t pa,int n){
+	int i,j,k;
+	u_intptr_t res = 0;
+	
+	if(!n)return 0; /* Just in case. */
+	
+	kernlock_lock(&map_sl);
+	for(i=KPTMIN;i<KPTMAX;++i){
+		if(_i686_kernel_page_table[i] != 0) continue;
+		for(j=i,k=0;j<KPTMAX && k<n; j++,k++){
+			if(_i686_kernel_page_table[j] != 0) break;
+		}
+		if(k==n)break; /* We have enough space. */
+	}
+	
+	if( (i>=KPTMIN) && (i<KPTMAX) ){
+		res = 0xC0000000 + (u_intptr_t)(i<<12);
+		for(k=0;k<n; ++k,++i,pa += (1<<12) ){
+			_i686_kernel_page_table[i] = PTE_ADDR(pa) | PTE_PW;
+			invlpg((void*)(0xC0000000 + (u_intptr_t)(i<<12)));
+		}
+	}
+	kernlock_unlock(&map_sl);
+	return res;
+}
+
 static void unmap_page(u_intptr_t va){
 	u_intptr_t i = (va-0xC0000000)>>12;
 	//kernlock_lock(&map_sl);
 	_i686_kernel_page_table[i] = 0;
 	invlpg((void*)va);
 	//kernlock_lock(&map_sl);
+}
+
+/*
+ * Search for the MP Floating Pointer Structure, which according to the
+ * spec is in one of the following three locations:
+ * 1) in the first KB of the EBDA;
+ * 2) in the last KB of system base memory;
+ * 3) in the BIOS ROM between 0xE0000 and 0xFFFFF.
+ */
+void _i686_get_mp(paddr_t *addrs){
+	u_intptr_t va = map_page(0);
+	u_int8_t* ptr;
+	addrs[0] = addrs[1] = 0;
+	if(!va) return;
+	ptr = (u_int8_t*)(va+0x400);
+	addrs[0] = ((ptr[0x0F]<<8)|ptr[0x0E]) << 4;
+	addrs[1] = ((ptr[0x14]<<8)|ptr[0x13]) << 10;
+	unmap_page(va);
+}
+
+u_intptr_t __i686_mp_map_range(paddr_t pa,int n){
+	u_intptr_t off = pa & 0xFFF;
+	u_intptr_t m = (off + n + 0xFFF)>>12;
+	u_intptr_t va;
+	va = map_page_range(pa,(int)m);
+	if(!va)return 0;
+	return va+off;
+}
+
+void __i686_mp_unmap_range(u_intptr_t va,int n){
+	u_intptr_t first =  va    & ~0xFFF;
+	u_intptr_t last  = (va + n-1) & ~0xFFF;
+	u_intptr_t i;
+	for(i=first;i<=last;i += 0x1000)
+		unmap_page(i);
 }
 
 /*
