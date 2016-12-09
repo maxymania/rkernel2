@@ -30,6 +30,8 @@
 
 #define IRQ_SLAVE       2       // IRQ at which slave connects to master
 
+#define PIC_EOI	        0x20    /* End-of-interrupt command code */
+
 // Current IRQ mask.
 // Initial IRQ mask has interrupt 2 enabled (for slave 8259A).
 static u_int16_t irqmask = 0xFFFF & ~(1<<IRQ_SLAVE);
@@ -51,8 +53,7 @@ picenable(int irq)
 #endif
 
 // Initialize the 8259A interrupt controllers.
-void
-__i686_picinit(void)
+void __i686_picinit()
 {
 	// mask all interrupts
 	outb(IO_PIC1+1, 0xFF);
@@ -103,5 +104,11 @@ __i686_picinit(void)
 
 	if(irqmask != 0xFFFF)
 		picsetmask(irqmask);
+}
+
+void __i686_piceoi(int irq) {
+	if(irq >= 8)
+		outb(IO_PIC2,PIC_EOI);
+	outb(IO_PIC1,PIC_EOI);
 }
 

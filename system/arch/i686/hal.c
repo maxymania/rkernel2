@@ -26,6 +26,7 @@
 #include <x86/cpu_arch.h>
 #include <x86/trapframe.h>
 #include <x86/x86.h>
+#include <x86/traps.h>
 
 extern const u_int32_t __i686_vectors[256];
 
@@ -44,6 +45,8 @@ extern u_intptr_t *cpu_tls asm("%gs:4");
 /* switch.s */
 void __i686_switch();
 void __i686_initthread(u_intptr_t sp, u_intptr_t func, u_intptr_t arg,u_intptr_t* ctx);
+
+void __i686_lapiceoi();
 
 struct cpu *kernel_get_current_cpu() {
 	return cpu_ptr;
@@ -103,7 +106,17 @@ void __i686_setup_idt(){
 }
 
 void __i686_interrupt(struct trapframe* tf){
-	(void)tf;
+	//(void)tf;
+	switch(tf->trapno){
+		case T_IRQ0+IRQ_TIMER:
+		case T_IRQ0+IRQ_KBD:
+		case T_IRQ0+IRQ_COM1:
+		case T_IRQ0+IRQ_IDE:
+		case T_IRQ0+7:
+		case T_IRQ0+IRQ_SPURIOUS:
+		__i686_lapiceoi();
+		break;
+	}
 }
 
 void hal_induce_preemption(){

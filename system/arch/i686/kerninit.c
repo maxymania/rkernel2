@@ -39,6 +39,8 @@ static struct cpu_arch cpu_arch;
 
 void __i686_setup_idt();
 void _i686_initmp();
+void __i686_picinit();
+void __i686_lapicinit();
 
 void kernel_main(void);
 
@@ -95,8 +97,9 @@ static void _i686_init(){
 	
 	hal_initcpu(&cpu);
 	__i686_setup_idt();
+	__i686_picinit();
 	_i686_initmp();
-	
+	// __i686_lapicinit(); LAPIC-INIT does not work. (CRASH).
 }
 
 
