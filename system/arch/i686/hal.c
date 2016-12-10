@@ -47,6 +47,7 @@ void __i686_switch();
 void __i686_initthread(u_intptr_t sp, u_intptr_t func, u_intptr_t arg,u_intptr_t* ctx);
 
 void __i686_lapiceoi();
+void __i686_piceoi(int irq);
 
 struct cpu *kernel_get_current_cpu() {
 	return cpu_ptr;
@@ -78,7 +79,7 @@ void hal_initcpu(struct cpu* cpu){
 void hal_after_thread_switch(){
 	struct cpu_arch *cpu_arch = cpu_ptr->cpu_arch;
 	cpu_arch->tss.ss0  = SEG_KDATA << 3;
-	cpu_arch->tss.esp0 = cpu_tls[1];
+	cpu_arch->tss.esp0 = cpu_tls[0];
 	/*
 	 * setting IOPL=0 in eflags *and* iomb beyond the tss segment limit
 	 * forbids I/O instructions (e.g., inb and outb) from user space
@@ -108,15 +109,16 @@ void __i686_setup_idt(){
 void __i686_interrupt(struct trapframe* tf){
 	//(void)tf;
 	switch(tf->trapno){
-		case T_IRQ0+IRQ_TIMER:
-		case T_IRQ0+IRQ_KBD:
-		case T_IRQ0+IRQ_COM1:
-		case T_IRQ0+IRQ_IDE:
-		case T_IRQ0+7:
-		case T_IRQ0+IRQ_SPURIOUS:
+	case T_IRQ0+IRQ_TIMER:
+	case T_IRQ0+IRQ_KBD:
+	case T_IRQ0+IRQ_COM1:
+	case T_IRQ0+IRQ_IDE:
+	case T_IRQ0+7:
+	case T_IRQ0+IRQ_SPURIOUS:
 		__i686_lapiceoi();
 		break;
 	}
+	__i686_piceoi(tf->trapno);
 }
 
 void hal_induce_preemption(){

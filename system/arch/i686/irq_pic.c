@@ -32,6 +32,30 @@
 
 #define PIC_EOI	        0x20    /* End-of-interrupt command code */
 
+
+/*
+ * Intel 8253/8254/82C54 Programmable Interval Timer (PIT).
+ * Only used on uniprocessors;
+ * SMP machines use the local APIC timer.
+ */
+
+#define IO_TIMER1       0x040           // 8253 Timer #1
+
+/*
+ * Frequency of all three count-down timers;
+ * (TIMER_FREQ/freq) is the appropriate count
+ * to generate a frequency of freq Hz.
+ */
+
+#define TIMER_FREQ      1193182
+#define TIMER_DIV(x)    ((TIMER_FREQ+(x)/2)/(x))
+
+#define TIMER_MODE      (IO_TIMER1 + 3) // timer mode port
+#define TIMER_SEL0      0x00    // select counter 0
+#define TIMER_RATEGEN   0x04    // mode 2, rate generator
+#define TIMER_16BIT     0x30    // r/w counter 16 bits, LSB first
+
+
 // Current IRQ mask.
 // Initial IRQ mask has interrupt 2 enabled (for slave 8259A).
 static u_int16_t irqmask = 0xFFFF & ~(1<<IRQ_SLAVE);
@@ -44,13 +68,12 @@ picsetmask(u_int16_t mask)
   outb(IO_PIC2+1, mask >> 8);
 }
 
-#if 0
 static void
 picenable(int irq)
 {
 	picsetmask(irqmask & ~(1<<irq));
 }
-#endif
+
 
 // Initialize the 8259A interrupt controllers.
 void __i686_picinit()
@@ -110,5 +133,16 @@ void __i686_piceoi(int irq) {
 	if(irq >= 8)
 		outb(IO_PIC2,PIC_EOI);
 	outb(IO_PIC1,PIC_EOI);
+}
+
+void __i686_timerinit()
+{
+	int time;
+	/* Interrupt 50 times/sec. */
+	time = TIMER_DIV(50);
+	outb(TIMER_MODE, TIMER_SEL0 | TIMER_RATEGEN | TIMER_16BIT);
+	outb(IO_TIMER1, time % 256);
+	outb(IO_TIMER1, time / 256);
+	picenable(IRQ_TIMER);
 }
 

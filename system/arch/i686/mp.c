@@ -27,10 +27,10 @@
 struct ioapic;
 
 /* GLOBAL VARIABLES: */
-volatile u_int32_t*     __i686_local_apic;
-volatile u_int8_t       __i686_ioapic_has;
-volatile u_int8_t       __i686_ioapic_id;
-volatile struct ioapic* __i686_ioapic;
+volatile u_int32_t*     __i686_local_apic = 0;
+volatile u_int8_t       __i686_ioapic_has = 0;
+volatile u_int8_t       __i686_ioapic_id = 0;
+volatile struct ioapic* __i686_ioapic = 0;
 u_int32_t __i686_ncpu;
 u_int32_t __i686_boot_cpu;
 u_int8_t  __i686_cpu_apics[256];
