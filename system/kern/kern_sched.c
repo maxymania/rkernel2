@@ -303,16 +303,27 @@ void sched_preempt(){
 	/* Get next runnable thread. */
 	nthr = sched_schedule_next(scheduler);
 	
-	/* If there is no next runnable thread, get idle-thread. */
-	if(!nthr) nthr = sched_schedule_idle(scheduler);
+	/* If there is no next runnable thread. */
+	if(!nthr){
+		/* Check whether or not the thread is runnable. */
+		if(!(othr->t_stateflags & THREAD_SF_STOPPED)){
+			/* If the current thread is still runnable, reuse it. */
+			nthr = othr;
+		}else{
+			/* Otherwise, get idle-thread. */
+			nthr = sched_schedule_idle(scheduler);
+		}
+	}
 	
-	/* Switch Threads. */
-	nthr->t_stateflags &= ~THREAD_SF_PREEMPT;
-	kernel_set_current_thread(nthr);
-	othr->t_stateflags |= THREAD_SF_PREEMPT;
-	
-	/* Enqueue the old thread to the runnable queue. */
-	sched_reenqueue(scheduler,othr);
+	if(othr!=nthr){
+		/* Switch Threads. */
+		nthr->t_stateflags &= ~THREAD_SF_PREEMPT;
+		kernel_set_current_thread(nthr);
+		othr->t_stateflags |= THREAD_SF_PREEMPT;
+		
+		/* Enqueue the old thread to the runnable queue. */
+		sched_reenqueue(scheduler,othr);
+	}
 	
 	kernlock_unlock(&(scheduler->sched_lock));
 	/* } */

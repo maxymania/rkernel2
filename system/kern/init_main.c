@@ -120,6 +120,8 @@ static void main(){
 	/* Instanciate the current cpu's scheduler. */
 	sched_instanciate(kernel_get_current_cpu());
 	
+	kernel_get_current_cpu()->cpu_scheduler->sched_idle = thread;
+	
 	printf("Hey, we need to do more!\n");
 	/* TODO: do more initilalization. */
 	
