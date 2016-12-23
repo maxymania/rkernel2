@@ -60,6 +60,13 @@ static inline linked_ring_t sched_elem(struct thread* thread){
 	return ring;
 }
 
+static inline int sched_is_suspended(struct thread* thread){
+	return (
+		(thread->t_stateflags & THREAD_SF_QUEUE_WAIT) &&
+		(thread->t_wait_queue)
+	)?1:0;
+}
+
 /*
  * The scheduler-queue consists of 32 priority queues (or SCHED_NRQS). Unlike
  * other priority queues, the queues themself have priorities themself, expressed
@@ -147,6 +154,13 @@ static inline struct thread* sched_schedule_idle(struct scheduler* scheduler){
 static void sched_reenqueue(struct scheduler* scheduler, struct thread* thread){
 	/* Do not enqueue the idle-process. */
 	if(thread == scheduler->sched_idle) return;
+	
+	/* Check, Whether or not the thread has been suspended. */
+	if(sched_is_suspended(thread)){
+		/* Insert the thread in the blocked/suspended-queue and quit. */
+		linked_ring_insert( &(scheduler->sched_blocked), sched_elem(thread), 0);
+		return;
+	}
 	
 	int i = (thread->t_priority) % SCHED_NRQS;
 	
@@ -269,6 +283,28 @@ struct thread* sched_remove(struct cpu* cpu){
 }
 
 /*
+ * Removes the thread from an actual queue and reenqueues it into the appropriate queue.
+ */
+void sched_actualize(struct thread* thread){
+	struct cpu* cpu = thread->t_current_cpu;
+	if(!cpu)return;
+	struct scheduler* scheduler = cpu->cpu_scheduler;
+	
+	kernlock_lock(&(scheduler->sched_lock));
+	
+	if(!(thread->t_stateflags & THREAD_SF_PREEMPT)){
+		kernlock_unlock(&(scheduler->sched_lock));
+		return;
+	}
+	
+	linked_ring_remove(&(thread->t_queue_entry));
+	
+	sched_reenqueue(scheduler,thread);
+	
+	kernlock_unlock(&(scheduler->sched_lock));
+}
+
+/*
  * Performs a Thread-preemption. This function must only be called from within
  * a 'preemption-event'. Usually, this is performed from within an interrupt request
  * through the system timer, however it can also be induced.
@@ -306,7 +342,7 @@ void sched_preempt(){
 	/* If there is no next runnable thread. */
 	if(!nthr){
 		/* Check whether or not the thread is runnable. */
-		if(!(othr->t_stateflags & THREAD_SF_STOPPED)){
+		if(!sched_is_suspended(othr)){
 			/* If the current thread is still runnable, reuse it. */
 			nthr = othr;
 		}else{

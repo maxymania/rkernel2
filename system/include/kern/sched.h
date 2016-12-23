@@ -36,6 +36,8 @@ struct scheduler{
 	signed int          sched_run_decay[SCHED_NRQS];  /* one decay value for each priority */
 	struct thread*      sched_idle;                   /* idle thread */
 	
+	linked_ring_s       sched_blocked;                /* A 'queue' for blocked/suspended threads. */
+	
 	u_intptr_t          sched_thread_count;           /* Number of threads on this core. */
 	
 	kspinlock_t         sched_lock;                   /* lock for all the fields */
@@ -54,6 +56,11 @@ void sched_insert(struct cpu* cpu, struct thread* thread);
  * Remove a thread out of the scheduler of a given CPU.
  */
 struct thread* sched_remove(struct cpu* cpu);
+
+/*
+ * Removes the thread from an actual queue and reenqueues it into the appropriate queue.
+ */
+void sched_actualize(struct thread* thread);
 
 /*
  * Performs a Thread-preemption. This function must only be called from within

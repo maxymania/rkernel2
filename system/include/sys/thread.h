@@ -28,6 +28,7 @@
 
 struct cpu;
 struct kernel_stack;
+struct wait_queue;
 
 struct thread{
 	/* Scheduler */
@@ -43,6 +44,11 @@ struct thread{
 	
 	unsigned int   t_priority;    /* The thread's priority. */
 	unsigned int   t_nonpreempt;  /* Non-Premption-counter. */
+	
+	/* Wait-Queue */
+	linked_ring_s  t_wait_entry;  /* Wait-queue Entry. */
+	struct wait_queue*
+	               t_wait_queue;  /* Wait-queue. */
 };
 
 #define THREAD_LOCAL_INT_STACK    t_storage[0] /* (current)Interupt stack. */
@@ -51,7 +57,7 @@ struct thread{
 #define THREAD_SF_INTSTACK_2      0x0001   /* If set, interrupt stack is t_istacks[1] */
 #define THREAD_SF_PREEMPT         0x0002   /* If set, thread is preempted. */
 #define THREAD_SF_LOCK_SCHED      0x0004   /* If set, this thread is modifying the run-queue. */
-#define THREAD_SF_STOPPED         0x0008   /* If set, thread is not runnable. XXX: preliminary. */
+#define THREAD_SF_QUEUE_WAIT      0x0008   /* If set, thread may be on the wait-queue. */
 
 void thread_init();
 

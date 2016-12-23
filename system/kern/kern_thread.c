@@ -42,6 +42,8 @@ void thread_init(){
 	thread_template.t_stateflags  = 0;
 	thread_template.t_priority    = 16;
 	thread_template.t_nonpreempt  = 0;
+	/* thread_template.t_wait_entry (later) */
+	thread_template.t_wait_queue  = 0;
 }
 
 struct thread* thread_allocate(){
