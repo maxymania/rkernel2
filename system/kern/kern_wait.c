@@ -21,7 +21,9 @@
  */
 #include <kern/sched.h>
 #include <kern/wait_queue.h>
+#include <kern/wait.h>
 #include <sys/thread.h>
+#include <sysarch/hal.h>
 
 /*
  * The function waitqueue_elem(thread) retrieves a pointer to the t_wait_entry-field
@@ -47,14 +49,58 @@ int waitqueue_get_first(struct wait_queue* queue){
 	head = &(queue->wq_threads);
 	elem = head->prev;
 	
+	/*
+	 * If there is no element in the ring, terminate the algorithm.
+	 */
 	if(elem==head) return 0;
 	
-	thread = elem->data;
+	/*
+	 * Obtain the thread-pointer, remove the element and zero-out the thread's
+	 * t_wait_queue field.
+	 */
+	thread = (struct thread*)elem->data;
 	linked_ring_remove(elem);
 	thread->t_wait_queue = 0;
 	
+	/*
+	 * Actualize the thread, as it may be runnable right now.
+	 */
 	sched_actualize(thread);
 	
 	return 1;
+}
+
+void waitqueue_wait(kspinlock_t* lock,struct wait_queue* queue,int after){
+	/*
+	 * Obtain the current thread.
+	 */
+	struct thread* self = kernel_get_current_thread();
+	
+	/*
+	 * Put this thread to the wait-queue.
+	 */
+	waitqueue_enter(queue,self,after);
+	
+	/* Release 'lock'. */
+	kernlock_unlock(lock);
+	
+	/*
+	 * Set the THREAD_SF_QUEUE_WAIT flag to ensure, the thread blocks.
+	 */
+	self->t_stateflags |=  THREAD_SF_QUEUE_WAIT;
+	
+	/*
+	 * Yield the CPU. This will block this thread, until it gets removed from
+	 * the wait-queue.
+	 */
+	hal_induce_preemption();
+	
+	/*
+	 * Clear the THREAD_SF_QUEUE_WAIT flag.
+	 */
+	self->t_stateflags &= ~THREAD_SF_QUEUE_WAIT;
+	
+	/* Reacquire 'lock'. */
+	kernlock_lock(lock);
 }
 

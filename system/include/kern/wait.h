@@ -21,14 +21,8 @@
  * SOFTWARE.
  */
 #pragma once
+#include <sys/kspinlock.h>
 
-#include <kern/ring.h>
+struct wait_queue;
 
-struct thread;
-struct wait_queue {
-	linked_ring_s   wq_threads; /* The queue of threads. */
-};
-
-void waitqueue_enter(struct wait_queue* queue,struct thread* thread,int after);
-int waitqueue_get_first(struct wait_queue* queue);
-
+void waitqueue_wait(kspinlock_t* lock,struct wait_queue* queue,int after);
