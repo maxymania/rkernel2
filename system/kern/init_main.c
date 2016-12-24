@@ -25,6 +25,7 @@
 #include <sys/kterm.h>
 #include <sysplatform/caps.h>
 #include <sysarch/halt.h>
+#include <sysarch/hal.h>
 #include <sys/physmem_alloc.h>
 #include <sys/thread.h>
 #include <stdio.h>
@@ -121,6 +122,8 @@ static void main(){
 	sched_instanciate(kernel_get_current_cpu());
 	
 	kernel_get_current_cpu()->cpu_scheduler->sched_idle = thread;
+	
+	hal_boot_start_int();
 	
 	printf("Hey, we need to do more!\n");
 	/* TODO: do more initilalization. */

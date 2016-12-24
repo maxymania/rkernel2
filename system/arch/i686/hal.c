@@ -119,11 +119,21 @@ void __i686_interrupt(struct trapframe* tf){
 		break;
 	}
 	__i686_piceoi(tf->trapno);
+	
+	switch(tf->trapno){
+	case T_IRQ0+IRQ_TIMER:
+		__i686_switch();
+		break;
+	}
 }
 
 void hal_induce_preemption(){
 	cli();
 	__i686_switch();
+	sti();
+}
+
+void hal_boot_start_int(){
 	sti();
 }
 

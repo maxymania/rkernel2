@@ -37,3 +37,8 @@ int hal_stack_grows_downward();
 
 void hal_induce_preemption();
 
+/*
+ * This function starts the interrupt handling.
+ */
+void hal_boot_start_int();
+

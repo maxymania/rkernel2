@@ -98,10 +98,15 @@ static inline int sched_is_suspended(struct thread* thread){
 
 #define sched_runnable(scheduler,i) linked_ring_empty(&(scheduler->sched_run_ring[i]))
 static struct thread* sched_schedule_next(struct scheduler* scheduler){
+	threadp_t current;
 	int i;
-	int mi = -1;
+	int mi;
 	signed int mdecay = 0; /* Initialized becaus of warnings. */
 	linked_ring_t elem;
+	
+restart:
+	
+	mi = -1;
 	
 	/*
 	 * The algorithm is implemented as one single loop.
@@ -144,7 +149,17 @@ static struct thread* sched_schedule_next(struct scheduler* scheduler){
 	/* Remove an Element from the end of the queue. */
 	elem = scheduler->sched_run_ring[mi].prev;
 	linked_ring_remove(elem);
-	return (struct thread*)(elem->data);
+	current = (struct thread*)(elem->data);
+	
+	/*
+	 * Check, whether or not the thread has been changed into non-runnable state.
+	 */
+	if(sched_is_suspended(current)){
+		/* Add it to the blocked queue and restart the algorithm. */
+		linked_ring_insert( &(scheduler->sched_blocked), sched_elem(current), 0);
+		goto restart;
+	}
+	return current;
 }
 
 static inline struct thread* sched_schedule_idle(struct scheduler* scheduler){
@@ -286,22 +301,34 @@ struct thread* sched_remove(struct cpu* cpu){
  * Removes the thread from an actual queue and reenqueues it into the appropriate queue.
  */
 void sched_actualize(struct thread* thread){
+	struct thread* myself;
 	struct cpu* cpu = thread->t_current_cpu;
 	if(!cpu)return;
 	struct scheduler* scheduler = cpu->cpu_scheduler;
+	myself = kernel_get_current_thread();
 	
+	/*
+	 * Set the THREAD_SF_LOCK_SCHED-flag and lock the scheduler.
+	 */
+	myself->t_stateflags |= THREAD_SF_LOCK_SCHED;
 	kernlock_lock(&(scheduler->sched_lock));
 	
-	if(!(thread->t_stateflags & THREAD_SF_PREEMPT)){
-		kernlock_unlock(&(scheduler->sched_lock));
-		return;
+	/*
+	 * If the thread isn't running right now:
+	 */
+	if(thread->t_stateflags & THREAD_SF_PREEMPT){
+		/*
+		 * Remove the thread from it's containing queue.
+		 * And then reenqueue it.
+		 */
+		linked_ring_remove(&(thread->t_queue_entry));
+		sched_reenqueue(scheduler,thread);
 	}
-	
-	linked_ring_remove(&(thread->t_queue_entry));
-	
-	sched_reenqueue(scheduler,thread);
-	
+	/*
+	 * Unlock the scheduler, and get rid of the THREAD_SF_LOCK_SCHED-flag.
+	 */
 	kernlock_unlock(&(scheduler->sched_lock));
+	myself->t_stateflags &= ~THREAD_SF_LOCK_SCHED;
 }
 
 /*
