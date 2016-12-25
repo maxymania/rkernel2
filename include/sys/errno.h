@@ -74,6 +74,7 @@
 
 
 #define	EDEADLK	35 /* Resource deadlock avoided */
+#define	ENOLCK  77 /* No locks available */
 
 /* non-blocking and interrupt i/o */
 #define	EWOULDBLOCK   EAGAIN /* Operation would block */
