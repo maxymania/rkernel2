@@ -145,16 +145,16 @@ void sl_drain(struct shared_lock* lock){
 	waitqueue_get_first(&(lock->sl_queue));
 	
 	/*
-	 *Wait until, all waiting threads have been drained.
+	 * Wait until, all shared or exclusive locks have been drained.
 	 */
-	while(!linked_ring_empty(&(lock->sl_queue.wq_threads))){
+	while(lock->sl_number!=0){
 		waitqueue_wait(&(lock->sl_lock),&(lock->sl_queue), /*after=*/1);
 	}
 	
 	/*
-	 * Wait until, all shared or exclusive locks have been drained.
+	 * Wait until, all waiting threads have been drained.
 	 */
-	while(lock->sl_number!=0){
+	while(!linked_ring_empty(&(lock->sl_queue.wq_threads))){
 		waitqueue_wait(&(lock->sl_lock),&(lock->sl_queue), /*after=*/1);
 	}
 	kernlock_unlock(&(lock->sl_lock));
