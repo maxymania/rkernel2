@@ -47,6 +47,12 @@ struct kernslice{
 	struct cpu*            ks_cpu_list;           /* The first CPU in the CPU list. Use cpu->cpu_ks_next for the next one. */
 	struct physmem_bmaset* ks_memory_allocator;   /* Physical page allocator bitmap-set. */
 	
+	struct{ /* Raw Memory allocator */
+		u_intptr_t     range_idx;             /* Index into ks_memory_ranges */
+		paddr_t        pos_in_range;          /* position within ->pm_begin and ->pm_end */
+	} ks_raw_memory;
+	
+	kspinlock_t            ks_memory_raw_lock;    /* Raw memory allocator lock*/
 	kspinlock_t            ks_memory_lock;        /* Memory allocator lock*/
 	
 	list_node_s            ks_memory_free_list;   /* List of Free Pages. */

@@ -76,12 +76,16 @@ typedef union vm_map_object {
  *		stored in the address map entry.
  */
 struct vm_map_entry {
-	list_node_s     links; /* links to other entries */
+	list_node_s     links; /* List Entry for parent map entries (links to other entries) */
 	vaddr_t         start; /* First valid Virtual Address. */
 	vaddr_t         end;   /* Last valid Virtual Address. (start+LENGTH-1) */
 	
+	list_node_s     child; /* List Entry for child list of parents */
+	
 	vm_map_object_t object; /* object I point to */
 	u_intptr_t      offset; /* offset into object */
+	
+	struct vm_map   *parent; /* The parent map. */
 	
 	unsigned int
 			is_shared:1,	/* region is shared */
@@ -127,18 +131,20 @@ typedef struct vm_map_entry *vm_map_entry_t;
  *		quickly find free space.
  */
 struct vm_map {
-	kspinlock_t  lock;  /* Lock for map data */
-	list_node_s  list; /* Map Entry List */
+	list_node_s  list;       /* Map Entry List */
+	list_node_s  parents;    /* List of parent mappings */
 	vaddr_t      min_offset; /* start of range */
-	vaddr_t      max_offset; /* end of range */
+	vaddr_t      max_offset; /* end of range (max_offset+size-1) */
 	
-	pmap_t       pmap;      /* Physical map. (NULL for sub-maps and the like.) */
-	u_intptr_t   size;      /* virtual size */
-	u_int32_t    ref_count;	/* Reference count */
+	pmap_t       pmap;       /* Physical map. (NULL for sub-maps and the like.) */
+	u_intptr_t   size;       /* virtual size */
+	u_int32_t    ref_count;	 /* Reference count */
+	
 	
 	int /*bool*/ wiring_required; /* All memory wired? */
 	
-	kspinlock_t  ref_lock;  /* Lock for ref_count field */
+	kspinlock_t  lock;       /* Lock for map data */
+	kspinlock_t  ref_lock;   /* Lock for ref_count field */
 };
 typedef struct vm_map *vm_map_t;
 

@@ -39,9 +39,9 @@
  *
  */
 struct vm_object {
-	list_node_s     memq; /* Resident memory */
-	kspinlock_t     Lock; /* Synchronization */
-	u_int32_t       size; /*Object size (only valid if internal) */
+	list_node_s     memq;      /* Resident memory */
+	list_node_s     parents;   /* List of parent mappings */
+	u_int32_t       size;      /*Object size (only valid if internal) */
 	
 	u_int16_t       ref_count; /* Number of references */
 	u_int16_t       resident_page_count; /* number of resident pages */
@@ -114,18 +114,20 @@ struct vm_object {
 	/* boolean_t */		use_old_pageout : 1,
 						/* Use old pageout primitives? 
 						 */
-	/* boolean_t */		use_shared_copy : 1,/* Use shared (i.e.,
+	/* boolean_t */		use_shared_copy : 1,
+						/* Use shared (i.e.,
 						 * delayed) copy on write */
 	/* boolean_t */		shadowed: 1;	/* Shadow may exist */
-
-
-
+	
+	kspinlock_t		Lock;		/* Synchronization */
+	
 	//list_node_s		cached_list;
 						/* Attachment point for the list
 						 * of objects cached as a result
 						 * of their can_persist value
 						 */
 	//u_intptr_t		last_alloc;	/* last allocation offset */
+	
 };
 typedef struct vm_object *vm_object_t;
 
