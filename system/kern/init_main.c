@@ -33,6 +33,13 @@
 #include <kern/sched.h>
 #include <vm/vm_top.h>
 
+#include <vm/vm_page.h>
+#include <vm/vm_object.h>
+
+#include <vm/vm_map.h>
+
+#include <utils/list.h>
+
 #include <libkern/panic.h>
 
 void kern_prove_alive();
@@ -89,8 +96,12 @@ void kernel_main(void) {
 	arch_halt();
 }
 
+#define DIET_OF(x) printf("size of %s = %d\n", #x,sizeof(x))
+
 static void main(){
 	struct thread* thread;
+	
+	//printf("Hello...\n");
 	
 	/* Initialize the kernel-stack allocator. */
 	kernel_stacks_init();
@@ -124,6 +135,16 @@ static void main(){
 	kernel_get_current_cpu()->cpu_scheduler->sched_idle = thread;
 	
 	hal_boot_start_int();
+	
+	DIET_OF(struct vm_page);
+	printf("vm_page_t->page_queue_flags = %d\n",offsetof(struct vm_page,page_queue_flags));
+	printf("vm_page_t->object_flags = %d\n",offsetof(struct vm_page,object_flags));
+	printf("vm_page_t->phys_addr = %d\n",offsetof(struct vm_page,phys_addr));
+	//printf("Hello...\n");
+	
+	DIET_OF(struct vm_object);
+	DIET_OF(struct vm_map);
+	DIET_OF(struct vm_map_entry);
 	
 	printf("Hey, we need to do more!\n");
 	/* TODO: do more initilalization. */

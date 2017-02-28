@@ -1,6 +1,5 @@
 /*
- * 
- * Copyright (c) 2016 Simon Schmidt
+ * Copyright (c) 2017 Simon Schmidt
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -20,24 +19,11 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-#include <vm/vm_page.h>
-#include <sys/kernslice.h>
-#include <sys/physmem_alloc.h>
-#include <kern/zalloc.h>
+#pragma once
 
-void vm_page_free(struct kernslice* slice, paddr_t addr){
-	vm_phys_free(slice->ks_memory_allocator,addr);
-}
+#include <machine/types.h>
 
-void vm_page_drop(vm_page_t page){
-	u_int32_t refc;
-	kernlock_lock(&(page->pg_lock));
-		page->pg_refc--;
-		refc = page->pg_refc;
-	kernlock_unlock(&(page->pg_lock));
-	if(!refc){
-		vm_page_free(page->pg_slice,page->phys_addr);
-		zfree((void*)page);
-	}
-}
+#define offsetof(st, m) __builtin_offsetof(st, m)
+
+#define containerof(ptr, type, member)  (type *)( ((u_intptr_t)ptr) - offsetof(type,member))
 

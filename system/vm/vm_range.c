@@ -91,8 +91,8 @@ int vm_range_get   (vm_range_t range, vaddr_t rva, paddr_t *pag, vm_prot_t *prot
 		} else {                              // 0 => vm_page_t
 			pobj = range->rang_pages[rva].page_obj ;
 			if(!pobj) return 0;
-			*pag = pobj->pg_phys;
-			*prot &= ~(pobj->pg_prohib);
+			*pag = pobj->phys_addr;
+			*prot &= ~(pobj->page_lock);
 		}
 		return -1;
 	}

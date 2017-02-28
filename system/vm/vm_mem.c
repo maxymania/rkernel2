@@ -61,8 +61,8 @@ int vm_mem_lookup(struct vm_mem* mem, vaddr_t rva, paddr_t *pag, vm_prot_t *prot
 	case VMM_IS_PGOBJ:
 		pgobj = mem->mem_pgobj;
 		if(!pgobj)return 0;
-		*pag = pgobj->pg_phys;
-		*prot &= ~(pgobj->pg_prohib);
+		*pag = pgobj->phys_addr;
+		*prot &= ~(pgobj->page_lock);
 		return -1;
 	case VMM_IS_PMRANGE:
 		return vm_range_get(mem->mem_pmrange,rva,pag,prot);
