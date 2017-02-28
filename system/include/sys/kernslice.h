@@ -24,6 +24,9 @@
 
 #include <machine/types.h>
 #include <sys/physmem.h>
+#include <sys/kspinlock.h>
+#include <utils/list.h>
+
 
 struct cpu;
 struct physmem_bmaset;
@@ -43,5 +46,13 @@ struct kernslice{
 	u_intptr_t             ks_num_memory_ranges;  /* The length of the Table of Physical Memory Ranges. */
 	struct cpu*            ks_cpu_list;           /* The first CPU in the CPU list. Use cpu->cpu_ks_next for the next one. */
 	struct physmem_bmaset* ks_memory_allocator;   /* Physical page allocator bitmap-set. */
+	
+	kspinlock_t            ks_memory_lock;        /* Memory allocator lock*/
+	
+	list_node_s            ks_memory_free_list;   /* List of Free Pages. */
+	list_node_s            ks_memory_fictitious;  /* List of Fictitious Pages. */
+	
+	u_intptr_t             ks_memory_free_count;
+	u_intptr_t             ks_memory_fic_count;
 };
 

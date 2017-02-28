@@ -137,9 +137,10 @@ static void main(){
 	hal_boot_start_int();
 	
 	DIET_OF(struct vm_page);
-	printf("vm_page_t->page_queue_flags = %d\n",offsetof(struct vm_page,page_queue_flags));
-	printf("vm_page_t->object_flags = %d\n",offsetof(struct vm_page,object_flags));
-	printf("vm_page_t->phys_addr = %d\n",offsetof(struct vm_page,phys_addr));
+	//printf("vm_page_t->page_queue_flags = %d\n",offsetof(struct vm_page,page_queue_flags));
+	//printf("vm_page_t->object_flags = %d\n",offsetof(struct vm_page,object_flags));
+	printf("vm_page_t->pg_lock = %d\n",offsetof(struct vm_page,pg_lock));
+	//printf("vm_page_t->x = %d\n",offsetof(struct vm_page,x));
 	//printf("Hello...\n");
 	
 	DIET_OF(struct vm_object);
