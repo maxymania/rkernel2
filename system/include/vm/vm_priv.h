@@ -35,4 +35,9 @@ struct vm_mem *vm_mem_alloc_critical();
 
 struct vm_range *vm_range_alloc_critical(struct kernslice* slice);
 
+/* Mach */
+struct vm_object;
+struct vm_page;
 
+struct vm_object* vm_object_alloc_critical();
+struct vm_page* vm_page_grab_critical(struct kernslice* slice);

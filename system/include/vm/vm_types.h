@@ -40,6 +40,9 @@ typedef u_intptr_t vaddr_t;
 #define VM_PROT_WRITE    2
 #define VM_PROT_EXECUTE  1
 
+/* All possible bit set to 1. */
+#define VM_PROT_MAX      7
+
 #define PMAP_NOCACHE       1  /* Reads and writes are not cached. */
 #define PMAP_WRITE_THROUGH 2  /* Writes are not cached, reads may be cached. */
 

@@ -131,3 +131,8 @@ struct vm_object {
 };
 typedef struct vm_object *vm_object_t;
 
+void vm_object_init();
+
+vm_object_t vm_object_alloc();
+
+

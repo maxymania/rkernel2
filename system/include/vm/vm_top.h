@@ -42,3 +42,5 @@ void vm_refill();
  * Allocates a critical chunk of memory. Used for the vm_seg_t, vm_mem_t and vm_range_t -zones.
  */
 int vm_alloc_critical(vaddr_t *addr /* [out] */,vaddr_t *size /* [in/out]*/);
+
+

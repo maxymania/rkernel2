@@ -1,6 +1,6 @@
 /*
  * 
- * Copyright (c) 2016 Simon Schmidt
+ * Copyright (c) 2016-2017 Simon Schmidt
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -21,9 +21,11 @@
  * SOFTWARE.
  */
 #include <vm/vm_page.h>
+#include <vm/vm_priv.h>
 #include <sys/kernslice.h>
 #include <sys/physmem_alloc.h>
 #include <kern/zalloc.h>
+#include <vm/pmap.h>
 
 void vm_page_free(struct kernslice* slice, paddr_t addr){
 	vm_phys_free(slice->ks_memory_allocator,addr);
@@ -61,6 +63,23 @@ void vm_page_release(vm_page_t page){
 	kernlock_unlock(&(slice->ks_memory_lock));
 }
 
+struct vm_page* vm_page_grab_critical(struct kernslice* slice){
+	vm_page_t page = (vm_page_t)0;
+	
+	kernlock_lock(&(slice->ks_memory_lock));
+	
+	if(slice->ks_memory_free_count){
+		slice->ks_memory_free_count--;
+		page = containerof(list_pop_head(&(slice->ks_memory_free_list)),struct vm_page,pagequeue);
+		page->free    = 0;
+		page->pg_refc = 1;
+	}
+	
+	kernlock_unlock(&(slice->ks_memory_lock));
+	
+	return page;
+}
+
 vm_page_t vm_page_grab(struct kernslice* slice){
 	vm_page_t page = (vm_page_t)0;
 	
@@ -69,6 +88,8 @@ vm_page_t vm_page_grab(struct kernslice* slice){
 	if(slice->ks_memory_free_count){
 		slice->ks_memory_free_count--;
 		page = containerof(list_pop_head(&(slice->ks_memory_free_list)),struct vm_page,pagequeue);
+		page->free    = 0;
+		page->pg_refc = 1;
 	}
 	
 	kernlock_unlock(&(slice->ks_memory_lock));
@@ -84,6 +105,8 @@ vm_page_t vm_page_grab_fictitious(struct kernslice* slice){
 	if(slice->ks_memory_fic_count){
 		slice->ks_memory_fic_count--;
 		page = containerof(list_pop_head(&(slice->ks_memory_fictitious)),struct vm_page,pagequeue);
+		page->free    = 0;
+		page->pg_refc = 1;
 	}
 	
 	kernlock_unlock(&(slice->ks_memory_lock));

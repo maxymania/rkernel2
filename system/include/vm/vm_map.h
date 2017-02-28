@@ -140,12 +140,33 @@ struct vm_map {
 	u_intptr_t   size;       /* virtual size */
 	u_int32_t    ref_count;	 /* Reference count */
 	
-	
 	int /*bool*/ wiring_required; /* All memory wired? */
 	
 	kspinlock_t  lock;       /* Lock for map data */
 	kspinlock_t  ref_lock;   /* Lock for ref_count field */
+	kspinlock_t  pmap_lock;  /* Lock for pmap field */
 };
 typedef struct vm_map *vm_map_t;
 
+
+void vm_map_init();
+
+vm_map_t vm_map_get_kernel();
+
+/*
+ * Insert an Entry into the Map.
+ */
+int vm_map_insert_entry(
+	vm_map_t map,
+	vm_map_entry_t entry,
+	u_intptr_t size);
+
+/*
+ * Remove an Entry from the Map.
+ */
+int vm_map_remove_entry(vm_map_t map, vm_map_entry_t entry);
+
+vm_map_entry_t vm_map_kentry_alloc();
+
+vm_map_entry_t vm_map_entry_alloc();
 
