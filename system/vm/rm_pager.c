@@ -1,6 +1,6 @@
 /*
  * 
- * Copyright (c) 2016 Simon Schmidt
+ * Copyright (c) 2017 Simon Schmidt
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -20,26 +20,39 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-#pragma once
-#include <vm/vm_types.h>
+#include <vm/rm_pager.h>
+#include <vm/vm_errcode.h>
 
-/*
- * This function initializes the kernel virtual memory system.
- */
-void vm_init();
-
-/*
- * Allocates a chunk of kernel-memory.
- */
-int vm_kalloc_ll(vaddr_t *addr /* [out] */,vaddr_t *size /* [in/out]*/);
-
-/*
- * Refills the critical kernel-vm object zones, if necessary. Do this after vm_alloc_critical().
- */
-void vm_refill();
-
-/*
- * Allocates a critical chunk of memory. Used for the vm_seg_t, vm_mem_t and vm_range_t -zones.
- */
-int vm_alloc_critical(vaddr_t *addr /* [out] */,vaddr_t *size /* [in/out]*/);
+int rm_pagefault(pd_t pd,rm_t rm,vaddr_t va, vm_prot_t fault_type){
+	int type;
+	void* object;
+	dataspace_t ds;
+	paddr_t paddr;
+	struct page_fault fault = { 0,va,fault_type };
+	
+	if(va <  pd->pd_begin) return VM_SEGFAULT;
+	if(va >= pd->pd_end) return VM_SEGFAULT;
+	fault.offset  = pd->pd_begin;
+	fault.ptr    -= fault.offset;
+	
+	object = rm;
+	do{
+		rm = (rm_t) object;
+		object = rm_ll_lookup(rm, &fault, &type);
+	}while((type==RMO_REGION_MAPPER) && object);
+	
+	if(!object) return VM_SEGFAULT;
+	switch(type){
+	case RMO_DATASPACE:
+		ds = (dataspace_t) object;
+		paddr = ds->ds_pages[fault.ptr/SYSARCH_PAGESIZE];
+		
+		/* XXX this is preliminary */
+		if(!paddr)return VM_SEGFAULT;
+		
+		pd_enter(pd, va, paddr, fault_type, 0);
+		return VM_OK;
+	}
+	return VM_SEGFAULT;
+}
 

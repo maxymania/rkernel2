@@ -1,6 +1,6 @@
 /*
  * 
- * Copyright (c) 2016 Simon Schmidt
+ * Copyright (c) 2017 Simon Schmidt
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -20,26 +20,35 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-#pragma once
-#include <vm/vm_types.h>
+#include <vm/protection_domain.h>
 
-/*
- * This function initializes the kernel virtual memory system.
- */
-void vm_init();
+static struct protection_domain kernel_pd;
 
-/*
- * Allocates a chunk of kernel-memory.
- */
-int vm_kalloc_ll(vaddr_t *addr /* [out] */,vaddr_t *size /* [in/out]*/);
+void pd_init(){
+	vaddr_t start,end;
+	kernlock_init(&kernel_pd.pd_lock);
+	kernel_pd.pd_pmap = pmap_kernel();
+	pmap_get_address_range(kernel_pd.pd_pmap,&start,&end);
+	kernel_pd.pd_begin = start;
+	kernel_pd.pd_end   = end;
+}
 
-/*
- * Refills the critical kernel-vm object zones, if necessary. Do this after vm_alloc_critical().
- */
-void vm_refill();
+pd_t pd_get_kernel(){
+	return &kernel_pd;
+}
+int pd_enter(pd_t dom, vaddr_t va, paddr_t pa, vm_prot_t prot, vm_flags_t flags){
+	int ret;
+	kernlock_lock(&(dom->pd_lock));
+	ret = pmap_enter(dom->pd_pmap, va, pa, prot, flags);
+	kernlock_unlock(&(dom->pd_lock));
+	return ret;
+}
+int pd_remove(pd_t dom, vaddr_t vab, vaddr_t vae){
+	int ret;
+	kernlock_lock(&(dom->pd_lock));
+	ret = pmap_remove(dom->pd_pmap, vab, vae);
+	kernlock_unlock(&(dom->pd_lock));
+	return ret;
+}
 
-/*
- * Allocates a critical chunk of memory. Used for the vm_seg_t, vm_mem_t and vm_range_t -zones.
- */
-int vm_alloc_critical(vaddr_t *addr /* [out] */,vaddr_t *size /* [in/out]*/);
 

@@ -1,6 +1,6 @@
 /*
  * 
- * Copyright (c) 2016 Simon Schmidt
+ * Copyright (c) 2016-2017 Simon Schmidt
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -21,10 +21,8 @@
  * SOFTWARE.
  */
 #include <vm/vm_top.h>
-#include <vm/vm_as.h>
-#include <vm/vm_seg.h>
-#include <vm/vm_mem.h>
-#include <vm/vm_range.h>
+#include <vm/protection_domain.h>
+#include <vm/region_mapper.h>
 #include <kern/zalloc.h>
 
 #include <vm/pmap.h>
@@ -35,22 +33,10 @@
 void vm_init(){
 	zone_bootstrap();
 	pmap_init     ();
-	vm_as_init    ();
-	vm_seg_init   ();
-	vm_mem_init   ();
-	vm_range_init ();
-	
-	vm_seg_refill  ();
-	vm_mem_refill  ();
-	vm_range_refill();
-	
-	/* Initial vm_as_mcram(). */
-	vm_as_mcram    ();
+	pd_init       ();
+	rm_init       ();
 }
 
 void vm_refill(){
-	vm_seg_refill  ();
-	vm_mem_refill  ();
-	vm_range_refill();
 }
 

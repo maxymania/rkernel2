@@ -1,6 +1,6 @@
 /*
  * 
- * Copyright (c) 2016 Simon Schmidt
+ * Copyright (c) 2017 Simon Schmidt
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -22,24 +22,42 @@
  */
 #pragma once
 #include <vm/vm_types.h>
+#include <vm/page_fault.h>
+#include <sys/kspinlock.h>
+#include <utils/list.h>
 
-/*
- * This function initializes the kernel virtual memory system.
- */
-void vm_init();
+enum {
+	RMO_UNDEFINED,
+	RMO_DATASPACE,
+	RMO_REGION_MAPPER, /* Another region mapper. */
+};
 
-/*
- * Allocates a chunk of kernel-memory.
- */
-int vm_kalloc_ll(vaddr_t *addr /* [out] */,vaddr_t *size /* [in/out]*/);
+struct region_mapper {
+	list_node_s   rm_childs;
+	vaddr_t       rm_size;
+	u_int32_t     rm_refc;
+	kspinlock_t   rm_lock;
+};
 
-/*
- * Refills the critical kernel-vm object zones, if necessary. Do this after vm_alloc_critical().
- */
-void vm_refill();
+struct region_mapper_object {
+	vaddr_t       rmo_offset;
+	vaddr_t       rmo_size;
+	list_node_s   rmo_member;
+	void*         rmo_object;
+	unsigned int
+		      rmo_type  :4,
+		      rmo_static:1, /* Don't zfree() ! */
+	:0;
+};
 
-/*
- * Allocates a critical chunk of memory. Used for the vm_seg_t, vm_mem_t and vm_range_t -zones.
- */
-int vm_alloc_critical(vaddr_t *addr /* [out] */,vaddr_t *size /* [in/out]*/);
+typedef struct region_mapper* rm_t;
+typedef struct region_mapper_object* rmo_t;
+
+void rm_init();
+
+rm_t rm_get_kernel();
+
+int rm_insert(rm_t rm, rmo_t rmo);
+
+void* rm_ll_lookup(rm_t rm, struct page_fault* fault, int *type);
 

@@ -48,6 +48,27 @@ typedef struct pmap *pmap_t;
 struct kernslice;
 
 /*
+ * [Rule 1]
+ * Address ranges:
+ *  Given: vaddr_t start,end
+ *  - Virtual address ranges are generally $PAGE_SIZE-align.
+ *  - 'start' MUST be $PAGE_SIZE-align.
+ *  - 'end' SHOULD BE $PAGE_SIZE-align in most cases.
+ *    - If 'end' is not align (end mod $PAGE_SIZE > 0)
+ *          then end-(end mod $PAGE_SIZE) is the last valid page address.
+ *    - If 'end' is align (end mod $PAGE_SIZE == 0) then end-$PAGE_SIZE is the
+ *          last valid page address of the range.
+ *    - A Prominent Example, why this rule is introduced is, that the range
+ *          [n,2^32) can't be represented, since 2^32 overflows a 32 bit
+ *          integer. Instead, is has to be represented as [n,2^32-1).
+ *          On 64-bit platforms the problem is equivalent.
+ *
+ * Address ranges are iterated as follows:
+ *  Given: vaddr_t start,end
+ *   for(vaddr_t i = start;i<end;i += $PAGE_SIZE) ...
+ */
+
+/*
  * Initializes the MMU subsystem of the HAL.
  */
 void pmap_init();
@@ -76,7 +97,7 @@ struct kernslice* pmap_kernslice(pmap_t pmap);
  * Retrieves the bounds of the virtual address space/address range of the current
  * address space.
  *
- * The range is [ vstartp , vendp+1 ) or [ vstartp , vendp ] .
+ * See [Rule 1]
  */
 void pmap_get_address_range(pmap_t pmap, vaddr_t *vstartp, vaddr_t *vendp);
 
@@ -91,6 +112,8 @@ int pmap_enter(pmap_t pmap, vaddr_t va, paddr_t pa, vm_prot_t prot, vm_flags_t f
 
 /*
  * Unmap a certain range of virtual addresses from this address space.
+ * 
+ * See [Rule 1] for the Address range.
  */
 int pmap_remove(pmap_t pmap, vaddr_t vab, vaddr_t vae);
 
@@ -101,6 +124,8 @@ int pmap_remove_all(pmap_t pmap);
 
 /*
  * Changes the mappings in the range by replacing the memory protection.
+ *
+ * See [Rule 1] for the Address range.
  */
 int pmap_protect(pmap_t pmap, vaddr_t vab, vaddr_t vae, vm_prot_t prot);
 

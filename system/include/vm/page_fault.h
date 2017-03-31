@@ -1,6 +1,6 @@
 /*
  * 
- * Copyright (c) 2016 Simon Schmidt
+ * Copyright (c) 2017 Simon Schmidt
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -23,23 +23,10 @@
 #pragma once
 #include <vm/vm_types.h>
 
-/*
- * This function initializes the kernel virtual memory system.
- */
-void vm_init();
 
-/*
- * Allocates a chunk of kernel-memory.
- */
-int vm_kalloc_ll(vaddr_t *addr /* [out] */,vaddr_t *size /* [in/out]*/);
-
-/*
- * Refills the critical kernel-vm object zones, if necessary. Do this after vm_alloc_critical().
- */
-void vm_refill();
-
-/*
- * Allocates a critical chunk of memory. Used for the vm_seg_t, vm_mem_t and vm_range_t -zones.
- */
-int vm_alloc_critical(vaddr_t *addr /* [out] */,vaddr_t *size /* [in/out]*/);
+struct page_fault {
+	vaddr_t   offset;
+	vaddr_t   ptr;
+	vm_prot_t type;
+};
 

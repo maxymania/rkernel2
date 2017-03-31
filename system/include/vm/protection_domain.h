@@ -1,6 +1,6 @@
 /*
  * 
- * Copyright (c) 2016 Simon Schmidt
+ * Copyright (c) 2017 Simon Schmidt
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -22,24 +22,26 @@
  */
 #pragma once
 #include <vm/vm_types.h>
+#include <vm/pmap.h>
+#include <sys/kspinlock.h>
+
 
 /*
- * This function initializes the kernel virtual memory system.
+ * A virtual address space.
  */
-void vm_init();
+struct protection_domain {
+	vaddr_t       pd_begin;
+	vaddr_t       pd_end;
+	pmap_t        pd_pmap;
+	u_int32_t     pd_refc;
+	kspinlock_t   pd_lock; /* Synchronized ->as_pmap */
+};
 
-/*
- * Allocates a chunk of kernel-memory.
- */
-int vm_kalloc_ll(vaddr_t *addr /* [out] */,vaddr_t *size /* [in/out]*/);
+typedef struct protection_domain* pd_t;
 
-/*
- * Refills the critical kernel-vm object zones, if necessary. Do this after vm_alloc_critical().
- */
-void vm_refill();
+void pd_init();
 
-/*
- * Allocates a critical chunk of memory. Used for the vm_seg_t, vm_mem_t and vm_range_t -zones.
- */
-int vm_alloc_critical(vaddr_t *addr /* [out] */,vaddr_t *size /* [in/out]*/);
+pd_t pd_get_kernel();
+int pd_enter(pd_t dom, vaddr_t va, paddr_t pa, vm_prot_t prot, vm_flags_t flags);
+int pd_remove(pd_t dom, vaddr_t vab, vaddr_t vae);
 

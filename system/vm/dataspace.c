@@ -1,6 +1,6 @@
 /*
  * 
- * Copyright (c) 2016 Simon Schmidt
+ * Copyright (c) 2017 Simon Schmidt
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -20,41 +20,18 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-#pragma once
-#include <vm/vm_page.h>
-/* #include <sys/kspinlock.h> */
+#include <vm/dataspace.h>
 
-#define VM_RANGE_NUM 116
+void ds_construct(dataspace_t ds,vaddr_t bufsize) {
+	vaddr_t size;
+	kernlock_init(&(ds->ds_lock));
+	size  = bufsize;
+	size -= sizeof(struct dataspace);
+	size /= sizeof(vaddr_t);
+	if( size >= (1<<27) ) size = (1<<27)-1;
+	ds->ds_n_pages = (unsigned int)size;
+	ds->ds_refc = 1;
+	ds->ds_size = 0;
+}
 
-/*
- * Type bits (vm_range_t->rang_pages_tbm) :
- *  0 => vm_page_t
- *  1 => paddr_t
- */
-union vm_range_page {
-	vm_page_t page_obj;
-	paddr_t   page_addr;
-};
 
-struct vm_range {
-	union vm_range_page rang_pages[VM_RANGE_NUM];
-	u_int32_t           rang_pages_tbm[4]; /* Type-bitmap for rang_pages. */
-	u_int32_t           rang_refc;
-	struct kernslice*   rang_slice;  /* The kslice, the pages are belonging to (by default). */
-	struct vm_range*    rang_next;
-	kspinlock_t         rang_lock;
-};
-
-typedef struct vm_range *vm_range_t;
-
-void vm_range_init();
-
-void vm_range_refill();
-
-int vm_range_bmlkup(vm_range_t range, int i);
-int vm_range_get   (vm_range_t range, vaddr_t rva, paddr_t *pag, vm_prot_t *prot);
-void vm_range_bmset(vm_range_t range, int i);
-void vm_range_bmclr(vm_range_t range, int i);
-vm_range_t vm_range_alloc(int kernel, struct kernslice* slice);
-
-void vm_range_drop(vm_range_t range);
