@@ -25,4 +25,5 @@
 #define VM_OK       0
 #define VM_FAILURE  1
 #define VM_SEGFAULT 2
+#define VM_AGAIN    3
 

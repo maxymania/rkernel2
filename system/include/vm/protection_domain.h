@@ -35,6 +35,7 @@ struct protection_domain {
 	pmap_t        pd_pmap;
 	u_int32_t     pd_refc;
 	kspinlock_t   pd_lock; /* Synchronized ->as_pmap */
+	kspinlock_t   pd_refclock; /* Syncs ->pd_refc */
 };
 
 typedef struct protection_domain* pd_t;
@@ -44,4 +45,6 @@ void pd_init();
 pd_t pd_get_kernel();
 int pd_enter(pd_t dom, vaddr_t va, paddr_t pa, vm_prot_t prot, vm_flags_t flags);
 int pd_remove(pd_t dom, vaddr_t vab, vaddr_t vae);
+void pd_grab(pd_t dom);
+void pd_drop(pd_t dom);
 

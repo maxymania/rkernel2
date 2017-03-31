@@ -27,6 +27,7 @@
 struct page_fault {
 	vaddr_t   offset;
 	vaddr_t   ptr;
+	vaddr_t   size;
 	vm_prot_t type;
 };
 

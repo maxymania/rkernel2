@@ -170,7 +170,9 @@ void* rm_ll_lookup(rm_t rm, struct page_fault* fault, int *type){
 		if( fault_ptr < (object->rmo_offset + object->rmo_size) ){
 			if(object->rmo_type==RMO_UNDEFINED) return 0;
 			fault->ptr    -= object->rmo_offset;
+			fault->size   -= object->rmo_offset;
 			fault->offset += object->rmo_offset;
+			if(fault->size > object->rmo_size) fault->size = object->rmo_size;
 			*type = object->rmo_type;
 			return object->rmo_object;
 		}

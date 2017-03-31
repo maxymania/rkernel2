@@ -22,11 +22,14 @@
  */
 #include <vm/protection_domain.h>
 
+#include <kern/zalloc.h>
+
 static struct protection_domain kernel_pd;
 
 void pd_init(){
 	vaddr_t start,end;
 	kernlock_init(&kernel_pd.pd_lock);
+	kernlock_init(&kernel_pd.pd_refclock);
 	kernel_pd.pd_pmap = pmap_kernel();
 	pmap_get_address_range(kernel_pd.pd_pmap,&start,&end);
 	kernel_pd.pd_begin = start;
@@ -51,4 +54,25 @@ int pd_remove(pd_t dom, vaddr_t vab, vaddr_t vae){
 	return ret;
 }
 
+void pd_grab(pd_t dom){
+	if(dom==&kernel_pd) return;
+	kernlock_lock(&(dom->pd_refclock));
+	dom->pd_refc++;
+	kernlock_unlock(&(dom->pd_refclock));
+}
+void pd_drop(pd_t dom){
+	int f = 1;
+	
+	if(dom==&kernel_pd) return;
+	kernlock_lock(&(dom->pd_refclock));
+	
+	dom->pd_refc--;
+	if(!(dom->pd_refc)) f = 0;
+	
+	kernlock_unlock(&(dom->pd_refclock));
+	
+	if(f) return;
+	
+	zfree(dom);
+}
 

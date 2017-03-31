@@ -27,6 +27,8 @@
 #include <sysarch/pages.h>
 #include <vm/page_fault.h>
 
+int rm_dispatch_pagefault(pd_t pd,void** object,int *type,struct page_fault* pfo);
+
 int rm_pagefault(pd_t pd,rm_t rm,vaddr_t va, vm_prot_t fault_type);
 
 
